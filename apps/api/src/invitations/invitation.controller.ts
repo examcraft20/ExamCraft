@@ -1,4 +1,12 @@
-import { Body, Controller, Get, InternalServerErrorException, Post, Query } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Post,
+  Query
+} from "@nestjs/common";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
 import { CurrentTenant } from "../common/decorators/tenant-context.decorator";
@@ -18,7 +26,7 @@ export class InvitationController {
   @Get("preview")
   previewInvitation(@Query("token") token?: string) {
     if (!token) {
-      throw new InternalServerErrorException("Missing invitation token.");
+      throw new BadRequestException("Missing invitation token.");
     }
 
     return this.invitationService.previewInvitation(token);
@@ -34,7 +42,7 @@ export class InvitationController {
     @Body() body: CreateInvitationDto
   ) {
     if (!tenantContext || !currentUser) {
-      throw new Error("Missing tenant or user context.");
+      throw new InternalServerErrorException("Missing tenant or user context.");
     }
 
     return this.invitationService.createInvitation(tenantContext, currentUser.id, body);

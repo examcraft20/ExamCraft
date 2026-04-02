@@ -23,7 +23,9 @@ The new `ExamCraft` must:
 
 - Next.js with modern app architecture
 - TypeScript
-- shared component library/design system
+- Tailwind CSS v3 is now configured in `apps/web`, and the frontend currently uses a hybrid approach with both Tailwind utilities and `apps/web/app/globals.css`
+- shared component library/design system in `packages/ui`
+- centralized design tokens for color, typography, spacing, radius, shadow, z-index, and transitions
 - responsive admin-first UI
 - accessibility baseline
 
@@ -43,6 +45,21 @@ The new `ExamCraft` must:
 ### Storage
 
 - Supabase Storage free tier initially for uploads and exports
+
+## 3.1 Frontend Experience and Design System Requirements
+
+The frontend must follow a consistent, modern UI system across marketing pages, auth flows, dashboard modules, and future administration surfaces.
+
+The design system must provide:
+
+- reusable primitives for buttons, inputs, cards, status states, avatars, and badges
+- shared token definitions for brand gradients, surfaces, borders, typography, spacing, radii, and shadows
+- consistent motion patterns for hover, focus, panel reveal, and workflow-state transitions
+- responsive layouts that remain usable on desktop, tablet, and mobile widths
+- accessible color contrast, focus visibility, form feedback, and semantic status messaging
+
+Tailwind utility composition should be the primary styling approach in `apps/web`, while `packages/ui` should contain the reusable branded component layer consumed by feature modules.
+At the current stage, the shared UI primitives are Tailwind-aligned, while app-level page and dashboard surfaces still rely on branded global CSS.
 
 ### Hosting and Deployment
 
@@ -96,6 +113,30 @@ The system should be organized into these service domains:
 - analytics and reporting
 - AI services
 - platform administration
+
+### 4.5 Frontend Implementation Boundaries
+
+The frontend should be split into:
+
+- route-level screens in `apps/web/app`
+- feature components in `apps/web/components`
+- shared branded primitives and tokens in `packages/ui`
+- environment-safe API and Supabase client helpers in `apps/web/lib`
+
+Page redesigns must preserve backend contracts and request/response payload shapes while improving presentation and interaction quality.
+
+Current verified route coverage is still narrower than the target product scope:
+
+- landing page
+- login, signup, onboarding, invite acceptance
+- dashboard membership selector
+- institution admin invite/team screen
+- faculty question/template screen
+- academic head oversight screen
+- reviewer readiness screen
+- super admin platform summary screen
+
+Other planned modules should remain documented as target-state requirements, not shipped behavior.
 
 ### 4.4 Asynchronous Processing
 
@@ -249,6 +290,8 @@ Every functional record should be tenant-scoped.
 - auditability
 - export reliability
 - mobile-friendly admin UI
+- cohesive visual design system with reusable tokens and primitives
+- smooth animations and interaction feedback without degrading performance
 - good performance for large question banks
 - observability and monitoring
 - compliance-ready foundation

@@ -62,7 +62,9 @@ flowchart LR
 
 - Next.js
 - TypeScript
-- shared design system/components
+- stable Tailwind v3 plus app-level global CSS for layout, theming, animation, and responsive UI composition
+- shared design system/components in `packages/ui`
+- centralized design tokens and reusable branded primitives
 - institution-scoped routing and dashboards
 
 ### Backend Layer
@@ -99,6 +101,33 @@ flowchart LR
 - feature flags
 - product metrics
 - operational alerts
+
+## 5.1 Frontend Design Architecture
+
+The frontend should use a layered design architecture:
+
+- `apps/web/app` for route shells and page composition
+- `apps/web/components` for feature-level UI modules
+- `packages/ui` for shared primitives such as buttons, inputs, cards, status states, avatars, and the canonical ExamCraft logo
+- Tailwind theme configuration for brand colors, gradients, typography, shadows, spacing, and interaction motion
+- `apps/web/app/globals.css` for product-wide surfaces, dashboard layout utilities, and branded page treatments that have not yet been absorbed into `packages/ui`
+
+This allows the product to redesign page surfaces quickly without changing domain logic, API contracts, or Supabase integration flows.
+
+### Current Implementation Snapshot
+
+The architecture target remains broader than the current implementation. Today, the verified frontend surface covers:
+
+- landing page
+- login, signup, onboarding, and invite acceptance
+- dashboard selection based on memberships
+- institution admin team/invite workspace
+- faculty question/template workspace
+- academic head oversight workspace using institution summary plus content review lists
+- reviewer readiness workspace using institution summary activity
+- super admin platform summary workspace
+
+Other role dashboards exist as route shells, but they should not be documented as fully implemented workflow modules yet.
 
 ## 6. Multi-Tenant Architecture
 
@@ -271,6 +300,17 @@ The Global Template Library is a first-class platform capability.
 
 All state transitions must be enforced server-side.
 
+### UX Architecture Constraint
+
+Workflow pages should present a cohesive interaction language across:
+
+- landing and marketing pages
+- authentication and onboarding flows
+- dashboard modules
+- review and export workflows
+
+Visual redesigns must remain contract-safe: UI changes can refine layout and interaction quality, but cannot silently alter backend behavior, auth flow semantics, or tenant context handling.
+
 ## 11. Security Architecture
 
 The architecture must support:
@@ -294,6 +334,17 @@ The architecture must support:
 ### Constraint
 
 Free-tier-first must not mean prototype-grade architecture. The system should scale by upgrading infrastructure, not by rewriting the design.
+
+## 12.1 Brand and Design Consistency
+
+The application must preserve a single brand reference for the ExamCraft identity, including:
+
+- the canonical logo asset
+- established ExamCraft typography
+- the current dark surface plus blue-accent premium SaaS visual language used in navigation and auth surfaces
+- shared design tokens that keep future modules visually consistent
+
+New screens should consume the shared branded component layer rather than redefining page-level styles in isolation.
 
 ## 13. Final Architectural Conclusion
 

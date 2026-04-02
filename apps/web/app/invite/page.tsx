@@ -7,9 +7,5 @@ export default function InvitePage({
     token?: string;
   };
 }) {
-  return (
-    <main className="page-shell">
-      <InviteAcceptanceForm initialToken={searchParams?.token} />
-    </main>
-  );
+  return <InviteAcceptanceForm initialToken={searchParams?.token} />;
 }

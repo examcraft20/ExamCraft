@@ -1,7 +1,11 @@
 "use client";
 
+import { Button, Input, StatusMessage } from "@examcraft/ui";
+import { KeyRound, Ticket, UserRound } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { apiRequest } from "../../lib/api";
+import { AuthShell } from "./auth-shell";
 
 type InvitationPreviewResponse = {
   invitation: {
@@ -21,7 +25,6 @@ export function InviteAcceptanceForm({ initialToken = "" }: InviteAcceptanceForm
   const [token, setToken] = useState(initialToken);
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
   const [preview, setPreview] = useState<InvitationPreviewResponse["invitation"] | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +41,6 @@ export function InviteAcceptanceForm({ initialToken = "" }: InviteAcceptanceForm
       }
 
       setIsLoadingPreview(true);
-      setStatus(null);
 
       try {
         const response = await apiRequest<InvitationPreviewResponse>(
@@ -52,7 +54,7 @@ export function InviteAcceptanceForm({ initialToken = "" }: InviteAcceptanceForm
       } catch (error) {
         if (isMounted) {
           setPreview(null);
-          setStatus(error instanceof Error ? error.message : "Unable to preview invitation.");
+          toast.error(error instanceof Error ? error.message : "Unable to preview invitation.");
         }
       } finally {
         if (isMounted) {
@@ -71,7 +73,6 @@ export function InviteAcceptanceForm({ initialToken = "" }: InviteAcceptanceForm
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    setStatus(null);
 
     try {
       const response = await apiRequest<{ email: string; institutionId: string }>(
@@ -86,73 +87,94 @@ export function InviteAcceptanceForm({ initialToken = "" }: InviteAcceptanceForm
         }
       );
 
-      setStatus(
+      toast.success(
         `Invitation accepted for ${response.email}. You can now sign in and switch into institution ${response.institutionId}.`
       );
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Failed to accept invitation.");
+      toast.error(error instanceof Error ? error.message : "Failed to accept invitation.");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <form className="panel form-panel" onSubmit={handleSubmit}>
-      <div>
-        <p className="eyebrow">Invites</p>
-        <h1>Accept your institution invitation</h1>
-        <p className="subtle">
-          Paste the invitation token shared by your institution admin to create your account and
-          join the ExamCraft workspace.
-        </p>
-      </div>
-
-      <label className="field">
-        <span>Invitation token</span>
-        <input
+    <AuthShell
+      eyebrow="Invites"
+      title="Accept your invitation"
+      subtitle="Paste the invitation token shared by your institution admin to create your account and join the ExamCraft workspace."
+      brandTitle={
+        <>
+          You have been invited
+          <br />
+          <span>to an institution.</span>
+        </>
+      }
+      brandSubtitle="Paste your invitation token to preview the details and join your institution workspace with a single click."
+      features={[
+        "Role-scoped access granted automatically",
+        "Institution linked on acceptance",
+        "Preview token before committing",
+        "Single sign-in after acceptance"
+      ]}
+    >
+      <form className="form-body" onSubmit={handleSubmit}>
+        <Input
+          label="Invitation token"
+          leftIcon={<Ticket size={16} />}
           onChange={(event) => setToken(event.target.value)}
-          placeholder="Paste your invite token"
+          placeholder="Paste your invite token here"
           required
           value={token}
         />
-      </label>
 
-      {preview ? (
-        <div className="info-card">
-          <strong>{preview.institutionName}</strong>
-          <p>Email: {preview.email}</p>
-          <p>Role: {preview.roleCode}</p>
-          <p>Expires: {new Date(preview.expiresAt).toLocaleString()}</p>
-        </div>
-      ) : null}
+        {isLoadingPreview ? (
+          <StatusMessage variant="info">Loading invitation details...</StatusMessage>
+        ) : null}
 
-      {isLoadingPreview ? <p className="subtle">Loading invitation details...</p> : null}
+        {preview && !isLoadingPreview ? (
+          <div className="info-card">
+            <div className="info-card-label">Invitation Preview</div>
+            <div className="info-card-row">
+              <strong>Institution</strong>
+              <span>{preview.institutionName}</span>
+            </div>
+            <div className="info-card-row">
+              <strong>Email</strong>
+              <span>{preview.email}</span>
+            </div>
+            <div className="info-card-row">
+              <strong>Role</strong>
+              <span>{preview.roleCode}</span>
+            </div>
+            <div className="info-card-row">
+              <strong>Expires</strong>
+              <span>{new Date(preview.expiresAt).toLocaleString()}</span>
+            </div>
+          </div>
+        ) : null}
 
-      <label className="field">
-        <span>Display name</span>
-        <input
+        <Input
+          label="Display name"
+          leftIcon={<UserRound size={16} />}
           onChange={(event) => setDisplayName(event.target.value)}
           placeholder="How should your name appear?"
           value={displayName}
         />
-      </label>
 
-      <label className="field">
-        <span>Password</span>
-        <input
+        <Input
+          label="Password"
+          leftIcon={<KeyRound size={16} />}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="Create your password"
           required
           type="password"
           value={password}
         />
-      </label>
 
-      <button className="primary-button" disabled={isSubmitting || !trimmedToken} type="submit">
-        {isSubmitting ? "Accepting..." : "Accept invitation"}
-      </button>
-
-      {status ? <p className="status-message">{status}</p> : null}
-    </form>
+        <Button disabled={!trimmedToken} fullWidth loading={isSubmitting} size="lg" type="submit">
+          {isSubmitting ? "Accepting invitation..." : "Accept invitation"}
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

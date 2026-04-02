@@ -34,7 +34,21 @@ Create a commercially viable product that can serve multiple institutions as sep
 - enable strong question-bank and assessment management
 - support approval-driven paper generation and controlled publishing
 - add analytics, auditability, and operational reporting
+- deliver a modern, trustworthy UI that feels commercially ready from the first pilot
 - create a base for future modules such as student portals, fees, attendance, and LMS integrations
+
+## 3.1 Experience and Design Goals
+
+The product should present a cohesive, professional interface across landing pages, authentication flows, dashboards, and workflow modules.
+
+The UX direction should prioritize:
+
+- consistent spacing, typography, and color usage across every page
+- strong visual hierarchy for data-heavy academic workflows
+- responsive layouts that work for desktop-first admin use while remaining usable on smaller screens
+- clear interactive feedback for loading, success, warning, review, and publishing states
+- a shared branded component language that preserves the established ExamCraft identity
+- a premium dark SaaS aesthetic with glassmorphism, layered shadows, and modern iconography where appropriate
 
 ## 4. Target Market
 
@@ -213,6 +227,24 @@ The first version of `ExamCraft` should include:
 - PDF/DOCX export
 - basic analytics
 - audit log
+- a modern shared design system applied to landing, auth, and dashboard experiences
+
+### Current Delivered Slice
+
+The currently delivered slice is smaller than the full MVP list above. The working implementation today covers:
+
+- landing page
+- signup/login
+- institution onboarding
+- invite preview and acceptance
+- role-based dashboard selection
+- institution admin invite/team management
+- faculty question/template creation and listing
+- academic head oversight summaries
+- reviewer readiness summaries
+- super admin platform summaries
+
+The rest of the MVP remains target scope, not completed scope.
 
 ## 9. Transition Guidance
 

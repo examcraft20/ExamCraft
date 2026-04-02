@@ -1,21 +1,25 @@
 "use client";
 
+import { Button, Input, Select, StatusMessage } from "@examcraft/ui";
+import { Building2, Hash, School2, UserRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { apiRequest } from "../../lib/api";
 import { getSupabaseBrowserClient } from "../../lib/supabase-browser";
+import { AuthShell } from "./auth-shell";
 
 type SessionState = {
   accessToken: string;
-  userId: string;
   email?: string;
 };
 
 export function InstitutionOnboardingForm() {
+  const router = useRouter();
   const [institutionName, setInstitutionName] = useState("");
   const [institutionSlug, setInstitutionSlug] = useState("");
   const [institutionType, setInstitutionType] = useState("college");
   const [adminDisplayName, setAdminDisplayName] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
   const [sessionState, setSessionState] = useState<SessionState | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +40,6 @@ export function InstitutionOnboardingForm() {
       if (session?.access_token && session.user) {
         setSessionState({
           accessToken: session.access_token,
-          userId: session.user.id,
           email: session.user.email
         });
         setAdminDisplayName(
@@ -60,20 +63,15 @@ export function InstitutionOnboardingForm() {
     event.preventDefault();
 
     if (!sessionState) {
-      setStatus("Please sign in first before creating an institution.");
+      toast.info("Please sign in first before creating an institution.");
       return;
     }
 
     setIsSubmitting(true);
-    setStatus(null);
 
     try {
       const response = await apiRequest<{
-        institution: {
-          id: string;
-          name: string;
-          slug: string;
-        };
+        institution: { id: string; name: string; slug: string };
         subscriptionPlan: string;
       }>("/onboarding/institution", {
         method: "POST",
@@ -82,85 +80,97 @@ export function InstitutionOnboardingForm() {
           institutionName,
           institutionSlug,
           institutionType,
-          adminUserId: sessionState.userId,
           adminDisplayName,
           primaryContactEmail: sessionState.email
         })
       });
 
-      setStatus(
-        `Institution ${response.institution.name} created successfully on the ${response.subscriptionPlan} plan.`
+      toast.success(
+        `Institution "${response.institution.name}" created successfully on the ${response.subscriptionPlan} plan.`
       );
+      router.push(`/dashboard?institutionId=${encodeURIComponent(response.institution.id)}`);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Failed to create institution.");
+      toast.error(error instanceof Error ? error.message : "Failed to create institution.");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <form className="panel form-panel" onSubmit={handleSubmit}>
-      <div>
-        <p className="eyebrow">Onboarding</p>
-        <h1>Create your institution workspace</h1>
-        <p className="subtle">
-          Start the free-tier tenant, assign the first institution admin, and unlock the rest of
-          the ExamCraft setup flow.
-        </p>
-      </div>
-
-      {isLoadingSession ? <p className="subtle">Checking your session...</p> : null}
-
-      {!isLoadingSession && !sessionState ? (
-        <div className="info-card">
-          <strong>Sign in required</strong>
-          <p>Use the login page first so the onboarding API can attach the new tenant to you.</p>
-        </div>
+    <AuthShell
+      eyebrow="Onboarding"
+      title="Create your institution"
+      subtitle="Start the free-tier tenant, assign the first institution admin, and unlock the rest of the ExamCraft setup flow."
+      brandTitle={
+        <>
+          Set up your
+          <br />
+          <span>institution workspace.</span>
+        </>
+      }
+      brandSubtitle="Register your institution to unlock exam orchestration, faculty management, and the full ExamCraft feature suite."
+      features={[
+        "Free-tier tenant provisioned instantly",
+        "Slug-based institution identity",
+        "Admin user linked automatically",
+        "Supports colleges, schools, and coaching centers"
+      ]}
+    >
+      {isLoadingSession ? (
+        <StatusMessage style={{ marginBottom: "24px" }} variant="info">
+          Checking your session...
+        </StatusMessage>
       ) : null}
 
-      <label className="field">
-        <span>Institution name</span>
-        <input
+      {!isLoadingSession && !sessionState ? (
+        <StatusMessage style={{ marginBottom: "24px" }} variant="warning">
+          Sign in first so onboarding can attach the new tenant to your account.
+        </StatusMessage>
+      ) : null}
+
+      <form className="form-body" onSubmit={handleSubmit}>
+        <Input
+          label="Institution name"
+          leftIcon={<Building2 size={16} />}
           onChange={(event) => setInstitutionName(event.target.value)}
           placeholder="Example College of Engineering"
           required
           value={institutionName}
         />
-      </label>
 
-      <label className="field">
-        <span>Institution slug</span>
-        <input
+        <Input
+          label="Institution slug"
+          leftIcon={<Hash size={16} />}
           onChange={(event) => setInstitutionSlug(event.target.value.toLowerCase())}
           placeholder="example-college"
           required
           value={institutionSlug}
         />
-      </label>
 
-      <label className="field">
-        <span>Institution type</span>
-        <select onChange={(event) => setInstitutionType(event.target.value)} value={institutionType}>
-          <option value="college">College</option>
-          <option value="school">School</option>
-          <option value="coaching">Coaching Center</option>
-        </select>
-      </label>
+        <Select
+          label="Institution type"
+          leftIcon={<School2 size={16} />}
+          onChange={(event) => setInstitutionType(event.target.value)}
+          options={[
+            { label: "College", value: "college" },
+            { label: "School", value: "school" },
+            { label: "Coaching Center", value: "coaching" }
+          ]}
+          value={institutionType}
+        />
 
-      <label className="field">
-        <span>Admin display name</span>
-        <input
+        <Input
+          label="Admin display name"
+          leftIcon={<UserRound size={16} />}
           onChange={(event) => setAdminDisplayName(event.target.value)}
           placeholder="Academic coordinator"
           value={adminDisplayName}
         />
-      </label>
 
-      <button className="primary-button" disabled={isSubmitting || !sessionState} type="submit">
-        {isSubmitting ? "Creating institution..." : "Create institution"}
-      </button>
-
-      {status ? <p className="status-message">{status}</p> : null}
-    </form>
+        <Button disabled={!sessionState} fullWidth loading={isSubmitting} size="lg" type="submit">
+          {isSubmitting ? "Creating institution..." : "Create institution"}
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

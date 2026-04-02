@@ -1,20 +1,21 @@
 "use client";
 
-import Link from "next/link";
+import { Button, Input } from "@examcraft/ui";
+import { KeyRound, Mail, UserRound } from "lucide-react";
 import { FormEvent, useState } from "react";
+import { toast } from "sonner";
 import { getSupabaseBrowserClient } from "../../lib/supabase-browser";
+import { AuthShell } from "./auth-shell";
 
 export function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    setStatus(null);
 
     const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.signUp({
@@ -28,69 +29,81 @@ export function SignupForm() {
     });
 
     if (error) {
-      setStatus(error.message);
+      toast.error(error.message);
       setIsSubmitting(false);
       return;
     }
 
-    setStatus("Account created. If email confirmation is disabled, you can sign in immediately.");
+    toast.success("Account created. If email confirmation is disabled, you can sign in immediately.");
     setIsSubmitting(false);
   }
 
   return (
-    <form className="panel form-panel" onSubmit={handleSubmit}>
-      <div>
-        <p className="eyebrow">Auth</p>
-        <h1>Create your ExamCraft account</h1>
-        <p className="subtle">
-          This account becomes the first institution admin when you create a new tenant in the
-          onboarding flow.
-        </p>
-      </div>
-
-      <label className="field">
-        <span>Display name</span>
-        <input
+    <AuthShell
+      eyebrow="Create Account"
+      title="Join ExamCraft"
+      subtitle="Your account becomes the first institution admin when you create a new tenant."
+      brandTitle={
+        <>
+          Start your institution&apos;s
+          <br />
+          <span>digital exam journey.</span>
+        </>
+      }
+      brandSubtitle="Creating an account is the first step to setting up your multi-tenant ExamCraft institution workspace."
+      features={[
+        "Become the first institution admin",
+        "Free-tier tenant activation",
+        "Full ExamCraft setup flow unlocked",
+        "Invite faculty and coordinators"
+      ]}
+      footerLinks={[
+        {
+          href: "/login",
+          label: (
+            <>
+              Already have an account? <span className="primary-link">Sign in</span>
+            </>
+          )
+        },
+        { href: "/onboarding", label: "Go to institution onboarding" }
+      ]}
+    >
+      <form className="form-body" onSubmit={handleSubmit}>
+        <Input
+          label="Display name"
+          leftIcon={<UserRound size={16} />}
           onChange={(event) => setDisplayName(event.target.value)}
           placeholder="Academic coordinator"
           value={displayName}
         />
-      </label>
 
-      <label className="field">
-        <span>Email</span>
-        <input
+        <Input
           autoComplete="email"
+          label="Email"
+          leftIcon={<Mail size={16} />}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="admin@institution.edu"
           required
           type="email"
           value={email}
         />
-      </label>
 
-      <label className="field">
-        <span>Password</span>
-        <input
+        <Input
           autoComplete="new-password"
+          label="Password"
+          leftIcon={<KeyRound size={16} />}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="Create a secure password"
           required
           type="password"
           value={password}
         />
-      </label>
 
-      <button className="primary-button" disabled={isSubmitting} type="submit">
-        {isSubmitting ? "Creating account..." : "Create account"}
-      </button>
-
-      {status ? <p className="status-message">{status}</p> : null}
-
-      <div className="inline-links">
-        <Link href="/login">Already have an account?</Link>
-        <Link href="/onboarding">Go to institution onboarding</Link>
-      </div>
-    </form>
+        <Button fullWidth loading={isSubmitting} size="lg" type="submit">
+          {isSubmitting ? "Creating account..." : "Create account"}
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

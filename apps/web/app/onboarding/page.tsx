@@ -1,9 +1,5 @@
 import { InstitutionOnboardingForm } from "../../components/auth/institution-onboarding-form";
 
 export default function OnboardingPage() {
-  return (
-    <main className="page-shell">
-      <InstitutionOnboardingForm />
-    </main>
-  );
+  return <InstitutionOnboardingForm />;
 }

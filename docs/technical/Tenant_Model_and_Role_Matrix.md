@@ -243,6 +243,16 @@ The following permission groups should exist in the first authorization model:
 - Only `institution_admin` publishes final papers in MVP by default.
 - Only `super_admin` creates and manages global templates.
 
+## Implemented MVP Workspaces
+
+The current implemented role-aware surfaces are:
+
+- dashboard selection based on authenticated memberships and role priority
+- `institution_admin` workspace for institution team visibility and invite creation
+- `faculty` workspace for question creation and template creation
+
+The remaining roles currently use role-aware dashboard shells with permission summaries and can be expanded incrementally.
+
 ## Deferred Items
 
 These are intentionally deferred beyond MVP:

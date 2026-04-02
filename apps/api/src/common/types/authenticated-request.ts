@@ -3,6 +3,8 @@ import type { Request } from "express";
 export interface AuthenticatedUser {
   id: string;
   email?: string;
+  roleCodes: string[];
+  isSuperAdmin: boolean;
 }
 
 export interface TenantContext {

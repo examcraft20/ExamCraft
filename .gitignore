@@ -1,8 +1,15 @@
 node_modules
 .next
+apps/web/.next-build
 dist
 coverage
 .turbo
+*.tsbuildinfo
+_tmp_*
+temp.py
+temp_fix.py
+test-results
+playwright-report
 .env
 .env.local
 .env.development.local
@@ -10,4 +17,3 @@ coverage
 .env.production.local
 .DS_Store
 *.log
-

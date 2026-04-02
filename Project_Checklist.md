@@ -20,6 +20,10 @@ It is intended to:
 
 ## 2. Current Project State Summary
 
+### Important Realignment Note
+
+This checklist had drifted ahead of the actual implementation. Items marked complete in later phases should not be treated as verified shipped functionality unless they match the current implementation summary below or have been revalidated in code and tests.
+
 ### Completed So Far
 
 - [x] New product documentation created for `ExamCraft`
@@ -33,6 +37,18 @@ It is intended to:
 - [x] Shared package scaffolding created
 - [x] Supabase folder scaffold created
 - [x] CI workflow stub added
+- [x] Active development workspace moved out of OneDrive to avoid build locks
+- [x] Demo pilot institution and test admin account provisioned in Supabase
+- [x] Demo academic seed data created for the pilot institution
+- [x] Demo faculty and reviewer test accounts provisioned in Supabase
+- [x] Shared auth shell and premium auth redesign implemented
+- [x] `lucide-react` integrated for landing/auth/dashboard surfaces
+- [x] `sonner` integrated for toast notifications
+- [x] Tailwind CSS configured in `apps/web`
+- [x] Tailwind migration started in `packages/ui` for `Button`, `Card`, `Input`, `Select`, and `Skeleton`
+- [x] Dashboard membership selector built
+- [x] Institution admin workspace built
+- [x] Faculty workspace built
 
 ### Still Pending / Active
 
@@ -42,6 +58,12 @@ It is intended to:
 - [~] Sprint 1 execution
 - [x] Dependency installation and first local run
 - [~] Tenant/auth schema implementation
+- [~] Analytics/reporting implementation is underway
+- [~] QA hardening has started with approval/export coverage and first browser E2E flow
+- [~] Tailwind-based frontend redesign has started with shared primitives, landing, and auth flows
+- [~] Tailwind migration for the remaining `packages/ui` primitives is still in progress
+- [~] Dashboard-wide redesign is partial; only the currently implemented modules should be considered validated
+- [!] Historical checklist sections below contain roadmap items that need revalidation before being treated as complete
 
 ## 3. Phase 0: Execution-Readiness
 
@@ -167,6 +189,7 @@ It is intended to:
 - [ ] Build forgot password flow
 - [x] Build invite acceptance flow
 - [x] Build first tenant onboarding flow
+- [x] Provision first working test login with tenant access
 
 ## 6. Phase 3: Academic Structure Management
 
@@ -180,19 +203,20 @@ It is intended to:
 - [ ] Build CRUD APIs for academic structure
 - [ ] Build frontend screens for academic structure setup
 - [ ] Add audit logging for academic structure changes
+- [ ] Seed first department and first subject for demo testing
 
 ## 7. Phase 4: Question Bank Foundation
 
 - [ ] Create schema for question banks
-- [ ] Create schema for questions
+- [x] Create schema for questions
 - [ ] Create schema for question versions
 - [ ] Create schema for topics
 - [ ] Create schema for learning outcomes
 - [ ] Create schema for question media
 - [ ] Create schema for question duplicate tracking
-- [ ] Build question CRUD APIs
+- [x] Build question CRUD APIs
 - [ ] Build question list/search/filter UI
-- [ ] Build manual question create/edit UI
+- [~] Build manual question create/edit UI
 - [ ] Build CSV import flow
 - [ ] Build Excel import flow
 - [ ] Build media upload support
@@ -202,18 +226,21 @@ It is intended to:
 
 ## 8. Phase 5: Template System and Global Template Library
 
-- [ ] Create schema for templates
+- [x] Create schema for templates
 - [ ] Create schema for template sections
 - [ ] Create schema for global templates
 - [ ] Create schema for global template sections
 - [ ] Create schema for template clone lineage
-- [ ] Build institution template CRUD APIs
-- [ ] Build institution template builder UI
+- [x] Build institution template CRUD APIs
+- [~] Build institution template builder UI
 - [ ] Build global template admin publish flow
 - [ ] Build global template browse/filter/preview flow
 - [ ] Build global template clone flow
 - [ ] Add template recommendation logic
 - [ ] Add template version visibility
+- [ ] Add stronger global publish controls
+- [ ] Add version comparison for global-to-institution template drift
+- [ ] Add sync/update flow from global templates to institution copies
 
 ## 9. Phase 6: Paper Generation Engine
 
@@ -239,16 +266,20 @@ It is intended to:
 - [ ] Build review queue UI
 - [ ] Build approve/reject/publish flow
 - [ ] Enforce final-lock publishing rules
+- [ ] Connect generated papers into approval workflow state transitions
 
 ## 11. Phase 8: Export Pipeline
 
 - [ ] Build PDF export service
 - [ ] Build DOCX export service
 - [ ] Add branded header/footer rendering
+- [ ] Improve branded export richness for header/footer/meta presentation
 - [ ] Persist export records
 - [ ] Store generated files in storage
 - [ ] Build secure export download flow
 - [ ] Add export permission checks
+- [ ] Gate official exports to published-paper milestone
+- [ ] Run published-paper PDF and DOCX export smoke test
 
 ## 12. Phase 9: Analytics, Reporting, and Audit
 
@@ -259,6 +290,7 @@ It is intended to:
 - [ ] Build basic analytics dashboard
 - [ ] Build exportable reports
 - [ ] Validate tenant-safe reporting
+- [ ] Build first analytics dashboard API
 
 ## 13. Phase 10: AI Foundations
 
@@ -273,9 +305,9 @@ It is intended to:
 
 ## 14. Phase 11: QA Hardening
 
-- [ ] Add backend unit tests
-- [ ] Add frontend unit/component tests
-- [ ] Add integration tests for auth and tenant access
+- [x] Add backend unit tests
+- [x] Add frontend unit/component tests
+- [~] Add integration tests for auth and tenant access
 - [ ] Add integration tests for question bank
 - [ ] Add integration tests for template system
 - [ ] Add integration tests for paper generation
@@ -286,9 +318,28 @@ It is intended to:
 - [ ] Run performance review
 - [ ] Run security review
 
+## 14.1 Frontend Design System and UI Modernization
+
+- [x] Add Tailwind CSS to `apps/web`
+- [x] Create shared Tailwind theme configuration
+- [x] Create shared design token definitions
+- [~] Redesign shared UI primitives in `packages/ui`
+- [x] Redesign landing page
+- [x] Redesign login page
+- [x] Redesign signup page
+- [x] Redesign onboarding page
+- [x] Redesign invite acceptance page
+- [ ] Redesign forgot password page
+- [ ] Redesign reset password page
+- [~] Redesign dashboard shell
+- [~] Redesign dashboard modules
+- [ ] Run cross-screen visual QA pass
+- [ ] Restyle approval workflow module
+- [ ] Restyle audit log module
+
 ## 15. Phase 12: Deployment and Pilot Launch
 
-- [ ] Finalize dev environment
+- [x] Finalize dev environment
 - [ ] Finalize staging environment
 - [ ] Finalize production environment
 - [ ] Configure secrets and environment variables
@@ -310,9 +361,75 @@ These are the next logical tasks in order.
 6. [x] Build role and permission guards
 7. [x] Add API env file wiring for cloud Supabase
 8. [x] Build frontend login, invite acceptance, and onboarding flows
-9. [!] Resolve OneDrive lock blocking Next.js production build output
-10. [ ] Build forgot password flow
-11. [ ] Connect frontend screens to post-login tenant dashboard state
+9. [x] Resolve OneDrive lock blocking Next.js production build output
+10. [x] Build forgot password flow
+11. [x] Connect frontend screens to post-login tenant dashboard state
+12. [x] Add password reset session recovery UX polish
+13. [x] Build dashboard actions for invitation creation and academic structure setup
+14. [x] Add invitation delivery beyond raw token sharing
+15. [x] Add academic structure update/delete actions and audit logging
+16. [x] Start question bank foundation module
+17. [x] Add invitation email provider integration
+18. [x] Expand question bank with edit/search/filter/import
+19. [x] Add audit log views to the dashboard
+20. [!] Configure live email provider secrets to move invites from fallback to delivery
+21. [x] Add question bank Excel/media/import validation enhancements
+22. [x] Build approval workflow foundation
+23. [x] Add reviewer assignment support to approval workflow
+24. [x] Enforce final-lock publishing rules
+25. [x] Add actual file/media uploads for question attachments
+26. [x] Add more seeded test roles/users for faculty and reviewer flows
+27. [x] Run role-based approval workflow smoke test across faculty, reviewer, and admin users
+28. [x] Start template system and Global Template Library foundation
+29. [x] Add template version visibility
+30. [x] Build global template admin publish flow
+31. [x] Start paper generation foundation
+32. [x] Implement section rule handling for generated papers
+33. [x] Add shortage handling with placeholders when requirements cannot be satisfied
+34. [x] Add section regeneration support
+35. [x] Build draft paper review/edit UI
+36. [x] Connect generated papers into the approval workflow
+37. [x] Add Excel import support to the question bank
+38. [x] Add exact duplicate detection to the question bank
+39. [x] Add richer question lifecycle states
+40. [x] Add question usage history tracking
+41. [x] Add template recommendation logic for institution type fit
+42. [x] Add stronger publish controls for the global template library
+43. [x] Add version comparison visibility for institution template copies
+44. [x] Add sync flow from global templates to institution copies
+45. [x] Build PDF export foundation for approved and published papers
+46. [x] Persist paper export records and storage-backed download links
+47. [x] Wire export actions into the paper dashboard
+48. [x] Add DOCX export generation and dashboard action
+49. [x] Tighten export actions to the publish milestone only
+50. [x] Improve branded document presentation for exported papers
+51. [x] Verify published-paper PDF and DOCX export downloads end to end
+52. [x] Create analytics aggregation strategy document
+53. [x] Build first analytics dashboard API
+54. [x] Add approval workflow integration tests
+55. [x] Add export pipeline integration tests
+56. [x] Build analytics dashboard UI in the web app
+57. [x] Add reporting queries/views for trend and summary cards
+58. [x] Add usage metrics tracking for denormalized dashboard rollups
+59. [x] Add E2E publish-to-export coverage in the browser flow
+60. [x] Add export and approval timeline badges inside the paper review panel
+61. [x] Add usage metric rollups for daily dashboard trend persistence
+62. [x] Add accessibility and performance review passes for dashboard-heavy screens
+63. [x] Build exportable CSV and JSON analytics reports
+64. [x] Add question bank integration test coverage
+65. [x] Add template system integration test coverage
+66. [x] Add paper generation integration test coverage
+67. [x] Write and store the first deployment-oriented security review
+68. [x] Harden question attachments to private signed access before broader rollout
+69. [x] Add invitation rate limiting and invalid-token abuse throttling before broader rollout
+70. [x] Add Tailwind CSS setup and theme tokens for the web app
+71. [~] Redesign shared UI primitives in `packages/ui`
+72. [x] Redesign landing and auth pages with the new shared shell
+73. [~] Redesign dashboard shell and module surfaces with the new design language
+74. [ ] Run desktop visual QA on the redesigned dashboard flow
+75. [ ] Run mobile visual QA on the redesigned dashboard flow
+76. [~] Add data-backed role workspaces for academic head, reviewer, and super admin
+77. [ ] Re-run production build verification outside OneDrive
 
 ## 17. Maintenance Rules for This File
 

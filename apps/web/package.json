@@ -8,22 +8,30 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"No web tests yet\""
+    "test": "pnpm exec vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
     "@examcraft/types": "workspace:*",
     "@examcraft/ui": "workspace:*",
+    "@supabase/supabase-js": "^2.57.4",
+    "lucide-react": "^0.511.0",
     "next": "14.2.29",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sonner": "^2.0.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.27",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.29",
-    "typescript": "^5.7.3"
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9"
   }
 }

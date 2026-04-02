@@ -31,9 +31,20 @@ export class SupabaseAuthGuard implements CanActivate {
       throw new UnauthorizedException("Invalid access token.");
     }
 
+    const appMetadata = data.user.app_metadata ?? {};
+    const metadataRoles = Array.isArray(appMetadata.roles)
+      ? appMetadata.roles.filter((value): value is string => typeof value === "string")
+      : typeof appMetadata.role === "string"
+        ? [appMetadata.role]
+        : [];
+    const roleCodes = Array.from(new Set(metadataRoles));
+    const isSuperAdmin = roleCodes.includes("super_admin");
+
     request.currentUser = {
       id: data.user.id,
-      email: data.user.email
+      email: data.user.email,
+      roleCodes,
+      isSuperAdmin
     };
 
     return true;

@@ -15,8 +15,8 @@ import {
 import { Button, Card, Spinner } from "@examcraft/ui";
 import { useRouter } from "next/navigation";
 import { BulkImportModal } from "./bulk-import-modal";
-import { apiRequest } from "../../../lib/api/client";
-import { getSupabaseBrowserSession } from "../../../lib/supabase-browser";
+import { apiRequest } from "@/lib/api";
+import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
 
 interface Question {
   id: string;

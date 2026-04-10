@@ -76,8 +76,8 @@ export function QuestionForm({
     return Object.keys(newErrors).length === 0;
   }, [title, questionBody, bloomLevel, questionType, mcqOptions]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
 
     if (!validateForm()) return;
 

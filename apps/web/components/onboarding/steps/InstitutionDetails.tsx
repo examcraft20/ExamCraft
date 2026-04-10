@@ -4,8 +4,8 @@ import { Building2, MapPin, Globe } from "lucide-react";
 
 interface InstitutionDetailsProps {
   data: {
-    name: string;
-    type: string;
+    institutionName: string;
+    institutionType: string;
     city: string;
     state: string;
     country: string;
@@ -14,24 +14,33 @@ interface InstitutionDetailsProps {
   onChange: (field: string, value: string) => void;
 }
 
-export function InstitutionDetails({ data, onChange }: InstitutionDetailsProps) {
+export function InstitutionDetails({
+  data,
+  onChange,
+}: InstitutionDetailsProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white mb-1">Tell us about your institution</h2>
-        <p className="text-sm text-slate-400">This helps us customize your workspace</p>
+        <h2 className="text-xl font-bold text-white mb-1">
+          Tell us about your institution
+        </h2>
+        <p className="text-sm text-slate-400">
+          This helps us customize your workspace
+        </p>
       </div>
 
       <div className="space-y-4">
         {/* Institution Name */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-2">Institution Name *</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-2">
+            Institution Name *
+          </label>
           <div className="relative">
             <Building2 className="absolute left-4 top-3.5 h-5 w-5 text-slate-500" />
             <input
               type="text"
-              value={data.name}
-              onChange={(e) => onChange("name", e.target.value)}
+              value={data.institutionName}
+              onChange={(e) => onChange("institutionName", e.target.value)}
               placeholder="National Institute of Technology"
               className="w-full bg-slate-800/60 border border-white/20 rounded-xl px-4 py-3 pl-12 text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all"
             />
@@ -40,10 +49,12 @@ export function InstitutionDetails({ data, onChange }: InstitutionDetailsProps) 
 
         {/* Institution Type */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-2">Institution Type *</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-2">
+            Institution Type *
+          </label>
           <select
-            value={data.type}
-            onChange={(e) => onChange("type", e.target.value)}
+            value={data.institutionType}
+            onChange={(e) => onChange("institutionType", e.target.value)}
             className="w-full bg-slate-800/60 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all appearance-none"
           >
             <option value="">Select type...</option>
@@ -57,7 +68,9 @@ export function InstitutionDetails({ data, onChange }: InstitutionDetailsProps) 
 
         {/* City */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-2">City *</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-2">
+            City *
+          </label>
           <div className="relative">
             <MapPin className="absolute left-4 top-3.5 h-5 w-5 text-slate-500" />
             <input
@@ -72,7 +85,9 @@ export function InstitutionDetails({ data, onChange }: InstitutionDetailsProps) 
 
         {/* State */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-2">State *</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-2">
+            State *
+          </label>
           <input
             type="text"
             value={data.state}
@@ -84,7 +99,9 @@ export function InstitutionDetails({ data, onChange }: InstitutionDetailsProps) 
 
         {/* Country */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-2">Country *</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-2">
+            Country *
+          </label>
           <select
             value={data.country}
             onChange={(e) => onChange("country", e.target.value)}
@@ -100,7 +117,9 @@ export function InstitutionDetails({ data, onChange }: InstitutionDetailsProps) 
 
         {/* Website */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-2">Website URL (optional)</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-2">
+            Website URL (optional)
+          </label>
           <div className="relative">
             <Globe className="absolute left-4 top-3.5 h-5 w-5 text-slate-500" />
             <input

@@ -5,7 +5,7 @@ import { Button, Card, Textarea, StatusMessage, Spinner } from "@examcraft/ui";
 import { apiRequest } from "#api";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { ReviewHistory } from "./ReviewHistory";
-import type { PaperRecord, ReviewHistoryEntry } from "../../../lib/dashboard";
+import type { PaperRecord, ReviewHistoryEntry } from "@/lib/dashboard";
 
 interface ReviewPanelProps {
   paper: PaperRecord;
@@ -34,7 +34,7 @@ export function ReviewPanel({
   accessToken,
   institutionId,
   isSubmitting,
-  onSetIsSubmitting
+  onSetIsSubmitting,
 }: ReviewPanelProps) {
   const [activeDialog, setActiveDialog] = useState<DialogAction>(null);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -43,7 +43,7 @@ export function ReviewPanel({
 
   const getFlaggedQuestionsWithNotes = () => {
     const flagged: Array<{ id: string; note: string }> = [];
-    flaggedQuestions.forEach(id => {
+    flaggedQuestions.forEach((id) => {
       flagged.push({ id, note: questionNotes[id] || "" });
     });
     return flagged;
@@ -59,14 +59,16 @@ export function ReviewPanel({
         institutionId,
         body: JSON.stringify({
           action: "approve",
-          comment
-        })
+          comment,
+        }),
       });
       setStatus("Paper approved successfully");
       setActiveDialog(null);
       // Could redirect or show success state
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Failed to approve paper");
+      setStatus(
+        error instanceof Error ? error.message : "Failed to approve paper",
+      );
     } finally {
       setDialogIsSubmitting(false);
     }
@@ -87,14 +89,16 @@ export function ReviewPanel({
         institutionId,
         body: JSON.stringify({
           action: "reject",
-          comment
-        })
+          comment,
+        }),
       });
       setStatus("Paper rejected");
       setActiveDialog(null);
       setRejectionReason("");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Failed to reject paper");
+      setStatus(
+        error instanceof Error ? error.message : "Failed to reject paper",
+      );
     } finally {
       setDialogIsSubmitting(false);
     }
@@ -104,7 +108,7 @@ export function ReviewPanel({
     setDialogIsSubmitting(true);
     try {
       const notes = Array.from(flaggedQuestions)
-        .map(id => `Q${id}: ${questionNotes[id] || ""}`)
+        .map((id) => `Q${id}: ${questionNotes[id] || ""}`)
         .join("\n");
       const comment = `Revision Required:\n${notes}\n\nGeneral Feedback: ${overallFeedback}`;
       await apiRequest(`/content/papers/${paperId}/review`, {
@@ -113,13 +117,17 @@ export function ReviewPanel({
         institutionId,
         body: JSON.stringify({
           action: "comment",
-          comment
-        })
+          comment,
+        }),
       });
       setStatus("Revision request sent to faculty");
       setActiveDialog(null);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Failed to send revision request");
+      setStatus(
+        error instanceof Error
+          ? error.message
+          : "Failed to send revision request",
+      );
     } finally {
       setDialogIsSubmitting(false);
     }
@@ -132,21 +140,31 @@ export function ReviewPanel({
       {/* Review Panel Card */}
       <Card className="!bg-zinc-900/80 border-white/10 !rounded-2xl p-6 backdrop-blur-xl shadow-2xl">
         {/* Header */}
-        <h2 className="text-xl font-black tracking-tight text-white mb-6">Review Actions</h2>
+        <h2 className="text-xl font-black tracking-tight text-white mb-6">
+          Review Actions
+        </h2>
 
         {/* Metadata */}
         <div className="flex flex-col gap-3 pb-6 border-b border-white/10 mb-6">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-600 font-bold uppercase tracking-widest">Subject</span>
+            <span className="text-zinc-600 font-bold uppercase tracking-widest">
+              Subject
+            </span>
             <span className="text-white font-bold">{paper.subject}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-600 font-bold uppercase tracking-widest">Total Marks</span>
+            <span className="text-zinc-600 font-bold uppercase tracking-widest">
+              Total Marks
+            </span>
             <span className="text-white font-bold">{paper.totalMarks}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-600 font-bold uppercase tracking-widest">Sections</span>
-            <span className="text-white font-bold">{paper.sections?.length || 0}</span>
+            <span className="text-zinc-600 font-bold uppercase tracking-widest">
+              Sections
+            </span>
+            <span className="text-white font-bold">
+              {paper.sections?.length || 0}
+            </span>
           </div>
         </div>
 
@@ -170,9 +188,14 @@ export function ReviewPanel({
               Flagged Questions ({flaggedList.length})
             </h3>
             <div className="flex flex-col gap-2">
-              {flaggedList.map(([, flagged]) => (
-                <div key={flagged.id} className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                  <p className="text-xs font-bold text-amber-400 mb-1">Question {flagged.id}</p>
+              {flaggedList.map((flagged) => (
+                <div
+                  key={flagged.id}
+                  className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20"
+                >
+                  <p className="text-xs font-bold text-amber-400 mb-1">
+                    Question {flagged.id}
+                  </p>
                   {flagged.note && (
                     <p className="text-xs text-amber-200">{flagged.note}</p>
                   )}

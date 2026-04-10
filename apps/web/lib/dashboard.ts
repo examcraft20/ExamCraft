@@ -3,7 +3,7 @@ export const rolePriority = [
   "institution_admin",
   "academic_head",
   "reviewer_approver",
-  "faculty"
+  "faculty",
 ] as const;
 
 export type AppRole = (typeof rolePriority)[number];
@@ -177,7 +177,15 @@ export type PlatformAuditEvent = {
   id: string;
   institutionId: string;
   institutionName: string;
-  eventType: "institution.created" | "institution.status_changed" | "invitation.created" | "question.created" | "template.created" | "questions.bulk_imported" | "template.cloned";
+  eventType:
+    | "institution.created"
+    | "institution.status_changed"
+    | "institution.onboarded"
+    | "invitation.created"
+    | "question.created"
+    | "template.created"
+    | "questions.bulk_imported"
+    | "template.cloned";
   title: string;
   status: string;
   createdAt: string;
@@ -205,27 +213,32 @@ export function getRoleSummary(role: AppRole) {
     case "super_admin":
       return {
         title: "Platform control center",
-        description: "Monitor tenants, manage global settings, and support institutions across the platform."
+        description:
+          "Monitor tenants, manage global settings, and support institutions across the platform.",
       };
     case "institution_admin":
       return {
         title: "Institution operations hub",
-        description: "Manage users, academic setup, approvals, and publishing for your institution."
+        description:
+          "Manage users, academic setup, approvals, and publishing for your institution.",
       };
     case "academic_head":
       return {
         title: "Academic oversight workspace",
-        description: "Review question quality, approve submissions, and coordinate academic readiness."
+        description:
+          "Review question quality, approve submissions, and coordinate academic readiness.",
       };
     case "reviewer_approver":
       return {
         title: "Review and approval desk",
-        description: "Evaluate submitted papers, record review outcomes, and keep release quality high."
+        description:
+          "Evaluate submitted papers, record review outcomes, and keep release quality high.",
       };
     case "faculty":
       return {
         title: "Faculty authoring workspace",
-        description: "Create questions, build templates, and draft papers for review."
+        description:
+          "Create questions, build templates, and draft papers for review.",
       };
   }
 }

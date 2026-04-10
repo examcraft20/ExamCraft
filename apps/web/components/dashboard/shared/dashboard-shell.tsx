@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { ErrorBoundary } from "../../error-boundary";
 import { Spinner } from "@examcraft/ui";
-import { getSupabaseBrowserSession } from "../../../lib/supabase-browser";
+import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
 
 function DashboardLoading() {
   return (
@@ -30,7 +30,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         setIsAuthorized(true);
       }
     });
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [pathname]);
 
   if (!isAuthorized) {
@@ -54,9 +56,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       <main className="flex-1 w-full min-w-0 relative flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-10 custom-scrollbar">
           <ErrorBoundary>
-            <Suspense fallback={<DashboardLoading />}>
-              {children}
-            </Suspense>
+            <Suspense fallback={<DashboardLoading />}>{children}</Suspense>
           </ErrorBoundary>
         </div>
       </main>

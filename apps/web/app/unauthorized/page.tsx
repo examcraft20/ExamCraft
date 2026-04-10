@@ -17,11 +17,14 @@ export default function UnauthorizedPage() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Access Denied</h1>
+        <h1 className="text-3xl font-black text-white mb-2 tracking-tight">
+          Access Denied
+        </h1>
 
         {/* Subtext */}
         <p className="text-zinc-400 font-medium mb-8">
-          You don't have permission to access this area. This section is reserved for platform administrators only.
+          You don&apos;t have permission to access this area. This section is
+          reserved for platform administrators only.
         </p>
 
         {/* Button */}

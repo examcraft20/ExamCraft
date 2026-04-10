@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Card } from "@examcraft/ui";
-import type { ReviewHistoryEntry } from "../../../lib/dashboard";
+import type { ReviewHistoryEntry } from "@/lib/dashboard";
 
 interface ReviewHistoryProps {
   history: ReviewHistoryEntry[];
@@ -17,7 +17,7 @@ export function ReviewHistory({ history }: ReviewHistoryProps) {
       approve: "Approved",
       reject: "Rejected",
       comment: "Commented",
-      archive: "Archived"
+      archive: "Archived",
     };
     return labels[action] || action;
   };
@@ -39,7 +39,9 @@ export function ReviewHistory({ history }: ReviewHistoryProps) {
 
   return (
     <Card className="!bg-zinc-900/80 border-white/10 !rounded-2xl p-6 backdrop-blur-xl">
-      <h3 className="text-lg font-black tracking-tight text-white mb-4">Review History</h3>
+      <h3 className="text-lg font-black tracking-tight text-white mb-4">
+        Review History
+      </h3>
 
       <div className="flex flex-col gap-2">
         {history.map((entry, idx) => (
@@ -49,18 +51,22 @@ export function ReviewHistory({ history }: ReviewHistoryProps) {
           >
             {/* Header - Always Visible */}
             <button
-              onClick={() => setExpandedIndex(expandedIndex === idx ? null : idx)}
+              onClick={() =>
+                setExpandedIndex(expandedIndex === idx ? null : idx)
+              }
               className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-all"
             >
               <div className="flex items-center gap-3 flex-1 text-left">
-                <div className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-widest ${getActionColor(entry.action)}`}>
+                <div
+                  className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-widest ${getActionColor(entry.action)}`}
+                >
                   {getActionLabel(entry.action)}
                 </div>
                 <span className="text-xs text-zinc-500 font-bold">
                   {new Date(entry.reviewedAt).toLocaleDateString("en-US")} at{" "}
                   {new Date(entry.reviewedAt).toLocaleTimeString("en-US", {
                     hour: "2-digit",
-                    minute: "2-digit"
+                    minute: "2-digit",
                   })}
                 </span>
               </div>

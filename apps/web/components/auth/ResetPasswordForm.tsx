@@ -79,7 +79,7 @@ export function ResetPasswordForm() {
           <Input
             label="New Password"
             type="password"
-            icon={<Lock size={16} />}
+            leftIcon={<Lock size={16} />}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading || status?.type === "success"}
@@ -90,7 +90,7 @@ export function ResetPasswordForm() {
           <Input
             label="Confirm New Password"
             type="password"
-            icon={<Lock size={16} />}
+            leftIcon={<Lock size={16} />}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             disabled={isLoading || status?.type === "success"}

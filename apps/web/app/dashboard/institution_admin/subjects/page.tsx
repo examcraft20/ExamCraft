@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, RefreshCw, Layers, BookMarked } from "lucide-react";
+import { BookOpen, RefreshCw, Layers, BookMarked, Plus } from "lucide-react";
 import { apiRequest } from "#api";
 import { Spinner } from "@examcraft/ui";
 import type {
   DepartmentRecord,
   CourseRecord,
   SubjectRecord,
-} from "../../../../lib/academic";
+} from "@/lib/academic";
 
-import { useAdminContext } from "../../../../hooks/use-admin-context";
+import { useAdminContext } from "@/hooks/use-admin-context";
 
 export default function SubjectsPage() {
   const { accessToken, institutionId, isReady } = useAdminContext();

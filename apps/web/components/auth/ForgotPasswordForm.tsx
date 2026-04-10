@@ -51,7 +51,8 @@ export function ForgotPasswordForm() {
           Forgot Password?
         </h2>
         <p className="text-slate-400 font-medium text-sm">
-          No worries. Enter your email and we'll send you reset instructions.
+          No worries. Enter your email and we&apos;ll send you reset
+          instructions.
         </p>
       </div>
 
@@ -69,7 +70,7 @@ export function ForgotPasswordForm() {
           <Input
             label="Email Address"
             type="email"
-            icon={<Mail size={16} />}
+            leftIcon={<Mail size={16} />}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading || status?.type === "success"}

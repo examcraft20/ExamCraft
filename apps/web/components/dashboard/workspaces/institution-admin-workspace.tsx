@@ -42,7 +42,7 @@ import {
 import { apiRequest } from "#api";
 import { AcademicStructureWorkspace } from "./academic-structure-workspace";
 import { BrandingWorkspace } from "./branding-workspace";
-import { MembershipSummary } from "../../../lib/dashboard";
+import { MembershipSummary } from "@/lib/dashboard";
 import { StatCard } from "../shared/StatCard";
 import { ActivityFeed } from "../shared/ActivityFeed";
 import { Table } from "../shared/Table";
@@ -172,7 +172,7 @@ export function InstitutionAdminWorkspace({
   const [papers, setPapers] = useState<any[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "academic" | "branding"
+    "overview" | "academic" | "branding" | "team"
   >("overview");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -182,7 +182,10 @@ export function InstitutionAdminWorkspace({
   const tabParam = searchParams.get("tab") as any;
 
   useEffect(() => {
-    if (tabParam && ["overview", "academic", "branding"].includes(tabParam)) {
+    if (
+      tabParam &&
+      ["overview", "academic", "branding", "team"].includes(tabParam)
+    ) {
       setActiveTab(tabParam);
     } else if (!tabParam) {
       setActiveTab("overview");
@@ -405,7 +408,7 @@ export function InstitutionAdminWorkspace({
             Operations Command
           </h1>
           <p className="text-zinc-500 font-medium max-w-xl">
-            Orchestrate your institution's pedagogical landscape, manage
+            Orchestrate your institution&apos;s pedagogical landscape, manage
             authority, and synchronize brand identity.
           </p>
         </div>
@@ -417,7 +420,7 @@ export function InstitutionAdminWorkspace({
             <History size={14} /> Audit Archive
           </Button>
           <Button
-            onClick={() => setActiveTab("team")}
+            onClick={() => setActiveTab("team" as any)}
             className="bg-white text-black px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-glow"
           >
             <UserPlus size={14} /> Provision Staff
@@ -582,22 +585,21 @@ export function InstitutionAdminWorkspace({
                 </div>
 
                 <ActivityFeed
-                  activities={questions
-                    .slice(0, 2)
-                    .map((q) => ({
+                  activities={(() => {
+                    const qActs = questions.slice(0, 2).map((q) => ({
                       type: "question_created" as const,
                       description: `New question: ${q.title?.slice(0, 30) || "Untitled"}...`,
                       actor: "Faculty",
                       timestamp: new Date(q.createdAt),
-                    }))
-                    .concat(
-                      papers.slice(0, 2).map((p) => ({
-                        type: "paper_generated" as const,
-                        description: `Paper: ${p.title || "Untitled"}`,
-                        actor: "System",
-                        timestamp: new Date(p.createdAt),
-                      })),
-                    )}
+                    }));
+                    const pActs = papers.slice(0, 2).map((p) => ({
+                      type: "paper_generated" as const,
+                      description: `Paper: ${p.title || "Untitled"}`,
+                      actor: "System",
+                      timestamp: new Date(p.createdAt),
+                    }));
+                    return [...qActs, ...pActs];
+                  })()}
                   maxItems={4}
                 />
 

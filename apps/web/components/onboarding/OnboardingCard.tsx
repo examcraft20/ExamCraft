@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { Building2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { FormEvent, useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { apiRequest } from '#api';
-import { getSupabaseBrowserClient } from '../../lib/supabase-browser';
-import { env } from '../../lib/env';
-import { StepIndicator } from './StepIndicator';
-import { InstitutionDetails } from './steps/InstitutionDetails';
-import { AcademicConfig } from './steps/AcademicConfig';
-import { InviteTeam } from './steps/InviteTeam';
+import { Building2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { apiRequest } from "#api";
+import { getSupabaseBrowserClient } from "../../lib/supabase-browser";
+import { env } from "../../lib/env";
+import { StepIndicator } from "./StepIndicator";
+import { InstitutionDetails } from "./steps/InstitutionDetails";
+import { AcademicConfig } from "./steps/AcademicConfig";
+import { InviteTeam } from "./steps/InviteTeam";
 
 type SessionState = {
   accessToken: string;
@@ -41,10 +41,10 @@ export function OnboardingCard() {
   const [sessionState, setSessionState] = useState<SessionState | null>(
     env.demoMode
       ? {
-          accessToken: 'demo_token',
-          email: 'admin@demo.examcraft'
+          accessToken: "demo_token",
+          email: "admin@demo.examcraft",
         }
-      : null
+      : null,
   );
   const [isLoadingSession, setIsLoadingSession] = useState(!env.demoMode);
 
@@ -53,17 +53,17 @@ export function OnboardingCard() {
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
-    institutionName: '',
-    institutionType: '',
-    city: '',
-    state: '',
-    country: 'India',
-    website: '',
+    institutionName: "",
+    institutionType: "",
+    city: "",
+    state: "",
+    country: "India",
+    website: "",
     departments: 1,
-    examinationPattern: '',
-    gradingSystem: '',
-    academicYearStart: '',
-    teamMembers: []
+    examinationPattern: "",
+    gradingSystem: "",
+    academicYearStart: "",
+    teamMembers: [],
   });
 
   // UI state
@@ -82,7 +82,7 @@ export function OnboardingCard() {
       try {
         const supabase = getSupabaseBrowserClient();
         const {
-          data: { session }
+          data: { session },
         } = await supabase.auth.getSession();
 
         if (!isMounted) return;
@@ -90,11 +90,11 @@ export function OnboardingCard() {
         if (session?.access_token && session.user) {
           setSessionState({
             accessToken: session.access_token,
-            email: session.user.email
+            email: session.user.email,
           });
         }
       } catch (error) {
-        console.warn('Session synchronization failed');
+        console.warn("Session synchronization failed");
       } finally {
         if (isMounted) setIsLoadingSession(false);
       }
@@ -138,7 +138,7 @@ export function OnboardingCard() {
     e.preventDefault();
 
     if (!sessionState) {
-      toast.error('Please sign in first');
+      toast.error("Please sign in first");
       return;
     }
 
@@ -147,8 +147,8 @@ export function OnboardingCard() {
     try {
       const response = await apiRequest<{
         institution: { id: string; name: string };
-      }>('/onboarding/institution', {
-        method: 'POST',
+      }>("/onboarding/institution", {
+        method: "POST",
         accessToken: sessionState.accessToken,
         body: JSON.stringify({
           institutionName: formData.institutionName,
@@ -162,17 +162,23 @@ export function OnboardingCard() {
           gradingSystem: formData.gradingSystem,
           academicYearStart: formData.academicYearStart,
           teamMembers: formData.teamMembers,
-          primaryContactEmail: sessionState.email
-        })
+          primaryContactEmail: sessionState.email,
+        }),
       });
 
-      toast.success(`Institution "${response.institution.name}" created successfully!`);
+      toast.success(
+        `Institution "${response.institution.name}" created successfully!`,
+      );
 
       setTimeout(() => {
-        router.push(`/dashboard?institutionId=${encodeURIComponent(response.institution.id)}`);
+        router.push(
+          `/dashboard?institutionId=${encodeURIComponent(response.institution.id)}`,
+        );
       }, 1500);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to create institution');
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create institution",
+      );
       setIsSubmitting(false);
     }
   };
@@ -180,14 +186,14 @@ export function OnboardingCard() {
   const handleFieldChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleSkipTeam = async () => {
     // Submit without team members
     await handleStep3Submit({
-      preventDefault: () => {}
+      preventDefault: () => {},
     } as FormEvent<HTMLFormElement>);
   };
 
@@ -204,7 +210,9 @@ export function OnboardingCard() {
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
           <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
-            <p className="text-white text-center">Please sign in to proceed with institution setup.</p>
+            <p className="text-white text-center">
+              Please sign in to proceed with institution setup.
+            </p>
           </div>
         </div>
       </div>
@@ -226,7 +234,9 @@ export function OnboardingCard() {
             </div>
             <h1 className="text-2xl font-bold text-white">ExamCraft</h1>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2">Institution Setup</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">
+            Institution Setup
+          </h2>
           <p className="text-slate-400">Step {currentStep} of 3</p>
         </div>
 
@@ -241,7 +251,9 @@ export function OnboardingCard() {
           <div className="mb-8">
             {currentStep === 1 && (
               <>
-                <h3 className="text-xl font-semibold text-white mb-6">Tell us about your institution</h3>
+                <h3 className="text-xl font-semibold text-white mb-6">
+                  Tell us about your institution
+                </h3>
                 <InstitutionDetails
                   data={{
                     institutionName: formData.institutionName,
@@ -249,45 +261,40 @@ export function OnboardingCard() {
                     city: formData.city,
                     state: formData.state,
                     country: formData.country,
-                    website: formData.website
+                    website: formData.website,
                   }}
                   onChange={handleFieldChange}
-                  onSubmit={handleStep1Submit}
-                  isValid={isStep1Valid}
-                  isLoading={isSubmitting}
                 />
               </>
             )}
 
             {currentStep === 2 && (
               <>
-                <h3 className="text-xl font-semibold text-white mb-6">Set up your academic structure</h3>
+                <h3 className="text-xl font-semibold text-white mb-6">
+                  Set up your academic structure
+                </h3>
                 <AcademicConfig
                   data={{
-                    departments: formData.departments,
+                    numDepartments: formData.departments,
                     examinationPattern: formData.examinationPattern,
                     gradingSystem: formData.gradingSystem,
-                    academicYearStart: formData.academicYearStart
+                    academicYearStart: formData.academicYearStart,
                   }}
                   onChange={handleFieldChange}
-                  onSubmit={handleStep2Submit}
-                  onBack={() => setCurrentStep(1)}
-                  isValid={isStep2Valid}
-                  isLoading={isSubmitting}
                 />
               </>
             )}
 
             {currentStep === 3 && (
               <>
-                <h3 className="text-xl font-semibold text-white mb-6">Invite your core team</h3>
+                <h3 className="text-xl font-semibold text-white mb-6">
+                  Invite your core team
+                </h3>
                 <InviteTeam
-                  data={{ teamMembers: formData.teamMembers }}
-                  onChange={(members) => handleFieldChange('teamMembers', members)}
-                  onSubmit={handleStep3Submit}
-                  onSkip={handleSkipTeam}
-                  onBack={() => setCurrentStep(2)}
-                  isLoading={isSubmitting}
+                  data={{ invites: formData.teamMembers }}
+                  onChange={(members) =>
+                    handleFieldChange("teamMembers", members)
+                  }
                 />
               </>
             )}

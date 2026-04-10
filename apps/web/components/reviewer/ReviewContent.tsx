@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PaperViewer } from "./PaperViewer";
 import { ReviewPanel } from "./ReviewPanel";
-import type { PaperRecord } from "../../../lib/dashboard";
+import type { PaperRecord } from "@/lib/dashboard";
 
 interface ReviewContentProps {
   paper: PaperRecord;
@@ -16,10 +16,14 @@ export function ReviewContent({
   paper,
   accessToken,
   institutionId,
-  paperId
+  paperId,
 }: ReviewContentProps) {
-  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(new Set());
-  const [questionNotes, setQuestionNotes] = useState<Record<string, string>>({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(
+    new Set(),
+  );
+  const [questionNotes, setQuestionNotes] = useState<Record<string, string>>(
+    {},
+  );
   const [overallFeedback, setOverallFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,9 +41,9 @@ export function ReviewContent({
   };
 
   const setQuestionNote = (questionId: string, note: string) => {
-    setQuestionNotes(prev => ({
+    setQuestionNotes((prev) => ({
       ...prev,
-      [questionId]: note
+      [questionId]: note,
     }));
   };
 

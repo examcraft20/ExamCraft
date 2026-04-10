@@ -13,7 +13,7 @@ interface MetadataPanelProps {
   onUnitNumberChange: (value: number | null) => void;
   onCourseOutcomesChange: (value: string[]) => void;
   onTagsChange: (value: string[]) => void;
-  onSubmit: () => void;
+  onSubmit: (e?: React.FormEvent) => void | Promise<void>;
   isSubmitting: boolean;
   isDraft?: boolean;
 }
@@ -25,7 +25,7 @@ const bloomLevels = [
   "Apply",
   "Analyze",
   "Evaluate",
-  "Create"
+  "Create",
 ];
 
 export function MetadataPanel({
@@ -41,21 +41,23 @@ export function MetadataPanel({
   onTagsChange,
   onSubmit,
   isSubmitting,
-  isDraft = false
+  isDraft = false,
 }: MetadataPanelProps) {
-  const handleCourseOutcomesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCourseOutcomesChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     const values = e.target.value
       .split(",")
-      .map(v => v.trim())
-      .filter(v => v);
+      .map((v) => v.trim())
+      .filter((v) => v);
     onCourseOutcomesChange(values);
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const values = e.target.value
       .split(",")
-      .map(v => v.trim())
-      .filter(v => v);
+      .map((v) => v.trim())
+      .filter((v) => v);
     onTagsChange(values);
   };
 
@@ -67,7 +69,7 @@ export function MetadataPanel({
           Difficulty Level
         </label>
         <div className="flex gap-2">
-          {difficultyOptions.map(level => (
+          {difficultyOptions.map((level) => (
             <button
               key={level}
               onClick={() => onDifficultyChange(level.toLowerCase())}
@@ -90,15 +92,15 @@ export function MetadataPanel({
       {/* Bloom Level Dropdown */}
       <div>
         <label className="block text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
-          Bloom's Taxonomy Level
+          Bloom&apos;s Taxonomy Level
         </label>
         <select
           value={bloomLevel}
-          onChange={e => onBloomLevelChange(e.target.value)}
+          onChange={(e) => onBloomLevelChange(e.target.value)}
           className="w-full px-4 py-2 rounded-xl bg-slate-800/60 border border-white/20 text-white focus:border-indigo-500 focus:ring-indigo-500/30 focus:outline-none transition-all text-sm"
         >
           <option value="">Select level...</option>
-          {bloomLevels.map(level => (
+          {bloomLevels.map((level) => (
             <option key={level} value={level}>
               {level}
             </option>
@@ -116,7 +118,7 @@ export function MetadataPanel({
           min="1"
           max="20"
           value={unitNumber || ""}
-          onChange={e =>
+          onChange={(e) =>
             onUnitNumberChange(e.target.value ? parseInt(e.target.value) : null)
           }
           placeholder="e.g., 3"
@@ -166,7 +168,8 @@ export function MetadataPanel({
           Save Draft
         </Button>
         <Button
-          onClick={onSubmit}
+          type="button"
+          onClick={() => onSubmit()}
           loading={isSubmitting}
           fullWidth
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold"

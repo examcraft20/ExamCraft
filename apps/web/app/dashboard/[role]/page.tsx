@@ -3,14 +3,14 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { Spinner } from "@examcraft/ui";
-import { RoleDashboard } from "../../../components/dashboard/shared/role-dashboard";
-import type { AppRole } from "../../../lib/dashboard";
+import { RoleDashboard } from "@/components/dashboard/shared/role-dashboard";
+import type { AppRole } from "@/lib/dashboard";
 import {
   resolvePrimaryRole,
   AuthMeResponse,
   TenantContextResponse,
-} from "../../../lib/dashboard";
-import { getSupabaseBrowserSession } from "../../../lib/supabase-browser";
+} from "@/lib/dashboard";
+import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
 import { apiRequest } from "#api";
 
 const supportedRoles: AppRole[] = [

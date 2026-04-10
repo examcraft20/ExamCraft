@@ -25,7 +25,7 @@ import {
   BarChart2,
   AlertCircle,
 } from "lucide-react";
-import { apiRequest } from "../../../lib/api/client";
+import { apiRequest } from "@/lib/api";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface AnalyticsSummary {
@@ -52,7 +52,10 @@ function buildMonthlyData(total: number) {
   // Distribute total across months with slight growth trend
   return months.map((month, i) => ({
     month,
-    papers: Math.max(1, Math.round((total / months.length) * (0.5 + i * 0.1) + Math.random() * 3)),
+    papers: Math.max(
+      1,
+      Math.round((total / months.length) * (0.5 + i * 0.1) + Math.random() * 3),
+    ),
   }));
 }
 
@@ -71,7 +74,8 @@ function StatCard({
     <div
       className="relative overflow-hidden rounded-2xl p-5 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 group"
       style={{
-        background: "linear-gradient(145deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.6) 100%)",
+        background:
+          "linear-gradient(145deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.6) 100%)",
         border: "1px solid rgba(255,255,255,0.08)",
         boxShadow: `0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)`,
       }}
@@ -102,16 +106,15 @@ function StatCard({
               trend > 0
                 ? "rgba(34,197,94,0.12)"
                 : trend < 0
-                ? "rgba(239,68,68,0.12)"
-                : "rgba(100,116,139,0.12)",
-            color:
-              trend > 0 ? "#4ade80" : trend < 0 ? "#f87171" : "#64748b",
+                  ? "rgba(239,68,68,0.12)"
+                  : "rgba(100,116,139,0.12)",
+            color: trend > 0 ? "#4ade80" : trend < 0 ? "#f87171" : "#64748b",
             border: `1px solid ${
               trend > 0
                 ? "rgba(34,197,94,0.2)"
                 : trend < 0
-                ? "rgba(239,68,68,0.2)"
-                : "rgba(100,116,139,0.15)"
+                  ? "rgba(239,68,68,0.2)"
+                  : "rgba(100,116,139,0.15)"
             }`,
           }}
         >
@@ -173,7 +176,10 @@ interface AnalyticsDashboardProps {
   institutionId: string;
 }
 
-export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard({
+  accessToken,
+  institutionId,
+}: AnalyticsDashboardProps) {
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -191,7 +197,9 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
       setSummary(data);
       setLastUpdated(new Date());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load analytics.");
+      setError(
+        err instanceof Error ? err.message : "Failed to load analytics.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -257,7 +265,13 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
     : [];
 
   const BAR_COLORS = [
-    "#4f46e5", "#5b53e8", "#6861eb", "#7c3aed", "#8b5cf6", "#a78bfa", "#818cf8",
+    "#4f46e5",
+    "#5b53e8",
+    "#6861eb",
+    "#7c3aed",
+    "#8b5cf6",
+    "#a78bfa",
+    "#818cf8",
   ];
 
   return (
@@ -272,14 +286,17 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
             >
               <BarChart2 size={18} className="text-white" />
             </div>
-            <h1 className="text-3xl font-black text-white tracking-tight">Analytics</h1>
+            <h1 className="text-3xl font-black text-white tracking-tight">
+              Analytics
+            </h1>
           </div>
           <p className="text-sm mt-1" style={{ color: "#64748b" }}>
             Institution-level overview for{" "}
             <span style={{ color: "#818cf8" }}>Academic Head / Admin</span>
             {lastUpdated && (
               <span style={{ color: "#334155" }}>
-                {" "}· Updated {lastUpdated.toLocaleTimeString()}
+                {" "}
+                · Updated {lastUpdated.toLocaleTimeString()}
               </span>
             )}
           </p>
@@ -288,7 +305,10 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
           onClick={fetchSummary}
           disabled={isLoading}
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:bg-white/10 disabled:opacity-50"
-          style={{ border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8" }}
+          style={{
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: "#94a3b8",
+          }}
         >
           <RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
           Refresh
@@ -317,7 +337,10 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
             <div
               key={i}
               className="rounded-2xl p-5 h-28 animate-pulse"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.06)",
+              }}
             />
           ))}
         </div>
@@ -327,7 +350,11 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
       {summary && (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {statCards.map((config) => (
-            <StatCard key={config.key} config={config} value={summary[config.key]} />
+            <StatCard
+              key={config.key}
+              config={config}
+              value={summary[config.key]}
+            />
           ))}
         </div>
       )}
@@ -337,14 +364,17 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
         <div
           className="rounded-2xl p-6"
           style={{
-            background: "linear-gradient(145deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.5) 100%)",
+            background:
+              "linear-gradient(145deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.5) 100%)",
             border: "1px solid rgba(255,255,255,0.08)",
             boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
           }}
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-white font-bold text-lg tracking-tight">Papers Generated Per Month</h2>
+              <h2 className="text-white font-bold text-lg tracking-tight">
+                Papers Generated Per Month
+              </h2>
               <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
                 Based on creation dates · mock monthly breakdown
               </p>
@@ -381,10 +411,16 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
                 tickLine={false}
                 width={28}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(139,92,246,0.07)" }} />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "rgba(139,92,246,0.07)" }}
+              />
               <Bar dataKey="papers" radius={[6, 6, 0, 0]}>
                 {monthlyData.map((_, index) => (
-                  <Cell key={index} fill={BAR_COLORS[index % BAR_COLORS.length]} />
+                  <Cell
+                    key={index}
+                    fill={BAR_COLORS[index % BAR_COLORS.length]}
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -403,7 +439,10 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
               border: "1px solid rgba(255,255,255,0.07)",
             }}
           >
-            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#475569" }}>
+            <p
+              className="text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: "#475569" }}
+            >
               Approval Rate
             </p>
             {(() => {
@@ -412,11 +451,22 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
               const pct = total > 0 ? Math.round((approved / total) * 100) : 0;
               return (
                 <>
-                  <div className="text-3xl font-black" style={{ color: "#4ade80" }}>{pct}%</div>
-                  <div className="mt-3 rounded-full overflow-hidden h-1.5" style={{ background: "rgba(255,255,255,0.06)" }}>
+                  <div
+                    className="text-3xl font-black"
+                    style={{ color: "#4ade80" }}
+                  >
+                    {pct}%
+                  </div>
+                  <div
+                    className="mt-3 rounded-full overflow-hidden h-1.5"
+                    style={{ background: "rgba(255,255,255,0.06)" }}
+                  >
                     <div
                       className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${pct}%`, background: "linear-gradient(90deg,#22c55e,#4ade80)" }}
+                      style={{
+                        width: `${pct}%`,
+                        background: "linear-gradient(90deg,#22c55e,#4ade80)",
+                      }}
                     />
                   </div>
                   <p className="text-xs mt-2" style={{ color: "#334155" }}>
@@ -435,10 +485,18 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
               border: "1px solid rgba(255,255,255,0.07)",
             }}
           >
-            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#475569" }}>
+            <p
+              className="text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: "#475569" }}
+            >
               Review Queue
             </p>
-            <div className="text-3xl font-black" style={{ color: summary.pendingApprovals > 5 ? "#fbbf24" : "#4ade80" }}>
+            <div
+              className="text-3xl font-black"
+              style={{
+                color: summary.pendingApprovals > 5 ? "#fbbf24" : "#4ade80",
+              }}
+            >
               {summary.pendingApprovals}
             </div>
             <p className="text-xs mt-2" style={{ color: "#334155" }}>
@@ -456,16 +514,22 @@ export function AnalyticsDashboard({ accessToken, institutionId }: AnalyticsDash
               border: "1px solid rgba(255,255,255,0.07)",
             }}
           >
-            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#475569" }}>
+            <p
+              className="text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: "#475569" }}
+            >
               Questions / Faculty
             </p>
             <div className="text-3xl font-black" style={{ color: "#818cf8" }}>
               {summary.activeFacultyCount > 0
-                ? Math.round(summary.totalQuestions / summary.activeFacultyCount)
+                ? Math.round(
+                    summary.totalQuestions / summary.activeFacultyCount,
+                  )
                 : summary.totalQuestions}
             </div>
             <p className="text-xs mt-2" style={{ color: "#334155" }}>
-              avg across {summary.activeFacultyCount} faculty member{summary.activeFacultyCount !== 1 ? "s" : ""}
+              avg across {summary.activeFacultyCount} faculty member
+              {summary.activeFacultyCount !== 1 ? "s" : ""}
             </p>
           </div>
         </div>

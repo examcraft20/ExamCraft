@@ -3,14 +3,17 @@
 import { useState } from "react";
 import { Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button, Input, StatusMessage } from "@examcraft/ui";
-import { getSupabaseBrowserClient } from "../../../lib/supabase-browser";
-import { env } from "../../../lib/env";
+import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { env } from "@/lib/env";
 import Link from "next/link";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const handleResetRequest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,10 +23,10 @@ export function ForgotPasswordForm() {
     setStatus(null);
 
     const supabase = getSupabaseBrowserClient();
-    
+
     // Redirect goes to the reset-password page we just built
     const redirectUrl = `${window.location.origin}/auth/reset-password`;
-    
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });
@@ -32,9 +35,10 @@ export function ForgotPasswordForm() {
       setStatus({ type: "error", message: error.message });
       setIsLoading(false);
     } else {
-      setStatus({ 
-        type: "success", 
-        message: "If an account exists, a password reset link has been sent to your email." 
+      setStatus({
+        type: "success",
+        message:
+          "If an account exists, a password reset link has been sent to your email.",
       });
       setIsLoading(false);
     }
@@ -43,7 +47,9 @@ export function ForgotPasswordForm() {
   return (
     <div className="w-full max-w-[400px]">
       <div className="mb-8 text-center">
-        <h2 className="text-3xl font-black text-white tracking-tight mb-2">Forgot Password?</h2>
+        <h2 className="text-3xl font-black text-white tracking-tight mb-2">
+          Forgot Password?
+        </h2>
         <p className="text-slate-400 font-medium text-sm">
           No worries. Enter your email and we'll send you reset instructions.
         </p>
@@ -52,7 +58,9 @@ export function ForgotPasswordForm() {
       <form onSubmit={handleResetRequest} className="space-y-6">
         {status && (
           <StatusMessage variant={status.type} className="mb-4">
-            {status.type === 'success' && <CheckCircle2 size={16} className="inline mr-2" />}
+            {status.type === "success" && (
+              <CheckCircle2 size={16} className="inline mr-2" />
+            )}
             {status.message}
           </StatusMessage>
         )}
@@ -82,14 +90,20 @@ export function ForgotPasswordForm() {
           ) : (
             <span className="flex items-center gap-2">
               Send Reset Link
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight
+                size={18}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </span>
           )}
         </Button>
       </form>
 
       <div className="mt-8 text-center">
-        <Link href="/login" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+        <Link
+          href="/login"
+          className="text-sm font-medium text-slate-400 hover:text-white transition-colors"
+        >
           Back to Login
         </Link>
       </div>

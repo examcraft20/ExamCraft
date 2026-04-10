@@ -12,6 +12,8 @@ type SectionRule = {
   allowedUnitNumbers?: number[];
 };
 
+type ArrayFieldKeys = "allowedDifficulty" | "allowedBloomLevels" | "allowedUnitNumbers";
+
 type TemplateSectionConfiguratorProps = {
   sections: SectionRule[];
   onChange: (sections: SectionRule[]) => void;
@@ -52,12 +54,22 @@ export function TemplateSectionConfigurator({
     onChange(newSections);
   };
 
-  const toggleRule = (index: number, field: keyof SectionRule, value: any) => {
-    const currentRef = (sections[index][field] as any[]) || [];
+  const toggleRule = (
+    index: number,
+    field: ArrayFieldKeys,
+    value: string | number,
+  ) => {
+    const currentField = sections[index][field];
+    if (!Array.isArray(currentField)) {
+      return;
+    }
+
+    const currentRef = currentField as Array<string | number>;
     const newValue = currentRef.includes(value)
       ? currentRef.filter((v) => v !== value)
       : [...currentRef, value];
-    updateSection(index, { [field]: newValue });
+
+    updateSection(index, { [field]: newValue } as Partial<SectionRule>);
   };
 
   return (
@@ -112,21 +124,27 @@ export function TemplateSectionConfigurator({
                 <Input
                   label="Questions"
                   type="number"
+                  min={1}
                   value={section.questionCount}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
                     updateSection(idx, {
-                      questionCount: parseInt(e.target.value) || 0,
-                    })
-                  }
+                      questionCount: Number.isNaN(value) || value < 1 ? 1 : value,
+                    });
+                  }}
                   required
                 />
                 <Input
                   label="Total Marks"
                   type="number"
+                  min={1}
                   value={section.marks}
-                  onChange={(e) =>
-                    updateSection(idx, { marks: parseInt(e.target.value) || 0 })
-                  }
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    updateSection(idx, {
+                      marks: Number.isNaN(value) || value < 1 ? 1 : value,
+                    });
+                  }}
                   required
                 />
               </div>
@@ -149,6 +167,8 @@ export function TemplateSectionConfigurator({
                           onClick={() =>
                             toggleRule(idx, "allowedDifficulty", d)
                           }
+                          aria-pressed={section.allowedDifficulty?.includes(d) ?? false}
+                          aria-label={`${d} difficulty toggle`}
                           className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all border ${
                             section.allowedDifficulty?.includes(d)
                               ? "bg-brandAccent/10 border-brandAccent text-brandAccent"
@@ -173,6 +193,8 @@ export function TemplateSectionConfigurator({
                           onClick={() =>
                             toggleRule(idx, "allowedBloomLevels", b)
                           }
+                          aria-pressed={section.allowedBloomLevels?.includes(b) ?? false}
+                          aria-label={`${b} Bloom taxonomy toggle`}
                           className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all border ${
                             section.allowedBloomLevels?.includes(b)
                               ? "bg-primary/10 border-primary text-primary"

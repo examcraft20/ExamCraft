@@ -1,4 +1,4 @@
-import { Body, Controller, Get, InternalServerErrorException, Post } from "@nestjs/common";
+import { Body, Controller, Get, InternalServerErrorException, Post, Patch, Delete, Param } from "@nestjs/common";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
 import { CurrentTenant } from "../common/decorators/tenant-context.decorator";
@@ -8,8 +8,10 @@ import { InvitationService } from "../invitations/invitation.service";
 import { UseTenantAuthorization } from "../tenant/guards/tenant-context.guard";
 import { CreateStaffInvitationDto } from "./dto/create-staff-invitation.dto";
 import { PeopleService } from "./people.service";
+import { AuditLog } from "../common/decorators/audit-log.decorator";
+import { AuditAction } from "../audit-logs/audit-action.enum";
 
-@Controller("people")
+@Controller({ path: "people", version: "1" })
 @UseTenantAuthorization()
 @RequireRoles("institution_admin")
 export class PeopleController {
@@ -30,6 +32,7 @@ export class PeopleController {
 
   @Post("invitations")
   @RequirePermissions("users.invite")
+  @AuditLog(AuditAction.USER_INVITED, 'invitations', (result: any) => result.invitation.id)
   createInvitation(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
@@ -41,4 +44,32 @@ export class PeopleController {
 
     return this.invitationService.createInvitation(tenantContext, currentUser.id, body);
   }
+
+  @Patch("users/:id/role")
+  @RequirePermissions("users.manage")
+  @AuditLog(AuditAction.USER_ROLE_CHANGED, 'institution_user_roles', (result: any, [tc, userId]: any[]) => userId)
+  updateUserRole(
+    @CurrentTenant() tenantContext: TenantContext | undefined,
+    @Param("id") id: string,
+    @Body("roleCode") roleCode: string
+  ) {
+    if (!tenantContext) {
+      throw new InternalServerErrorException("Missing tenant context.");
+    }
+    return this.peopleService.updateUserRole(tenantContext, id, roleCode);
+  }
+
+  @Delete("users/:id")
+  @RequirePermissions("users.manage")
+  @AuditLog(AuditAction.USER_REMOVED, 'institution_users', (result: any, [tc, userId]: any[]) => userId)
+  removeUser(
+    @CurrentTenant() tenantContext: TenantContext | undefined,
+    @Param("id") id: string
+  ) {
+    if (!tenantContext) {
+      throw new InternalServerErrorException("Missing tenant context.");
+    }
+    return this.peopleService.removeUser(tenantContext, id);
+  }
 }
+

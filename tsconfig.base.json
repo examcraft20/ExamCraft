@@ -12,9 +12,10 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
+      "@/*": ["apps/web/*"],
       "@examcraft/ui": ["packages/ui/src"],
       "@examcraft/types": ["packages/types/src"],
-      "@examcraft/sdk": ["packages/sdk/src"]
+      "#api": ["apps/web/lib/api"]
     }
   }
 }

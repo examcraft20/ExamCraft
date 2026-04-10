@@ -1,5 +1,5 @@
-import { InstitutionOnboardingForm } from "../../components/auth/institution-onboarding-form";
+import { OnboardingCard } from "../../components/onboarding/OnboardingCard";
 
 export default function OnboardingPage() {
-  return <InstitutionOnboardingForm />;
+  return <OnboardingCard />;
 }

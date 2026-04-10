@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+.next
+dist
+.turbo
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs
+
+# Tests
+__tests__
+*.test.ts
+*.spec.ts
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Scripts (not needed in production)
+scripts

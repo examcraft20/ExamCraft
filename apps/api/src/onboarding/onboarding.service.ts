@@ -79,7 +79,7 @@ export class OnboardingService {
       }
 
       const { error: subscriptionError } = await this.supabaseAdminClient
-        .from("subscriptions")
+        .from("institution_subscriptions")
         .insert({
           institution_id: institution.id,
           plan_code: "free",

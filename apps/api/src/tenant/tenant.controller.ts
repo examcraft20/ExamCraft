@@ -17,8 +17,9 @@ import { SupabaseAuthGuard } from "../auth/guards/supabase-auth.guard";
 import { UseTenantAuthorization } from "./guards/tenant-context.guard";
 import { TenantContextService } from "./tenant-context.service";
 import { UpdateInstitutionStatusDto } from "./dto/update-institution-status.dto";
+import { UpdateBrandingDto } from "./dto/update-branding.dto";
 
-@Controller("tenant")
+@Controller({ path: "tenant", version: "1" })
 export class TenantController {
   constructor(private readonly tenantContextService: TenantContextService) {}
 
@@ -115,5 +116,22 @@ export class TenantController {
     }
 
     return this.tenantContextService.getPlatformAuditFeed();
+  }
+
+  @Patch("branding")
+  @UseTenantAuthorization()
+  @RequireRoles("institution_admin")
+  updateBranding(
+    @CurrentTenant() tenantContext: TenantContext | undefined,
+    @Body() body: UpdateBrandingDto
+  ) {
+    if (!tenantContext) {
+      throw new InternalServerErrorException("Missing tenant context.");
+    }
+
+    return this.tenantContextService.updateInstitutionBranding(
+      tenantContext.institutionId,
+      body
+    );
   }
 }

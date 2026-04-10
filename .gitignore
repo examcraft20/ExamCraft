@@ -4,6 +4,7 @@ apps/web/.next-build
 dist
 coverage
 .turbo
+.turbo-cache
 *.tsbuildinfo
 _tmp_*
 temp.py
@@ -17,3 +18,20 @@ playwright-report
 .env.production.local
 .DS_Store
 *.log
+logs
+
+# Build Artifacts
+apps/web/.next
+apps/web/.next-build
+apps/api/dist
+packages/types/dist
+packages/sdk/dist
+
+# Temp Folders
+.codex/
+supabase/.temp/
+ui-ux-pro-max-skill-main/
+agent-skills-main/
+
+# Env Files
+.env.production

@@ -11,7 +11,7 @@ import type { AuthenticatedUser } from "../common/types/authenticated-request";
 import { OnboardingService } from "./onboarding.service";
 import type { CreateInstitutionOnboardingDto } from "./dto/create-institution-onboarding.dto";
 
-@Controller("onboarding")
+@Controller({ path: "onboarding", version: "1" })
 export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
 

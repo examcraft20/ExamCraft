@@ -18,8 +18,10 @@ import type {
 import { UseTenantAuthorization } from "../tenant/guards/tenant-context.guard";
 import type { AcceptInvitationDto, CreateInvitationDto } from "./dto/create-invitation.dto";
 import { InvitationService } from "./invitation.service";
+import { AuditLog } from "../common/decorators/audit-log.decorator";
+import { AuditAction } from "../audit-logs/audit-action.enum";
 
-@Controller("invitations")
+@Controller({ path: "invitations", version: "1" })
 export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
@@ -36,11 +38,13 @@ export class InvitationController {
   @UseTenantAuthorization()
   @RequireRoles("institution_admin")
   @RequirePermissions("users.invite")
+  @AuditLog(AuditAction.USER_INVITED, 'invitations', (result: any) => result.invitation.id)
   createInvitation(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
     @Body() body: CreateInvitationDto
   ) {
+
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }

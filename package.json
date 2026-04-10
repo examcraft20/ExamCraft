@@ -5,18 +5,47 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:api": "turbo run dev --filter=api",
     "build": "turbo run build",
+    "build:web": "turbo run build --filter=web",
+    "build:api": "turbo run build --filter=api",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
-    "format": "prettier --write ."
+    "seed": "tsx scripts/seed-test-data.ts",
+    "seed:reset": "tsx scripts/seed-test-data.ts --reset-only",
+    "pilot:seed": "tsx scripts/pilot-seed.ts",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "clean:web": "rm -rf apps/web/.next apps/web/node_modules",
+    "clean:api": "rm -rf apps/api/dist apps/api/node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "kill:ports": "npx kill-port 3000 4000",
+    "dev:fresh": "pnpm kill:ports && turbo run dev",
+    "check:env": "tsx scripts/check-env.ts",
+    "db:start": "node scripts/db-start.js",
+    "db:stop": "node scripts/db-stop.js",
+    "db:restart": "pnpm db:stop && pnpm db:start",
+    "db:status": "docker compose ps",
+    "db:logs": "docker compose logs -f",
+    "db:migrate": "node scripts/db-migrate.js",
+    "db:reset": "docker compose down -v && pnpm db:start && pnpm db:migrate",
+    "dev:with-db": "pnpm db:start && turbo run dev",
+    "db:setup": "powershell -ExecutionPolicy Bypass -File scripts/setup-database.ps1",
+    "test:db-connection": "node scripts/test-db-connection.js"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.30.1",
     "@typescript-eslint/parser": "^8.30.1",
     "prettier": "^3.4.2",
+    "tsx": "^4.21.0",
     "turbo": "^2.4.4",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@alloc/quick-lru": "^5.2.0",
+    "@supabase/ssr": "^0.10.0",
+    "date-fns": "^4.1.0"
   }
 }

@@ -14,6 +14,7 @@ export type MembershipSummary = {
   institutionName: string;
   institutionSlug: string;
   institutionType: string;
+  branding: any;
   displayName: string | null;
   roleCodes: string[];
 };
@@ -86,6 +87,10 @@ export type QuestionRecord = {
   bloomLevel: string;
   difficulty: string;
   tags: string[];
+  courseOutcomes: string[];
+  unitNumber: number | null;
+  departmentId: string | null;
+  courseId: string | null;
   status: string;
   reviewComment?: string | null;
   reviewHistory?: ReviewHistoryEntry[];
@@ -99,9 +104,39 @@ export type TemplateRecord = {
   durationMinutes: number;
   totalMarks: number;
   sections: Array<{ title: string; questionCount: number; marks: number }>;
+  departmentId: string | null;
+  courseId: string | null;
+  subjectId: string | null;
+  tags?: string[];
   status: string;
   reviewComment?: string | null;
   reviewHistory?: ReviewHistoryEntry[];
+  createdAt: string;
+};
+
+export type PaperRecord = {
+  id: string;
+  title: string;
+  templateId: string;
+  templateName: string;
+  subject: string;
+  totalMarks: number;
+  status: string;
+  sections: Array<{
+    title: string;
+    marks: number;
+    questionCount?: number;
+    questions: Array<{
+      id: string;
+      title: string;
+      marks: number;
+      bloomLevel: string;
+      difficulty: string;
+    }>;
+  }>;
+  reviewComment?: string | null;
+  reviewHistory?: ReviewHistoryEntry[];
+  metadata?: any;
   createdAt: string;
 };
 
@@ -142,7 +177,7 @@ export type PlatformAuditEvent = {
   id: string;
   institutionId: string;
   institutionName: string;
-  eventType: "institution.created" | "invitation.created" | "question.created" | "template.created";
+  eventType: "institution.created" | "institution.status_changed" | "invitation.created" | "question.created" | "template.created" | "questions.bulk_imported" | "template.cloned";
   title: string;
   status: string;
   createdAt: string;

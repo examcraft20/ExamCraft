@@ -5,6 +5,9 @@ import {
   IsIn,
   IsOptional,
   IsString,
+  IsInt,
+  Min,
+  Max,
   MaxLength,
   MinLength
 } from "class-validator";
@@ -38,4 +41,24 @@ export class CreateQuestionDto {
   @ArrayMaxSize(8)
   @IsString({ each: true })
   tags?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @IsString({ each: true })
+  courseOutcomes?: string[];
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  unitNumber?: number;
+
+  @IsOptional()
+  @IsString()
+  departmentId?: string;
+
+  @IsOptional()
+  @IsString()
+  courseId?: string;
 }

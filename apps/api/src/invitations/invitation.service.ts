@@ -4,12 +4,14 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-  InternalServerErrorException
+  InternalServerErrorException,
+  Logger
 } from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
 import type { TenantContext } from "../common/types/authenticated-request";
 import type { AcceptInvitationDto, CreateInvitationDto } from "./dto/create-invitation.dto";
+import { MailerService } from "../modules/mailer/mailer.service";
 
 type InvitationRecord = {
   id: string;
@@ -29,9 +31,12 @@ type RoleRecord = {
 
 @Injectable()
 export class InvitationService {
+  private readonly logger = new Logger(InvitationService.name);
+
   constructor(
     @Inject(SUPABASE_ADMIN_CLIENT)
-    private readonly supabaseAdminClient: SupabaseClient
+    private readonly supabaseAdminClient: SupabaseClient,
+    private readonly mailerService: MailerService
   ) {}
 
   async createInvitation(
@@ -72,6 +77,17 @@ export class InvitationService {
     if (error || !data) {
       throw new InternalServerErrorException("Failed to create invitation.");
     }
+
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const inviteUrl = `${frontendUrl}/invite?token=${rawToken}`;
+    
+    // We send emails in background, no await
+    this.mailerService.sendFacultyInvite(
+      payload.email.trim().toLowerCase(),
+      "your ExamCraft institution",
+      payload.roleCode,
+      inviteUrl
+    ).catch(e => this.logger.error('Could not send mail', e));
 
     return {
       invitation: data,

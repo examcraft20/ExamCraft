@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Inject, Injectable, InternalServerErrorException, NotFoundException, BadRequestException } from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { TenantContext } from "../common/types/authenticated-request";
 import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
@@ -79,4 +79,65 @@ export class PeopleService {
       }))
     };
   }
+
+  async updateUserRole(tenantContext: TenantContext, institutionUserId: string, newRoleCode: string) {
+    // Check if user exists in institution
+    const { data: user, error: userError } = await this.supabaseAdminClient
+      .from("institution_users")
+      .select("id")
+      .eq("id", institutionUserId)
+      .eq("institution_id", tenantContext.institutionId)
+      .single();
+
+    if (userError || !user) {
+      throw new NotFoundException("User not found in this institution.");
+    }
+
+    // Get role ID
+    const { data: role, error: roleError } = await this.supabaseAdminClient
+      .from("roles")
+      .select("id")
+      .eq("code", newRoleCode)
+      .single();
+
+    if (roleError || !role) {
+      throw new BadRequestException("Invalid role code.");
+    }
+
+    // Update role (assuming one role per user for simplified SaaS logic, or replacing all with this one)
+    // First, delete existing
+    await this.supabaseAdminClient
+      .from("institution_user_roles")
+      .delete()
+      .eq("institution_user_id", institutionUserId);
+
+    // Then insert new
+    const { error: insertError } = await this.supabaseAdminClient
+      .from("institution_user_roles")
+      .insert({
+        institution_user_id: institutionUserId,
+        role_id: role.id
+      });
+
+    if (insertError) {
+      throw new InternalServerErrorException("Failed to update user role.");
+    }
+
+    return { id: institutionUserId };
+  }
+
+  async removeUser(tenantContext: TenantContext, institutionUserId: string) {
+    const { error } = await this.supabaseAdminClient
+      .from("institution_users")
+      .delete()
+      .eq("id", institutionUserId)
+      .eq("institution_id", tenantContext.institutionId);
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to remove user from institution.");
+    }
+
+    return { id: institutionUserId };
+  }
 }
+

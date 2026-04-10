@@ -27,6 +27,26 @@ class TemplateSectionDto {
   @Min(1)
   @Max(1000)
   marks!: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  allowedDifficulty?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  allowedBloomLevels?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  allowedUnitNumbers?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  requiredTags?: string[];
 }
 
 export class CreateTemplateDto {
@@ -56,4 +76,22 @@ export class CreateTemplateDto {
   @ValidateNested({ each: true })
   @Type(() => TemplateSectionDto)
   sections?: TemplateSectionDto[];
+
+  @IsOptional()
+  @IsString()
+  departmentId?: string;
+
+  @IsOptional()
+  @IsString()
+  courseId?: string;
+
+  @IsOptional()
+  @IsString()
+  subjectId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  tags?: string[];
 }

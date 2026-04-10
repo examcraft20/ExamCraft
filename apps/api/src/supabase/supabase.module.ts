@@ -1,10 +1,12 @@
-import { Module } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { Module, Global } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ADMIN_CLIENT } from "./supabase.constants";
 
+@Global()
 @Module({
+  imports: [ConfigModule],
   providers: [
     {
       provide: SUPABASE_ADMIN_CLIENT,

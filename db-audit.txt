@@ -1,0 +1,37 @@
+﻿=== AUTH USERS ===
+530bb0af-d07d-4115-bce2-0e079696a529 | faculty.sa@examcraft-test.com
+69d7f6b9-d003-4181-9872-492480fd6d2c | admin.sa@examcraft-test.com
+92011fc0-8523-4f81-b842-77320857b678 | reviewer.bmt@examcraft-test.com
+3c5fe039-1179-49a3-a346-4e5d5c01aa4b | faculty.bmt@examcraft-test.com
+58ee5cab-7a3b-4ab1-9a01-773cd3cca900 | admin.bmt@examcraft-test.com
+b4373756-c216-4b96-8d40-25ebb413d512 | reviewer.dtc@examcraft-test.com
+5c07e3d0-e7e5-48a9-aa88-33239944b029 | faculty2.dtc@examcraft-test.com
+8a4660e8-8209-4c1a-8c79-85fdcd294e98 | faculty1.dtc@examcraft-test.com
+566ce6a4-698f-4a39-90a0-0dc145671ec4 | head.dtc@examcraft-test.com
+4866e79e-dbaf-403b-a089-75d24ccf8a04 | admin.dtc@examcraft-test.com
+d778405e-d128-4265-81ab-57f44d810ed7 | superadmin@examcraft-test.com
+f3ec5d53-3360-4bbd-a113-30902cd7e32a | indcobra734@gmail.com
+00000000-0000-0000-0000-000000000502 | head.cs@testuniversity.edu
+00000000-0000-0000-0000-000000000505 | faculty2@testuniversity.edu
+00000000-0000-0000-0000-000000000501 | admin@testuniversity.edu
+00000000-0000-0000-0000-000000000504 | faculty1@testuniversity.edu
+00000000-0000-0000-0000-000000000503 | reviewer@testuniversity.edu
+
+=== INSTITUTION_USERS ===
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | auth_user=4866e79e-dbaf-403b-a089-75d24ccf8a04
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | auth_user=566ce6a4-698f-4a39-90a0-0dc145671ec4
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | auth_user=8a4660e8-8209-4c1a-8c79-85fdcd294e98
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | auth_user=5c07e3d0-e7e5-48a9-aa88-33239944b029
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | auth_user=b4373756-c216-4b96-8d40-25ebb413d512
+inst=db516b4b-fb38-454c-8b35-7648dbcb0aee | auth_user=58ee5cab-7a3b-4ab1-9a01-773cd3cca900
+inst=db516b4b-fb38-454c-8b35-7648dbcb0aee | auth_user=3c5fe039-1179-49a3-a346-4e5d5c01aa4b
+inst=db516b4b-fb38-454c-8b35-7648dbcb0aee | auth_user=92011fc0-8523-4f81-b842-77320857b678
+inst=7231d7c7-78e0-448c-8726-2f654ba01374 | auth_user=69d7f6b9-d003-4181-9872-492480fd6d2c
+inst=7231d7c7-78e0-448c-8726-2f654ba01374 | auth_user=530bb0af-d07d-4115-bce2-0e079696a529
+
+=== QUESTIONS ===
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | status=ready | What is the time complexity of binary search?
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | status=ready | Which data structure is used in BFS?
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | status=ready | Explain the difference between stack and queue
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | status=ready | Write and explain Dijkstra's shortest path algorithm
+inst=e3e9538f-d136-4c5e-bbd4-b70977ecd873 | status=draft | What is the worst-case complexity of QuickSort?

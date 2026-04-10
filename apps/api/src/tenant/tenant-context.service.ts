@@ -13,6 +13,7 @@ type MembershipRow = {
         name: string;
         slug: string;
         institution_type: string;
+        branding: any;
       }
     | null;
   institution_user_roles: Array<{
@@ -101,6 +102,7 @@ export type TenantMembershipSummary = {
   institutionName: string;
   institutionSlug: string;
   institutionType: string;
+  branding: any;
   displayName: string | null;
   roleCodes: string[];
 };
@@ -190,7 +192,7 @@ export class TenantContextService {
     const { data, error } = await this.supabaseAdminClient
       .from("institution_users")
       .select(
-        "id, institution_id, display_name, institutions(id, name, slug, institution_type), institution_user_roles(role_id, roles(code))"
+        "id, institution_id, display_name, institutions(id, name, slug, institution_type, branding), institution_user_roles(role_id, roles(code))"
       )
       .eq("user_id", userId)
       .eq("institution_id", institutionId)
@@ -226,7 +228,7 @@ export class TenantContextService {
     const { data, error } = await this.supabaseAdminClient
       .from("institution_users")
       .select(
-        "id, institution_id, display_name, institutions(id, name, slug, institution_type), institution_user_roles(role_id, roles(code))"
+        "id, institution_id, display_name, institutions(id, name, slug, institution_type, branding), institution_user_roles(role_id, roles(code))"
       )
       .eq("user_id", userId)
       .eq("status", "active")
@@ -248,6 +250,7 @@ export class TenantContextService {
           institutionName: membership.institutions.name,
           institutionSlug: membership.institutions.slug,
           institutionType: membership.institutions.institution_type,
+          branding: membership.institutions.branding,
           displayName: membership.display_name,
           roleCodes:
             membership.institution_user_roles?.flatMap((membershipRole) =>
@@ -704,5 +707,24 @@ export class TenantContextService {
     }
 
     return usageMap;
+  }
+
+  async updateInstitutionBranding(
+    institutionId: string,
+    branding: { logoUrl?: string; primaryColor?: string; secondaryColor?: string; customSettings?: any }
+  ) {
+    const { data, error } = await this.supabaseAdminClient
+      .from("institutions")
+      .update({
+        branding: branding
+      })
+      .eq("id", institutionId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new NotFoundException("Unable to update institution branding.");
+    }
+    return data;
   }
 }

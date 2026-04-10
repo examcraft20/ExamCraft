@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Spinner } from "@examcraft/ui";
-import { DashboardHome } from "../../components/dashboard/dashboard-home";
+import { DashboardHome } from "../../components/dashboard/shared/dashboard-home";
 
 function DashboardPageFallback() {
   return (

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { AuthLayout } from "../../../../components/auth/AuthLayout";
-import { ResetPasswordForm } from "../../../../components/auth/ResetPasswordForm";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
 export const metadata: Metadata = {
   title: "Reset Password | ExamCraft",

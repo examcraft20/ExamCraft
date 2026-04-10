@@ -8,14 +8,17 @@ import {
   Patch,
   Post,
   Delete,
-  Res
+  Res,
 } from "@nestjs/common";
 import { Response } from "express";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
 import { CurrentTenant } from "../common/decorators/tenant-context.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
-import type { AuthenticatedUser, TenantContext } from "../common/types/authenticated-request";
+import type {
+  AuthenticatedUser,
+  TenantContext,
+} from "../common/types/authenticated-request";
 import { UseTenantAuthorization } from "../tenant/guards/tenant-context.guard";
 import { ContentService } from "./content.service";
 import { PaperExportService } from "./paper-export.service";
@@ -25,16 +28,22 @@ import { CreateBulkQuestionsDto } from "./dto/create-bulk-questions.dto";
 import { CreateTemplateDto } from "./dto/create-template.dto";
 import { ReviewContentDto } from "./dto/review-content.dto";
 import { GeneratePaperDto } from "./dto/generate-paper.dto";
+import { AnalyzeSyllabusDto } from "./dto/ai.dto";
 import { AuditLog } from "../common/decorators/audit-log.decorator";
 import { AuditAction } from "../audit-logs/audit-action.enum";
 
 @Controller({ path: "content", version: "1" })
 @UseTenantAuthorization()
-@RequireRoles("faculty", "academic_head", "institution_admin", "reviewer_approver")
+@RequireRoles(
+  "faculty",
+  "academic_head",
+  "institution_admin",
+  "reviewer_approver",
+)
 export class ContentController {
   constructor(
     private readonly contentService: ContentService,
-    private readonly paperExportService: PaperExportService
+    private readonly paperExportService: PaperExportService,
   ) {}
 
   @Get("questions")
@@ -49,11 +58,15 @@ export class ContentController {
 
   @Post("questions")
   @RequirePermissions("questions.create")
-  @AuditLog(AuditAction.QUESTION_CREATED, 'institution_questions', (result: any) => result.id)
+  @AuditLog(
+    AuditAction.QUESTION_CREATED,
+    "institution_questions",
+    (result: any) => result.id,
+  )
   createQuestion(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
-    @Body() body: CreateQuestionDto
+    @Body() body: CreateQuestionDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
@@ -66,7 +79,7 @@ export class ContentController {
   @RequirePermissions("questions.read")
   getQuestion(
     @CurrentTenant() tenantContext: TenantContext | undefined,
-    @Param("questionId") questionId: string
+    @Param("questionId") questionId: string,
   ) {
     if (!tenantContext) {
       throw new InternalServerErrorException("Missing tenant context.");
@@ -77,33 +90,50 @@ export class ContentController {
 
   @Patch("questions/:questionId")
   @RequirePermissions("questions.write")
-  @AuditLog(AuditAction.QUESTION_UPDATED, 'institution_questions', (result: any) => result.id)
+  @AuditLog(
+    AuditAction.QUESTION_UPDATED,
+    "institution_questions",
+    (result: any) => result.id,
+  )
   editQuestion(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
     @Param("questionId") questionId: string,
-    @Body() body: EditQuestionDto
+    @Body() body: EditQuestionDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }
 
-    return this.contentService.editQuestion(tenantContext, currentUser, questionId, body);
+    return this.contentService.editQuestion(
+      tenantContext,
+      currentUser,
+      questionId,
+      body,
+    );
   }
 
   @Delete("questions/:questionId")
   @RequirePermissions("questions.write")
-  @AuditLog(AuditAction.QUESTION_DELETED, 'institution_questions', (result, [tc, u, qId]: any[]) => qId)
+  @AuditLog(
+    AuditAction.QUESTION_DELETED,
+    "institution_questions",
+    (result, [tc, u, qId]: any[]) => qId,
+  )
   archiveQuestion(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
-    @Param("questionId") questionId: string
+    @Param("questionId") questionId: string,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }
 
-    return this.contentService.archiveQuestion(tenantContext, currentUser, questionId);
+    return this.contentService.archiveQuestion(
+      tenantContext,
+      currentUser,
+      questionId,
+    );
   }
 
   @Post("questions/bulk")
@@ -111,13 +141,17 @@ export class ContentController {
   createBulkQuestions(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
-    @Body() body: CreateBulkQuestionsDto
+    @Body() body: CreateBulkQuestionsDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }
 
-    return this.contentService.createBulkQuestions(tenantContext, currentUser, body);
+    return this.contentService.createBulkQuestions(
+      tenantContext,
+      currentUser,
+      body,
+    );
   }
 
   @Get("templates")
@@ -135,7 +169,7 @@ export class ContentController {
   createTemplate(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
-    @Body() body: CreateTemplateDto
+    @Body() body: CreateTemplateDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
@@ -146,18 +180,27 @@ export class ContentController {
 
   @Patch("questions/:questionId/review")
   @RequirePermissions("papers.review")
-  @AuditLog(AuditAction.QUESTION_APPROVED, 'institution_questions', (result: any) => result.id)
+  @AuditLog(
+    AuditAction.QUESTION_APPROVED,
+    "institution_questions",
+    (result: any) => result.id,
+  )
   reviewQuestion(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
     @Param("questionId") questionId: string,
-    @Body() body: ReviewContentDto
+    @Body() body: ReviewContentDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }
 
-    return this.contentService.reviewQuestion(tenantContext, currentUser, questionId, body);
+    return this.contentService.reviewQuestion(
+      tenantContext,
+      currentUser,
+      questionId,
+      body,
+    );
   }
 
   @Patch("templates/:templateId/review")
@@ -166,13 +209,18 @@ export class ContentController {
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
     @Param("templateId") templateId: string,
-    @Body() body: ReviewContentDto
+    @Body() body: ReviewContentDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }
 
-    return this.contentService.reviewTemplate(tenantContext, currentUser, templateId, body);
+    return this.contentService.reviewTemplate(
+      tenantContext,
+      currentUser,
+      templateId,
+      body,
+    );
   }
 
   @Patch("papers/:paperId/submit")
@@ -180,7 +228,7 @@ export class ContentController {
   submitPaper(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
-    @Param("paperId") paperId: string
+    @Param("paperId") paperId: string,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
@@ -195,13 +243,18 @@ export class ContentController {
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
     @Param("paperId") paperId: string,
-    @Body() body: ReviewContentDto
+    @Body() body: ReviewContentDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }
 
-    return this.contentService.reviewPaper(tenantContext, currentUser, paperId, body);
+    return this.contentService.reviewPaper(
+      tenantContext,
+      currentUser,
+      paperId,
+      body,
+    );
   }
 
   @Get("papers")
@@ -218,7 +271,7 @@ export class ContentController {
   @RequirePermissions("papers.read")
   getPaper(
     @CurrentTenant() tenantContext: TenantContext | undefined,
-    @Param("paperId") paperId: string
+    @Param("paperId") paperId: string,
   ) {
     if (!tenantContext) {
       throw new InternalServerErrorException("Missing tenant context.");
@@ -232,13 +285,17 @@ export class ContentController {
   async getPaperPdf(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @Param("paperId") paperId: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     if (!tenantContext) {
       throw new InternalServerErrorException("Missing tenant context.");
     }
 
-    return this.paperExportService.generatePdf(paperId, tenantContext.institutionId, res);
+    return this.paperExportService.generatePdf(
+      paperId,
+      tenantContext.institutionId,
+      res,
+    );
   }
 
   @Get("papers/:paperId/docx")
@@ -246,13 +303,17 @@ export class ContentController {
   async getPaperDocx(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @Param("paperId") paperId: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     if (!tenantContext) {
       throw new InternalServerErrorException("Missing tenant context.");
     }
 
-    return this.paperExportService.generateDocx(paperId, tenantContext.institutionId, res);
+    return this.paperExportService.generateDocx(
+      paperId,
+      tenantContext.institutionId,
+      res,
+    );
   }
 
   @Post("papers/generate")
@@ -260,7 +321,7 @@ export class ContentController {
   generatePaper(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
-    @Body() body: GeneratePaperDto
+    @Body() body: GeneratePaperDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
@@ -274,11 +335,17 @@ export class ContentController {
   async generateQuestionsFromSyllabus(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
-    @Body() body: any // using any here for quick schema skip, ideally use AnalyzeSyllabusDto
+    @Body() body: AnalyzeSyllabusDto,
   ) {
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }
-    return this.contentService.analyzeSyllabusAndGenerate(tenantContext, currentUser, body.text, body.subject, body.count);
+    return this.contentService.analyzeSyllabusAndGenerate(
+      tenantContext,
+      currentUser,
+      body.text,
+      body.subject,
+      body.count,
+    );
   }
 }

@@ -25,9 +25,9 @@ import { AuditLogsService } from "./audit-logs/audit-logs.service";
 @Module({
   imports: [
     ThrottlerModule.forRoot([
-      { name: 'short',  ttl: 1000,  limit: 10  },
-      { name: 'medium', ttl: 60000, limit: 100 },
-      { name: 'auth',   ttl: 60000, limit: 10  },
+      { name: 'short',  ttl: 1000,  limit: 1000  },
+      { name: 'medium', ttl: 60000, limit: 10000 },
+      { name: 'auth',   ttl: 60000, limit: 1000  },
     ]),
     EnvModule,
     AuthModule,

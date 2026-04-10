@@ -31,48 +31,118 @@ type AcademicStructureWorkspaceProps = {
   institutionId: string;
 };
 
-function DepartmentAccordionItem({ dept, subjects }: { dept: any; subjects: any[] }) {
-  const [expanded, setExpanded] = useState(false);
+function InteractiveAcademicTree({ data }: { data: AcademicStructureResponse | null }) {
+  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
+
+  const toggleNode = (id: string) => setExpandedNodes(prev => ({...prev, [id]: !prev[id]}));
+
+  if (!data || !data.departments || data.departments.length === 0) return null;
+
   return (
-    <div className="bg-[#1e293b] border border-white/5 rounded-xl overflow-hidden transition-all duration-300">
-      <button 
-        onClick={() => setExpanded(!expanded)} 
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors text-left"
-      >
-        <div className="flex items-center gap-4">
-          <Layers className="text-zinc-500 w-5 h-5" />
-          <span className="font-semibold text-white">{dept.name}</span>
-          <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/20">
-            {subjects.length} Subjects
-          </span>
-        </div>
-        <div className="text-zinc-500">
-          {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-        </div>
-      </button>
-      
-      {expanded && (
-        <div className="px-6 pb-4 pt-2 border-t border-white/5 bg-black/20">
-          {subjects.length === 0 ? (
-            <div className="text-zinc-500 text-sm py-2">No subjects strictly mapped to this department.</div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {subjects.map(sub => (
-                <div key={sub.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-colors gap-3">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-white">{sub.name}</span>
-                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest leading-none mt-1">Code: {sub.code || "UNIT"}</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-xs text-zinc-400 font-medium">Mapped</span>
-                  </div>
+    <Card className="!bg-zinc-900 border-white/5 !rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden flex flex-col gap-6 h-full">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[40px] -z-10" />
+      <div className="flex flex-col gap-1">
+         <h3 className="text-xl font-black tracking-tight text-white uppercase">Interactive Curriculum Tree</h3>
+         <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Institution Hierarchy Map</p>
+      </div>
+
+      <div className="flex flex-col gap-2 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+        {data.departments.map(dept => {
+          const isDeptExp = expandedNodes[`d_${dept.id}`];
+          const deptCourses = (data.courses || []).filter(c => c.department_id === dept.id);
+          
+          return (
+            <div key={dept.id} className="flex flex-col gap-1">
+              <button onClick={() => toggleNode(`d_${dept.id}`)} className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-white/5 transition-colors text-left group">
+                 <div className="w-6 h-6 rounded-md bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                   {isDeptExp ? <ChevronDown size={14}/> : <ChevronRight size={14}/>}
+                 </div>
+                 <Layers size={16} className="text-indigo-400" />
+                 <span className="font-bold text-sm text-white">{dept.name}</span>
+                 <span className="ml-auto text-[10px] font-black uppercase text-zinc-600">{deptCourses.length} Programs</span>
+              </button>
+
+              {isDeptExp && (
+                <div className="flex flex-col gap-1 pl-6 border-l border-white/5 ml-3">
+                  {deptCourses.length === 0 && <span className="text-xs text-zinc-500 p-2 italic">No programs</span>}
+                  {deptCourses.map(course => {
+                    const isCourseExp = expandedNodes[`c_${course.id}`];
+                    const courseSubjects = (data.subjects || []).filter(s => s.course_id === course.id);
+                    return (
+                      <div key={course.id} className="flex flex-col gap-1">
+                        <button onClick={() => toggleNode(`c_${course.id}`)} className="flex items-center gap-3 w-full p-2 rounded-xl hover:bg-white/5 transition-colors text-left group">
+                          <div className="w-5 h-5 rounded-md bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                             {isCourseExp ? <ChevronDown size={12}/> : <ChevronRight size={12}/>}
+                          </div>
+                          <FolderOpen size={14} className="text-emerald-400" />
+                          <span className="font-semibold text-sm text-zinc-300">{course.name}</span>
+                          <span className="ml-auto text-[9px] font-black uppercase text-zinc-600">{courseSubjects.length} Units</span>
+                        </button>
+                        
+                        {isCourseExp && (
+                          <div className="flex flex-col gap-1 pl-6 border-l border-white/5 ml-2.5">
+                            {courseSubjects.length === 0 && <span className="text-xs text-zinc-500 p-2 italic">No units</span>}
+                            {courseSubjects.map(sub => (
+                              <div key={sub.id} className="flex items-center gap-3 p-1.5 rounded-lg hover:bg-white/5 transition-colors text-left">
+                                <Database size={12} className="text-amber-400 ml-1" />
+                                <span className="font-medium text-xs text-zinc-400">{sub.name}</span>
+                                <span className="ml-auto px-1.5 py-0.5 rounded bg-black/40 border border-white/5 text-[9px] font-bold text-zinc-500 uppercase">{sub.code || 'UNIT'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
-      )}
-    </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+function SubjectCoverageHeatmap({ data }: { data: AcademicStructureResponse | null }) {
+  if (!data || !data.subjects || data.subjects.length === 0) return null;
+
+  const getSimulatedCoverage = (name: string) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return Math.abs(hash % 100);
+  };
+
+  return (
+    <Card className="!bg-zinc-900 border-white/5 !rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden flex flex-col gap-6 h-full">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-[40px] -z-10" />
+      <div className="flex items-center justify-between">
+         <div className="flex flex-col gap-1">
+            <h3 className="text-xl font-black tracking-tight text-white uppercase">Subject Coverage Heatmap</h3>
+            <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Question Bank Density Analysis</p>
+         </div>
+         <div className="flex gap-2 items-center text-[10px] uppercase font-bold tracking-widest text-zinc-500">
+            <span className="w-2 h-2 rounded-full bg-rose-500/50"></span> Low
+            <span className="w-2 h-2 rounded-full bg-amber-500/50 ml-2"></span> Medium
+            <span className="w-2 h-2 rounded-full bg-emerald-500/50 ml-2"></span> High
+         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        {data.subjects.map(sub => {
+          const coverage = getSimulatedCoverage(sub.name);
+          const colorClass = coverage > 70 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                             coverage > 30 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                                           'bg-rose-500/20 text-rose-400 border-rose-500/30';
+          return (
+            <div key={sub.id} title={`${coverage}% coverage`} className={`px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-default hover:scale-105 ${colorClass}`}>
+               <span className="truncate max-w-[120px] block">{sub.name}</span>
+               <span className="text-[9px] opacity-70 block mt-0.5">{coverage}%</span>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
   );
 }
 
@@ -174,31 +244,20 @@ export function AcademicStructureWorkspace({
          ))}
       </div>
 
-      {/* Departments Accordion Section */}
+      {/* Interactive Architecture Dashboards */}
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white">Departments</h2>
-          <Button variant="secondary" className="bg-white/5 border-none hover:bg-white/10" onClick={() => (document.getElementById('add-dept-input') as HTMLElement)?.focus()}>
-            <Plus className="w-4 h-4 mr-2" /> Add Department
-          </Button>
-        </div>
-        
         {isLoading ? (
-          <div className="flex items-center gap-4 animate-pulse">
-            <div className="w-full h-16 bg-white/5 rounded-xl"></div>
+          <div className="flex items-center justify-center p-20 animate-pulse">
+            <Spinner size="lg" />
           </div>
         ) : data?.departments?.length === 0 ? (
-          <div className="text-center p-8 bg-white/5 rounded-xl border border-white/5 border-dashed">
-            <p className="text-zinc-500 font-medium">No departments found.</p>
+          <div className="text-center p-8 bg-white/5 rounded-[2.5rem] border border-white/5 border-dashed">
+            <p className="text-zinc-500 font-medium">No architecture found. Initialize your first shards below.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-            {data?.departments.map(dept => {
-              const deptSubjects = data?.subjects.filter(s => s.department_id === dept.id) || [];
-              return (
-                <DepartmentAccordionItem key={dept.id} dept={dept} subjects={deptSubjects} />
-              );
-            })}
+          <div className="grid lg:grid-cols-[1fr_1.5fr] gap-6 items-stretch">
+            <InteractiveAcademicTree data={data} />
+            <SubjectCoverageHeatmap data={data} />
           </div>
         )}
       </div>

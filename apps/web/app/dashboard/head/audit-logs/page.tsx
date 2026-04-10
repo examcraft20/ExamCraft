@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShieldAlert } from "lucide-react";
-import { getSupabaseBrowserSession } from "../../../../../lib/supabase-browser";
-import { apiRequest } from "../../../../../lib/api/client";
-import { AuditLogsClient } from "../../../../../components/dashboard/head/AuditLogsClient";
-import type { TenantContextResponse } from "../../../../../lib/dashboard";
+import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
+import { apiRequest } from "@/lib/api/client";
+import { AuditLogsClient } from "@/components/dashboard/head/AuditLogsClient";
+import type { TenantContextResponse } from "@/lib/dashboard";
 
 const ALLOWED_ROLES = ["academic_head", "institution_admin", "super_admin"];
 
@@ -17,7 +17,9 @@ export default function AuditLogsPage() {
 
   const [isValidating, setIsValidating] = useState(true);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [resolvedInstitutionId, setResolvedInstitutionId] = useState<string | null>(null);
+  const [resolvedInstitutionId, setResolvedInstitutionId] = useState<
+    string | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function AuditLogsPage() {
         if (!isMounted) return;
 
         const hasRole = ctx.tenantContext.roleCodes.some((r) =>
-          ALLOWED_ROLES.includes(r)
+          ALLOWED_ROLES.includes(r),
         );
 
         if (!hasRole) {
@@ -65,7 +67,9 @@ export default function AuditLogsPage() {
         setIsValidating(false);
       } catch (err) {
         if (isMounted) {
-          setError(err instanceof Error ? err.message : "Access validation failed.");
+          setError(
+            err instanceof Error ? err.message : "Access validation failed.",
+          );
           setIsValidating(false);
         }
       }

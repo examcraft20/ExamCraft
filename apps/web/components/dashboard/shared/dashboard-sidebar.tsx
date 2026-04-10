@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useInstitution } from "../../../hooks/use-institution";
 import {
@@ -17,13 +17,20 @@ import {
   LayoutTemplate,
   Bot,
   BarChart2,
-  ShieldAlert
+  ShieldAlert,
+  Users,
+  Palette,
+  CheckSquare,
+  BookMarked,
+  PieChart,
+  LineChart
 } from "lucide-react";
 import { getSupabaseBrowserClient, getSupabaseBrowserSession } from "../../../lib/supabase-browser";
 import { env } from "../../../lib/env";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState<string | null>(null);
   const { institutionId, institutionName, isLoading } = useInstitution();
   
@@ -109,15 +116,43 @@ export function DashboardSidebar() {
       <div className="mx-4 border-t border-white/5" />
       
       <nav className="flex-1 px-4 pt-4 flex flex-col gap-1 overflow-y-auto pb-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {navItems.map((item, iIdx) => (
-          <SidebarLink 
-            key={iIdx}
-            href={item.href}
-            icon={item.icon}
-            label={item.label}
-            isActive={(item as any).isActive ?? (pathname === item.href)}
-          />
-        ))}
+        {navItems.map((item, iIdx) => {
+          const hrefParts = item.href.split("?");
+          const hrefPath = hrefParts[0];
+          const hrefQuery = hrefParts[1] || "";
+          const hrefSearch = new URLSearchParams(hrefQuery);
+          
+          let isActive = false;
+          
+          const currentTab = searchParams.get("tab");
+          const targetTab = hrefSearch.get("tab");
+          
+          const isRootRolePath = hrefPath.endsWith(`/${role}`);
+          
+          if (hrefPath === pathname) {
+            // Exact path match
+            if (targetTab) {
+              isActive = currentTab === targetTab;
+            } else {
+              isActive = !currentTab;
+            }
+          } else if (!isRootRolePath && !item.href.includes("?") && pathname.startsWith(hrefPath + "/")) {
+            // Prefix match for deep pages, but don't let root dashboard match sub-pages
+            isActive = true;
+          }
+
+          if ((item as any).isActive !== undefined) isActive = (item as any).isActive;
+
+          return (
+            <SidebarLink
+              key={iIdx}
+              href={item.href}
+              icon={item.icon}
+              label={item.label}
+              isActive={isActive}
+            />
+          );
+        })}
       </nav>
 
       {/* User Footer Card - Logout Only */}
@@ -166,15 +201,15 @@ function getRoleLinks(role: string, instId: string | null) {
   switch (role) {
     case "faculty":
       return [
-        { label: "Dashboard", href: base, icon: Gauge },
-        { label: "Generate Paper", href: `/dashboard/faculty/papers/new`, icon: FileText },
-        { label: "My Papers", href: `/dashboard/faculty/papers`, icon: Book },
-        { label: "Question Bank", href: `/dashboard/faculty/questions`, icon: Layers },
-        { label: "My Submissions", href: `/dashboard/faculty/submissions`, icon: ClipboardList },
-        { label: "My Subjects", href: `/dashboard/faculty/subjects`, icon: BookOpen },
-        { label: "Templates", href: `/dashboard/faculty/templates`, icon: LayoutTemplate },
-        { label: "Settings", href: `/dashboard/faculty/settings`, icon: Settings },
-        { label: "AI from Syllabus", href: `/dashboard/faculty/syllabus-ai`, icon: Bot }
+        { label: "Dashboard", href: `${base}${instId ? `?institutionId=${instId}` : ""}`, icon: Gauge },
+        { label: "Generate Paper", href: `/dashboard/faculty/papers/new${instId ? `?institutionId=${instId}` : ""}`, icon: FileText },
+        { label: "My Papers", href: `/dashboard/faculty/papers${instId ? `?institutionId=${instId}` : ""}`, icon: Book },
+        { label: "Question Bank", href: `/dashboard/faculty/questions${instId ? `?institutionId=${instId}` : ""}`, icon: Layers },
+        { label: "My Submissions", href: `/dashboard/faculty/submissions${instId ? `?institutionId=${instId}` : ""}`, icon: ClipboardList },
+        { label: "My Subjects", href: `/dashboard/faculty/subjects${instId ? `?institutionId=${instId}` : ""}`, icon: BookOpen },
+        { label: "Templates", href: `/dashboard/faculty/templates${instId ? `?institutionId=${instId}` : ""}`, icon: LayoutTemplate },
+        { label: "AI from Syllabus", href: `/dashboard/faculty/syllabus-ai${instId ? `?institutionId=${instId}` : ""}`, icon: Bot },
+        { label: "Settings", href: `/dashboard/faculty/settings${instId ? `?institutionId=${instId}` : ""}`, icon: Settings },
       ];
     case "head":
     case "academic_head":
@@ -182,6 +217,18 @@ function getRoleLinks(role: string, instId: string | null) {
         { label: "Overview", href: `${base}/overview${instId ? `?institutionId=${instId}` : ""}`, icon: Gauge },
         { label: "Analytics", href: `/dashboard/head/analytics${instId ? `?institutionId=${instId}` : ""}`, icon: BarChart2 },
         { label: "Audit Logs", href: `/dashboard/head/audit-logs${instId ? `?institutionId=${instId}` : ""}`, icon: ShieldAlert }
+      ];
+    case "institution_admin":
+      return [
+        { label: "Dashboard", href: `${base}${instId ? `?institutionId=${instId}` : ""}`, icon: Gauge },
+        { label: "Manage Faculty", href: `/dashboard/institution_admin/manage-faculty${instId ? `?institutionId=${instId}` : ""}`, icon: Users },
+        { label: "Approve Questions", href: `/dashboard/institution_admin/approve-questions${instId ? `?institutionId=${instId}` : ""}`, icon: CheckSquare },
+        { label: "Approve Papers", href: `/dashboard/institution_admin/approve-papers${instId ? `?institutionId=${instId}` : ""}`, icon: BookMarked },
+        { label: "Manage Questions", href: `/dashboard/institution_admin/manage-questions${instId ? `?institutionId=${instId}` : ""}`, icon: Layers },
+        { label: "Analytics", href: `/dashboard/institution_admin/analytics${instId ? `?institutionId=${instId}` : ""}`, icon: PieChart },
+        { label: "Reports", href: `/dashboard/institution_admin/reports${instId ? `?institutionId=${instId}` : ""}`, icon: LineChart },
+        { label: "Subjects", href: `/dashboard/institution_admin/subjects${instId ? `?institutionId=${instId}` : ""}`, icon: BookOpen },
+        { label: "Settings", href: `/dashboard/institution_admin/settings${instId ? `?institutionId=${instId}` : ""}`, icon: Settings },
       ];
     default:
       return [{ label: "Workspace Home", href: base, icon: Gauge }];

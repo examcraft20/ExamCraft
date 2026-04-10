@@ -1,19 +1,40 @@
-import { IsOptional, IsString, IsObject } from "class-validator";
+import {
+  IsOptional,
+  IsString,
+  IsObject,
+  IsUrl,
+  Matches,
+} from "class-validator";
+
+const HEX_COLOR_REGEX = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+const ALLOWED_LOGO_EXTENSIONS = ".png,.jpg,.jpeg,.svg,.webp";
 
 export class UpdateBrandingDto {
   @IsOptional()
-  @IsString()
+  @IsUrl(
+    { protocols: ["https"], require_tld: true },
+    {
+      message: "Logo must be a valid HTTPS URL",
+    },
+  )
+  @Matches(new RegExp(`\\.(${ALLOWED_LOGO_EXTENSIONS.replace(/,/g, "|")})$`), {
+    message: "Logo must end in png, jpg, jpeg, svg, or webp",
+  })
   logoUrl?: string;
 
   @IsOptional()
-  @IsString()
+  @Matches(HEX_COLOR_REGEX, {
+    message: "Primary color must be a valid hex color (#RGB or #RRGGBB)",
+  })
   primaryColor?: string;
 
   @IsOptional()
-  @IsString()
+  @Matches(HEX_COLOR_REGEX, {
+    message: "Secondary color must be a valid hex color (#RGB or #RRGGBB)",
+  })
   secondaryColor?: string;
 
   @IsOptional()
   @IsObject()
-  customSettings?: Record<string, any>;
+  customSettings?: Record<string, unknown>;
 }

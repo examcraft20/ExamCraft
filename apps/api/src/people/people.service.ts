@@ -1,4 +1,10 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException, BadRequestException } from "@nestjs/common";
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { TenantContext } from "../common/types/authenticated-request";
 import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
@@ -9,15 +15,11 @@ type InstitutionUserRow = {
   status: string;
   joined_at: string | null;
   user_id: string;
-  institution_user_roles:
-    | Array<{
-        roles:
-          | {
-              code: string;
-            }
-          | null;
-      }>
-    | null;
+  institution_user_roles: Array<{
+    roles: {
+      code: string;
+    } | null;
+  }> | null;
 };
 
 type InvitationRow = {
@@ -33,28 +35,34 @@ type InvitationRow = {
 export class PeopleService {
   constructor(
     @Inject(SUPABASE_ADMIN_CLIENT)
-    private readonly supabaseAdminClient: SupabaseClient
+    private readonly supabaseAdminClient: SupabaseClient,
   ) {}
 
   async getInstitutionPeople(tenantContext: TenantContext) {
-    const [{ data: users, error: usersError }, { data: invitations, error: invitationsError }] =
-      await Promise.all([
-        this.supabaseAdminClient
-          .from("institution_users")
-          .select("id, display_name, status, joined_at, user_id, institution_user_roles(roles(code))")
-          .eq("institution_id", tenantContext.institutionId)
-          .order("created_at", { ascending: true })
-          .returns<InstitutionUserRow[]>(),
-        this.supabaseAdminClient
-          .from("invitations")
-          .select("id, email, role_code, status, expires_at, created_at")
-          .eq("institution_id", tenantContext.institutionId)
-          .order("created_at", { ascending: false })
-          .returns<InvitationRow[]>()
-      ]);
+    const [
+      { data: users, error: usersError },
+      { data: invitations, error: invitationsError },
+    ] = await Promise.all([
+      this.supabaseAdminClient
+        .from("institution_users")
+        .select(
+          "id, display_name, status, joined_at, user_id, institution_user_roles(roles(code))",
+        )
+        .eq("institution_id", tenantContext.institutionId)
+        .order("created_at", { ascending: true })
+        .returns<InstitutionUserRow[]>(),
+      this.supabaseAdminClient
+        .from("invitations")
+        .select("id, email, role_code, status, expires_at, created_at")
+        .eq("institution_id", tenantContext.institutionId)
+        .order("created_at", { ascending: false })
+        .returns<InvitationRow[]>(),
+    ]);
 
     if (usersError || !users || invitationsError || !invitations) {
-      throw new InternalServerErrorException("Unable to load institution people data.");
+      throw new InternalServerErrorException(
+        "Unable to load institution people data.",
+      );
     }
 
     return {
@@ -66,8 +74,8 @@ export class PeopleService {
         joinedAt: user.joined_at,
         roleCodes:
           user.institution_user_roles?.flatMap((assignment) =>
-            assignment.roles?.code ? [assignment.roles.code] : []
-          ) ?? []
+            assignment.roles?.code ? [assignment.roles.code] : [],
+          ) ?? [],
       })),
       invitations: invitations.map((invitation) => ({
         id: invitation.id,
@@ -75,12 +83,16 @@ export class PeopleService {
         roleCode: invitation.role_code,
         status: invitation.status,
         expiresAt: invitation.expires_at,
-        createdAt: invitation.created_at
-      }))
+        createdAt: invitation.created_at,
+      })),
     };
   }
 
-  async updateUserRole(tenantContext: TenantContext, institutionUserId: string, newRoleCode: string) {
+  async updateUserRole(
+    tenantContext: TenantContext,
+    institutionUserId: string,
+    newRoleCode: string,
+  ) {
     // Check if user exists in institution
     const { data: user, error: userError } = await this.supabaseAdminClient
       .from("institution_users")
@@ -116,11 +128,57 @@ export class PeopleService {
       .from("institution_user_roles")
       .insert({
         institution_user_id: institutionUserId,
-        role_id: role.id
+        role_id: role.id,
       });
 
     if (insertError) {
       throw new InternalServerErrorException("Failed to update user role.");
+    }
+
+    return { id: institutionUserId };
+  }
+
+  async updateUser(
+    tenantContext: TenantContext,
+    institutionUserId: string,
+    updates: { status?: string; displayName?: string },
+  ) {
+    const { data: user, error: userError } = await this.supabaseAdminClient
+      .from("institution_users")
+      .select("id")
+      .eq("id", institutionUserId)
+      .eq("institution_id", tenantContext.institutionId)
+      .single();
+
+    if (userError || !user) {
+      throw new NotFoundException("User not found in this institution.");
+    }
+
+    const updateData: Record<string, unknown> = {};
+    if (updates.status) {
+      if (!["active", "disabled"].includes(updates.status)) {
+        throw new BadRequestException(
+          "Invalid status. Must be 'active' or 'disabled'.",
+        );
+      }
+      updateData.status = updates.status;
+    }
+    if (updates.displayName !== undefined) {
+      updateData.display_name = updates.displayName;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestException("No valid updates provided.");
+    }
+
+    const { error: updateError } = await this.supabaseAdminClient
+      .from("institution_users")
+      .update(updateData)
+      .eq("id", institutionUserId)
+      .eq("institution_id", tenantContext.institutionId);
+
+    if (updateError) {
+      throw new InternalServerErrorException("Failed to update user.");
     }
 
     return { id: institutionUserId };
@@ -134,10 +192,11 @@ export class PeopleService {
       .eq("institution_id", tenantContext.institutionId);
 
     if (error) {
-      throw new InternalServerErrorException("Failed to remove user from institution.");
+      throw new InternalServerErrorException(
+        "Failed to remove user from institution.",
+      );
     }
 
     return { id: institutionUserId };
   }
 }
-

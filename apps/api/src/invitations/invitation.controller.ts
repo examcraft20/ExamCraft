@@ -5,18 +5,24 @@ import {
   Get,
   InternalServerErrorException,
   Post,
-  Query
+  Query,
+  UseGuards,
 } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
+import { SupabaseAuthGuard } from "../auth/guards/supabase-auth.guard";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
 import { CurrentTenant } from "../common/decorators/tenant-context.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import type {
   AuthenticatedUser,
-  TenantContext
+  TenantContext,
 } from "../common/types/authenticated-request";
 import { UseTenantAuthorization } from "../tenant/guards/tenant-context.guard";
-import type { AcceptInvitationDto, CreateInvitationDto } from "./dto/create-invitation.dto";
+import type {
+  AcceptInvitationDto,
+  CreateInvitationDto,
+} from "./dto/create-invitation.dto";
 import { InvitationService } from "./invitation.service";
 import { AuditLog } from "../common/decorators/audit-log.decorator";
 import { AuditAction } from "../audit-logs/audit-action.enum";
@@ -26,6 +32,7 @@ export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
   @Get("preview")
+  @Throttle({ short: { limit: 10, ttl: 60000 } }) // Rate limit: 10 requests per minute
   previewInvitation(@Query("token") token?: string) {
     if (!token) {
       throw new BadRequestException("Missing invitation token.");
@@ -38,18 +45,25 @@ export class InvitationController {
   @UseTenantAuthorization()
   @RequireRoles("institution_admin")
   @RequirePermissions("users.invite")
-  @AuditLog(AuditAction.USER_INVITED, 'invitations', (result: any) => result.invitation.id)
+  @AuditLog(
+    AuditAction.USER_INVITED,
+    "invitations",
+    (result: any) => result.invitation.id,
+  )
   createInvitation(
     @CurrentTenant() tenantContext: TenantContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
-    @Body() body: CreateInvitationDto
+    @Body() body: CreateInvitationDto,
   ) {
-
     if (!tenantContext || !currentUser) {
       throw new InternalServerErrorException("Missing tenant or user context.");
     }
 
-    return this.invitationService.createInvitation(tenantContext, currentUser.id, body);
+    return this.invitationService.createInvitation(
+      tenantContext,
+      currentUser.id,
+      body,
+    );
   }
 
   @Post("accept")

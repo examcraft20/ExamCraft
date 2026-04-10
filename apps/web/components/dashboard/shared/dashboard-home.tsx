@@ -44,6 +44,7 @@ export function DashboardHome() {
   const [status, setStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpeningInstitutionId, setIsOpeningInstitutionId] = useState<string | null>(null);
+  const [errorOccurred, setErrorOccurred] = useState(false);
 
   const autoSelectedMembership = useMemo(() => {
     if (!preferredInstitutionId) {
@@ -108,6 +109,7 @@ export function DashboardHome() {
       if (!sessionState) return;
       setIsOpeningInstitutionId(membership.institutionId);
       setStatus(null);
+      setErrorOccurred(false);
       try {
         const response = await apiRequest<TenantContextResponse>("/tenant/context", {
           method: "GET",
@@ -121,15 +123,16 @@ export function DashboardHome() {
       } catch (error) {
         setStatus(error instanceof Error ? error.message : "Unable to open this institution.");
         setIsOpeningInstitutionId(null);
+        setErrorOccurred(true);
       }
     },
     [router, sessionState]
   );
 
   useEffect(() => {
-    if (!sessionState || !autoSelectedMembership || isOpeningInstitutionId) return;
+    if (!sessionState || !autoSelectedMembership || isOpeningInstitutionId || errorOccurred) return;
     void openMembership(autoSelectedMembership);
-  }, [autoSelectedMembership, isOpeningInstitutionId, openMembership, sessionState]);
+  }, [autoSelectedMembership, isOpeningInstitutionId, openMembership, sessionState, errorOccurred]);
 
   return (
     <div className="min-h-screen bg-black px-6 py-16 md:py-24">

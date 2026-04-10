@@ -1,4 +1,4 @@
-import { InviteAcceptanceCard } from "../../components/auth/InviteAcceptanceCard";
+import { InviteAcceptanceCard } from "@/components/auth/InviteAcceptanceCard";
 import { redirect } from "next/navigation";
 
 export default function InvitePage({

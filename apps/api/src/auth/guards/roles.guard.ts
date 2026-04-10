@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { REQUIRED_ROLES_KEY } from "../decorators/roles.decorator";
 import type { AuthenticatedRequest } from "../../common/types/authenticated-request";
@@ -11,7 +16,7 @@ export class RolesGuard implements CanActivate {
     const requiredRoles =
       this.reflector.getAllAndOverride<string[]>(REQUIRED_ROLES_KEY, [
         context.getHandler(),
-        context.getClass()
+        context.getClass(),
       ]) ?? [];
 
     if (requiredRoles.length === 0) {
@@ -19,11 +24,21 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+
+    // Check super_admin first - global role overrides tenant roles
+    if (request.currentUser?.isSuperAdmin) {
+      return true;
+    }
+
     const roleCodes = request.tenantContext?.roleCodes ?? [];
-    const hasAllowedRole = requiredRoles.some((requiredRole) => roleCodes.includes(requiredRole));
+    const hasAllowedRole = requiredRoles.some((requiredRole) =>
+      roleCodes.includes(requiredRole),
+    );
 
     if (!hasAllowedRole) {
-      throw new ForbiddenException("You do not have one of the required roles.");
+      throw new ForbiddenException(
+        "You do not have one of the required roles.",
+      );
     }
 
     return true;

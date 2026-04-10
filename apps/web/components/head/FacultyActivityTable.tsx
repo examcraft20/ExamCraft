@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock } from "lucide-react";
-import { Table } from "../../dashboard/shared/Table";
+import { Table } from "@/components/dashboard/shared/Table";
 
 interface FacultyActivity {
   name: string;
@@ -37,16 +37,20 @@ export function FacultyActivityTable({ data }: FacultyActivityTableProps) {
         {
           key: "name",
           label: "Faculty Name",
-          render: (value) => <span className="font-bold text-white">{value}</span>
+          render: (value) => (
+            <span className="font-bold text-white">{value}</span>
+          ),
         },
         {
           key: "questionsAdded",
           label: "Questions Added",
           render: (value) => (
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-black text-indigo-400">{value}</span>
+              <span className="text-2xl font-black text-indigo-400">
+                {value}
+              </span>
             </div>
-          )
+          ),
         },
         {
           key: "drafts",
@@ -55,7 +59,7 @@ export function FacultyActivityTable({ data }: FacultyActivityTableProps) {
             <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-amber-500/10 text-amber-400 font-bold text-sm">
               {value}
             </span>
-          )
+          ),
         },
         {
           key: "submitted",
@@ -64,7 +68,7 @@ export function FacultyActivityTable({ data }: FacultyActivityTableProps) {
             <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 font-bold text-sm">
               {value}
             </span>
-          )
+          ),
         },
         {
           key: "lastActive",
@@ -74,8 +78,8 @@ export function FacultyActivityTable({ data }: FacultyActivityTableProps) {
               <Clock size={14} />
               <span className="font-medium">{formatLastActive(value)}</span>
             </div>
-          )
-        }
+          ),
+        },
       ]}
       data={data}
     />

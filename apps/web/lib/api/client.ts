@@ -8,11 +8,16 @@ export async function apiRequest<TResponse>(
   options: RequestInit & {
     accessToken?: string;
     institutionId?: string;
-  } = {}
+  } = {},
 ): Promise<TResponse> {
   if (env.demoMode) {
-    const { demoApiRequest } = await import("./mock");
-    return demoApiRequest<TResponse>(path, options);
+    try {
+      const { demoApiRequest } = await import("./mock");
+      return demoApiRequest<TResponse>(path, options);
+    } catch (error) {
+      console.error("Failed to load demo API:", error);
+      throw new Error("Demo mode is unavailable. Please try again later.");
+    }
   }
 
   return productionApiRequest<TResponse>(path, options);

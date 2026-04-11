@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { notFound, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Spinner } from "@examcraft/ui";
 import { RoleDashboard } from "@/components/dashboard/shared/role-dashboard";
 import type { AppRole } from "@/lib/dashboard";

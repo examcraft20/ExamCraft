@@ -1,6 +1,6 @@
 # ExamCraft Monorepo - Complete File Structure Map
 
-Generated: 2026-04-08
+Generated: 2026-04-11
 
 ## Full Directory Tree
 
@@ -13,6 +13,8 @@ ExamCraft/
   .gitattributes
   .gitignore
   Architecture.md
+  CLEANUP_SUMMARY.md
+  COMPREHENSIVE_AUDIT_REPORT.md
   Logo.png
   PRD.md
   README.md
@@ -154,6 +156,11 @@ ExamCraft/
               page.tsx
             users/
               page.tsx
+        auth/
+          forgot-password/
+            page.tsx
+          reset-password/
+            page.tsx
         dashboard/
           page.tsx
           layout.tsx
@@ -173,17 +180,52 @@ ExamCraft/
               [id]/
                 edit/
                   page.tsx
+            papers/
+              page.tsx
+            templates/
+              page.tsx
+            subjects/
+              page.tsx
+            submissions/
+              page.tsx
+            settings/
+              page.tsx
+            syllabus-ai/
+              page.tsx
           head/
+            page.tsx
+            analytics/
+              page.tsx
+            audit-logs/
+              page.tsx
             overview/
               page.tsx
           reviewer/
-            review/
-              [paperId]/
-                page.tsx
-        invite/
-          page.tsx
-          [token]/
             page.tsx
+            history/
+              page.tsx
+            queue/
+              page.tsx
+            review/
+              page.tsx
+          institution_admin/
+            page.tsx
+            analytics/
+              page.tsx
+            approve-papers/
+              page.tsx
+            approve-questions/
+              page.tsx
+            manage-faculty/
+              page.tsx
+            manage-questions/
+              page.tsx
+            reports/
+              page.tsx
+            settings/
+              page.tsx
+            subjects/
+              page.tsx
         onboarding/
           page.tsx
         unauthorized/
@@ -361,7 +403,7 @@ ExamCraft/
 |--------|-------|
 | NestJS API Modules | 10 |
 | API Data Transfer Objects (DTOs) | 13+ |
-| Next.js App Routes | 25+ |
+| Next.js App Routes | 45+ |
 | React Components | 80+ |
 | Dashboard Workspace Components | 20 |
 | UI Package Components | 13 |

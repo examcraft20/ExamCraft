@@ -5,7 +5,7 @@ import { Lock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button, Input, StatusMessage } from "@examcraft/ui";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 
-export function ResetPasswordForm() {
+export function ResetPasswordForm({ token }: { token?: string }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);

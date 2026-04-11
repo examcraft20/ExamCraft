@@ -19,6 +19,7 @@ export default function RootError({
   reset: () => void;
 }) {
   useEffect(() => {
+    // Log critical errors for monitoring and debugging
     console.error("Critical System Error:", error);
   }, [error]);
 

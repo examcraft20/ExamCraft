@@ -36,14 +36,12 @@ export function LoginForm() {
     
     if (role === 'super_admin') {
       router.push('/admin/dashboard');
-    } else if (role === 'institution_admin') {
-      router.push('/dashboard/institution_admin');
-    } else if (role === 'faculty') {
-      router.push('/dashboard/faculty');
     } else if (role === 'academic_head') {
       router.push('/dashboard/head');
-    } else if (role === 'reviewer' || role === 'reviewer_approver') {
+    } else if (role === 'reviewer_approver' || role === 'reviewer') {
       router.push('/dashboard/reviewer');
+    } else if (role === 'institution_admin' || role === 'faculty') {
+      router.push(`/dashboard/${role}`);
     } else {
       router.push('/dashboard');
     }
@@ -52,8 +50,9 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="text-sm text-slate-400 mb-1.5 block font-medium">Email</label>
+        <label htmlFor="email-input" className="text-sm text-slate-400 mb-1.5 block font-medium">Email</label>
         <input
+          id="email-input"
           autoComplete="email"
           type="email"
           required
@@ -66,9 +65,10 @@ export function LoginForm() {
       </div>
 
       <div>
-        <label className="text-sm text-slate-400 mb-1.5 block font-medium">Password</label>
+        <label htmlFor="password-input" className="text-sm text-slate-400 mb-1.5 block font-medium">Password</label>
         <div className="relative">
           <input
+            id="password-input"
             autoComplete="current-password"
             type={showPassword ? "text" : "password"}
             required
@@ -94,7 +94,7 @@ export function LoginForm() {
       )}
 
       <div className="flex justify-end pt-1">
-        <Link href="/auth/forgot-password" className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+        <Link href="/forgot-password" disabled={isSubmitting} className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
           Forgot password?
         </Link>
       </div>

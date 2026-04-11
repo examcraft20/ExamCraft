@@ -7,10 +7,14 @@ export const metadata: Metadata = {
   description: "Securely reset your password.",
 };
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordPage({
+  params,
+}: {
+  params: { token: string };
+}) {
   return (
     <AuthLayout>
-      <ResetPasswordForm />
+      <ResetPasswordForm token={params.token} />
     </AuthLayout>
   );
 }

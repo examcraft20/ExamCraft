@@ -25,7 +25,7 @@ export function ForgotPasswordForm() {
     const supabase = getSupabaseBrowserClient();
 
     // Redirect goes to the reset-password page we just built
-    const redirectUrl = `${window.location.origin}/auth/reset-password`;
+    const redirectUrl = `${window.location.origin}/reset-password/update`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,

@@ -12,7 +12,7 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // In production, this would report to Sentry or similar observability tool
+    // Log error for debugging and monitoring (e.g., Sentry integration)
     console.error("Dashboard caught error:", error);
   }, [error]);
 

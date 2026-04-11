@@ -124,7 +124,8 @@ export function PaperWorkspace({
       );
     } finally {
       if (downloadUrl) {
-        window.setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 1000);
+        const urlToRevoke = downloadUrl;
+        window.setTimeout(() => window.URL.revokeObjectURL(urlToRevoke), 1000);
       }
     }
   }
@@ -154,7 +155,8 @@ export function PaperWorkspace({
       );
     } finally {
       if (downloadUrl) {
-        window.setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 1000);
+        const urlToRevoke = downloadUrl;
+        window.setTimeout(() => window.URL.revokeObjectURL(urlToRevoke), 1000);
       }
     }
   }

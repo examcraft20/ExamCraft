@@ -121,6 +121,7 @@ export function InviteAcceptanceForm({ initialToken = "" }: InviteAcceptanceForm
                  value={token}
                  onChange={(e) => setToken(e.target.value)}
                  required
+                 aria-label="Invitation Token"
                  placeholder="Paste Cryptographic Token"
                  className="w-full bg-slate-800/60 border border-white/20 rounded-xl py-5 pl-14 pr-6 text-sm font-black text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all duration-200 placeholder:text-slate-500 shadow-2xl"
               />
@@ -174,6 +175,7 @@ export function InviteAcceptanceForm({ initialToken = "" }: InviteAcceptanceForm
                       type="text"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
+                      aria-label="Display Name"
                       placeholder="Institutional Identity Name"
                       className="w-full bg-slate-800/60 border border-white/20 rounded-xl py-4 pl-12 pr-6 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all duration-200 placeholder:text-slate-500 shadow-xl"
                    />
@@ -188,6 +190,7 @@ export function InviteAcceptanceForm({ initialToken = "" }: InviteAcceptanceForm
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      aria-label="Password"
                       placeholder="Access Key / Password"
                       className="w-full bg-slate-800/60 border border-white/20 rounded-xl py-4 pl-12 pr-6 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all duration-200 placeholder:text-slate-500 shadow-xl"
                    />

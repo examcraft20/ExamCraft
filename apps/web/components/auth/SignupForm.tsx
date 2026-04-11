@@ -4,6 +4,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase-browser";
+import { INPUT_FIELD_CLASSES } from "@examcraft/ui";
 import Link from "next/link";
 
 export function SignupForm() {
@@ -65,10 +66,11 @@ export function SignupForm() {
         <input
           type="text"
           required
+          aria-label="Full Name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           placeholder="John Doe"
-          className="bg-slate-800/60 border border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 outline-none w-full transition-all duration-200"
+          className={INPUT_FIELD_CLASSES}
         />
       </div>
       
@@ -78,10 +80,11 @@ export function SignupForm() {
           autoComplete="email"
           type="email"
           required
+          aria-label="Work Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="name@institution.edu"
-          className="bg-slate-800/60 border border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 outline-none w-full transition-all duration-200"
+          className={INPUT_FIELD_CLASSES}
         />
       </div>
 
@@ -90,10 +93,11 @@ export function SignupForm() {
         <input
           type="text"
           required
+          aria-label="Institution Name"
           value={institution}
           onChange={(e) => setInstitution(e.target.value)}
           placeholder="Global Academy"
-          className="bg-slate-800/60 border border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 outline-none w-full transition-all duration-200"
+          className={INPUT_FIELD_CLASSES}
         />
       </div>
 
@@ -101,8 +105,9 @@ export function SignupForm() {
          <label className="text-sm text-slate-400 mb-1.5 block font-medium">Role</label>
          <select
            value={role}
+           aria-label="Select role"
            onChange={(e) => setRole(e.target.value)}
-           className="bg-slate-800/60 border border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 rounded-xl px-4 py-3 text-white outline-none w-full transition-all duration-200 appearance-none [&>option]:bg-slate-800"
+           className={`${INPUT_FIELD_CLASSES} appearance-none [&>option]:bg-slate-800`}
          >
            <option>Institution Admin</option>
            <option>Faculty</option>
@@ -119,13 +124,15 @@ export function SignupForm() {
               autoComplete="new-password"
               type={showPassword ? "text" : "password"}
               required
+              aria-label="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className={`bg-slate-800/60 border ${errorObj ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : 'border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30'} rounded-xl px-4 py-3 pr-10 text-white placeholder:text-slate-500 outline-none w-full transition-all duration-200`}
+              className={`${INPUT_FIELD_CLASSES} ${errorObj ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : ''} pr-10`}
             />
             <button
               type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
             >
@@ -139,10 +146,11 @@ export function SignupForm() {
             autoComplete="new-password"
             type={showPassword ? "text" : "password"}
             required
+            aria-label="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="••••••••"
-            className={`bg-slate-800/60 border ${errorObj ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : 'border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30'} rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:ring-2 outline-none w-full transition-all duration-200`}
+            className={`${INPUT_FIELD_CLASSES} ${errorObj ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : ''}`}
           />
         </div>
       </div>

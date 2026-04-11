@@ -365,7 +365,7 @@ export async function demoApiRequest<TResponse>(
 
   if (method === "GET" && rawPath === "/tenant/context") {
     const institutionId =
-      options.institutionId || demoState.memberships[0]?.institutionId;
+      options.institutionId || demoState.memberships[0]?.institutionId || demoInstitutionId;
     const tenantContext = demoState.tenantContexts[institutionId];
     if (!tenantContext) {
       throw new Error("Institution context not found.");
@@ -871,7 +871,9 @@ export async function demoApiRequest<TResponse>(
     const newDept: DepartmentRecord = {
       id: `dept-${Date.now()}`,
       institution_id:
-        options.institutionId || demoState.memberships[0].institutionId,
+        options.institutionId ||
+        demoState.memberships[0]?.institutionId ||
+        "inst-demo-1",
       name: body?.name,
       code: body?.code || null,
       status: "active",
@@ -888,7 +890,9 @@ export async function demoApiRequest<TResponse>(
     const newCourse: CourseRecord = {
       id: `course-${Date.now()}`,
       institution_id:
-        options.institutionId || demoState.memberships[0].institutionId,
+        options.institutionId ||
+        demoState.memberships[0]?.institutionId ||
+        "inst-demo-1",
       department_id: body?.departmentId || null,
       name: body?.name,
       code: body?.code || null,
@@ -906,7 +910,9 @@ export async function demoApiRequest<TResponse>(
     const newSubject: SubjectRecord = {
       id: `subject-${Date.now()}`,
       institution_id:
-        options.institutionId || demoState.memberships[0].institutionId,
+        options.institutionId ||
+        demoState.memberships[0]?.institutionId ||
+        "inst-demo-1",
       department_id: body?.departmentId || null,
       course_id: body?.courseId || null,
       name: body?.name,

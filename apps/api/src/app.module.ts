@@ -18,7 +18,7 @@ import { SupabaseModule } from "./supabase/supabase.module";
 import { MailerModule } from "./modules/mailer/mailer.module";
 import { HealthModule } from "./health/health.module";
 import { SanitizeMiddleware } from "./common/middleware/sanitize.middleware";
-import { CsrfGuard } from "./common/guards/csrf.guard";
+import { MutationAuthGuard } from "./common/guards/mutation-auth.guard";
 import { AuditLogInterceptor } from "./common/interceptors/audit-log.interceptor";
 import { AuditLogsService } from "./audit-logs/audit-logs.service";
 
@@ -53,7 +53,7 @@ import { AuditLogsService } from "./audit-logs/audit-logs.service";
     },
     {
       provide: APP_GUARD,
-      useClass: CsrfGuard,
+      useClass: MutationAuthGuard,
     },
     {
       provide: APP_INTERCEPTOR,

@@ -4,6 +4,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase-browser";
+import { INPUT_FIELD_CLASSES } from "@examcraft/ui";
 import Link from "next/link";
 
 export function LoginForm() {
@@ -36,13 +37,13 @@ export function LoginForm() {
     if (role === 'super_admin') {
       router.push('/admin/dashboard');
     } else if (role === 'institution_admin') {
-      router.push('/dashboard');
+      router.push('/dashboard/institution_admin');
     } else if (role === 'faculty') {
-      router.push('/faculty/dashboard');
+      router.push('/dashboard/faculty');
     } else if (role === 'academic_head') {
-      router.push('/head/dashboard');
-    } else if (role === 'reviewer') {
-      router.push('/reviewer/dashboard');
+      router.push('/dashboard/head');
+    } else if (role === 'reviewer' || role === 'reviewer_approver') {
+      router.push('/dashboard/reviewer');
     } else {
       router.push('/dashboard');
     }
@@ -59,7 +60,8 @@ export function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="name@institution.edu"
-          className={`bg-slate-800/60 border ${errorObj ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : 'border-white/20 focus:border-indigo-500 focus:ring-indigo-500/30'} rounded-xl px-4 py-3.5 text-white placeholder:text-slate-500 focus:ring-2 outline-none w-full transition-all duration-200`}
+          aria-label="Email address"
+          className={`${INPUT_FIELD_CLASSES} ${errorObj ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : ''}`}
         />
       </div>
 
@@ -73,11 +75,13 @@ export function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className={`bg-slate-800/60 border ${errorObj ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : 'border-white/20 focus:border-indigo-500 focus:ring-indigo-500/30'} rounded-xl px-4 py-3.5 pr-12 text-white placeholder:text-slate-500 focus:ring-2 outline-none w-full transition-all duration-200`}
+            aria-label="Password"
+            className={`${INPUT_FIELD_CLASSES} ${errorObj ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : ''} pr-12`}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-1"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

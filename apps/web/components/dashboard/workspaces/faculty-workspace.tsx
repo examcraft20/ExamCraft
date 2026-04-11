@@ -16,7 +16,6 @@ import {
   ChevronRight,
   ArrowUpRight,
   CheckCircle,
-  Clock,
   AlertCircle,
 } from "lucide-react";
 import {
@@ -299,7 +298,7 @@ export function FacultyWorkspace({
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
               activeTab === tab.id
                 ? "bg-white text-black shadow-2xl scale-105"

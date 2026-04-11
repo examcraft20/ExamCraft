@@ -28,6 +28,8 @@ export const difficultyColors: Record<string, string> = {
   hard: 'bg-red-500/10 border-red-500/20 text-red-400',
 }
 
+export const INPUT_FIELD_CLASSES = "w-full bg-slate-800/60 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all duration-200"
+
 export function formatRoleName(role: string): string {
   return role
     .replace(/_/g, ' ')

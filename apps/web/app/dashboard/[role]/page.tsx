@@ -33,17 +33,6 @@ export default function RoleDashboardPage({
   const [isValidating, setIsValidating] = useState(true);
   const [isInvalidRole, setIsInvalidRole] = useState(false);
 
-  useEffect(() => {
-    if (!supportedRoles.includes(params.role as AppRole)) {
-      setIsInvalidRole(true);
-      return;
-    }
-  }, [params.role]);
-
-  if (isInvalidRole) {
-    notFound();
-  }
-
   const validateRole = useCallback(async () => {
     const session = await getSupabaseBrowserSession();
     if (!session?.access_token) {
@@ -94,6 +83,14 @@ export default function RoleDashboardPage({
   }, [params.role, institutionId, router]);
 
   useEffect(() => {
+    if (!supportedRoles.includes(params.role as AppRole)) {
+      setIsInvalidRole(true);
+      router.replace("/dashboard"); // Redirect to main dashboard instead of notFound
+      return;
+    }
+  }, [params.role, router]);
+
+  useEffect(() => {
     let isMounted = true;
     if (isMounted) {
       validateRole();
@@ -102,6 +99,10 @@ export default function RoleDashboardPage({
       isMounted = false;
     };
   }, [validateRole]);
+
+  if (isInvalidRole) {
+    return null; // Don't render anything while redirecting
+  }
 
   if (isValidating) {
     return (

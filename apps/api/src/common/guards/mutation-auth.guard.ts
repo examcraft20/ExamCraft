@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@
 import { Request } from 'express';
 
 @Injectable()
-export class CsrfGuard implements CanActivate {
+export class MutationAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method);
@@ -10,7 +10,7 @@ export class CsrfGuard implements CanActivate {
     if (isMutation) {
       const authHeader = request.headers['authorization'];
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new ForbiddenException('CSRF check failed: Missing or invalid Authorization header for state-mutating request.');
+        throw new ForbiddenException('Mutation authentication failed: Missing or invalid Authorization header for state-mutating request.');
       }
     }
     

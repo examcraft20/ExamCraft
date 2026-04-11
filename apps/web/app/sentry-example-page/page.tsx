@@ -3,6 +3,16 @@
 import * as Sentry from "@sentry/nextjs";
 
 export default function SentryExamplePage() {
+  // Only show in development
+  if (process.env.NODE_ENV === 'production') {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <h1>Page Not Found</h1>
+        <p>This page is only available in development mode.</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}>
       <h1>Sentry Test Page</h1>

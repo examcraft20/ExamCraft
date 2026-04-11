@@ -1,261 +1,256 @@
-# ExamCraft Comprehensive Project Audit Report
+# ExamCraft Comprehensive Codebase Audit Report
 
 **Audit Date:** April 10, 2026  
 **Project Version:** 0.7.0 (MVP Beta)  
-**Last Updated:** April 10, 2026
+**Auditor:** GitHub Copilot  
 
 ---
 
 ## Executive Summary
 
-ExamCraft is a multi-tenant SaaS platform for educational institutions built with Next.js 14, NestJS 10, and Supabase. This report documents the findings from a comprehensive audit covering code quality, security, frontend analysis, and architecture.
+ExamCraft is a multi-tenant SaaS platform for educational institutions built with Next.js 14, NestJS, and Supabase. This comprehensive audit covers architecture, bugs, security, performance, code quality, testing, accessibility, dependencies, and deployment readiness.
 
-### Overall Health Score: **9/10** 🟢
+**Overall Health Score: 6/10 🟡**
 
-| Dimension        | Score  | Status               |
-| ---------------- | ------ | -------------------- |
-| Code Quality     | 9/10   | 🟢 Excellent         |
-| Architecture     | 9/10   | 🟢 Excellent         |
-| Security         | 9.5/10 | 🟢 Excellent         |
-| Performance      | 7.5/10 | 🟡 Good              |
-| Frontend         | 9/10   | 🟢 Excellent         |
-| Documentation    | 8/10   | 🟢 Good              |
-| Database Schema  | 9.5/10 | 🟢 Excellent         |
-| Testing Coverage | 18%    | 🟡 Improved (was 5%) |
-| Compliance       | 7/10   | 🟡 Good              |
-| Build Status     | ✅     | BUILDING SUCCESS     |
-
----
-
-## 1. All Fixes Applied ✅
-
-### A. Code-Level Fixes (April 10 - AM Session)
-
-| ID   | Issue                                | Status   |
-| ---- | ------------------------------------ | -------- |
-| NK-1 | Hardcoded mock data in Recent Papers | ✅ Fixed |
-| NK-2 | Simulated member actions             | ✅ Fixed |
-| NK-3 | AI endpoint missing DTO              | ✅ Fixed |
-| NK-4 | No bulk operation limits             | ✅ Fixed |
-| NK-5 | UseEffect missing dependencies       | ✅ Fixed |
-| NK-6 | Type casts to `any`                  | ✅ Fixed |
-| NK-7 | Hardcoded activity feed              | ✅ Fixed |
-
-### B. Infrastructure Fixes (April 10 - PM Session)
-
-| ID    | Issue                       | Status   | Location                                                 |
-| ----- | --------------------------- | -------- | -------------------------------------------------------- |
-| S-C1  | Missing audit_logs table    | ✅ Fixed | `supabase/migrations/20260410000100_audit_logs.sql`      |
-| DB-C1 | Missing feature_flags table | ✅ Fixed | `supabase/migrations/20260410000200_feature_flags.sql`   |
-| S-H3  | Input sanitization          | ✅ Fixed | `common/middleware/sanitize.middleware.ts`               |
-| AR-M2 | Health check endpoints      | ✅ Fixed | `health/health.controller.ts`                            |
-| DB-H3 | Composite indexes           | ✅ Fixed | `supabase/migrations/20260410000300_missing_indexes.sql` |
-| S-H1  | RLS policies                | ✅ Fixed | `supabase/migrations/20260410000400_missing_rls.sql`     |
-
-### C. Security Fixes (April 10 - Security Audit)
-
-| ID  | Issue                       | Severity | Status   |
-| --- | --------------------------- | -------- | -------- |
-| 2.1 | Missing URL validation      | CRITICAL | ✅ Fixed |
-| 1.1 | RolesGuard wrong role src   | HIGH     | ✅ Fixed |
-| 6.1 | Unchecked role modification | HIGH     | ✅ Fixed |
-| 6.2 | Role deletion without auth  | HIGH     | ✅ Fixed |
-| 8.1 | Public preview endpoint     | MEDIUM   | ✅ Fixed |
-| 4.1 | Token enumeration           | MEDIUM   | ✅ Fixed |
-| 1.2 | Empty throttle config       | MEDIUM   | ✅ Fixed |
-
-### D. Frontend Fixes (April 10 - Frontend Analysis)
-
-| Issue                           | Severity | Status   |
-| ------------------------------- | -------- | -------- |
-| notFound() during render        | CRITICAL | ✅ Fixed |
-| Undefined institutionId in mock | HIGH     | ✅ Fixed |
-| Duplicate endpoint handlers     | HIGH     | ✅ Fixed |
-| State mutation bug (A \|\| B)   | MEDIUM   | ✅ Fixed |
-| Missing error boundary          | MEDIUM   | ✅ Fixed |
-| Unused imports                  | LOW      | ✅ Fixed |
-
-### E. Test Coverage Improvements (April 10 - Testing Session)
-
-| Service              | Tests Added |
-| -------------------- | ----------- |
-| ContentService       | 7 tests     |
-| InvitationService    | 4 tests     |
-| AnalyticsService     | 2 tests     |
-| TenantContextService | 1 test      |
-| OnboardingController | 1 test      |
-
-**Total:** 15 new tests | **Coverage:** 18% (up from ~5%)
+| Category | Score | Status |
+|----------|-------|--------|
+| Architecture | 8/10 | 🟢 Good |
+| Bugs | 4/10 | 🔴 Critical |
+| Security | 7/10 | 🟡 Good |
+| Performance | 6/10 | 🟡 Good |
+| Code Quality | 7/10 | 🟡 Good |
+| Testing | 3/10 | 🔴 Critical |
+| Accessibility | 5/10 | 🟡 Good |
+| Dependencies | 6/10 | 🟡 Good |
+| Deployment Readiness | 7/10 | 🟡 Good |
 
 ---
 
-## 2. Remaining Open Issues
+## 1. Architecture (8/10 🟢 Good)
+
+### Strengths
+- Well-structured monorepo with clear separation between API and web apps
+- Proper use of shared packages (@examcraft/types, @examcraft/ui)
+- Multi-tenant architecture with tenant context guards
+- Clean folder organization and modular design
+
+### Issues Found
+- Some hardcoded values in mock data (apps/web/lib/api/mock.ts)
+- Inconsistent import paths across the web app
+
+### Recommendations
+- Standardize import paths to use absolute imports
+- Remove hardcoded mock data and use proper seeding
+
+---
+
+## 2. Bugs (4/10 🔴 Critical)
+
+### Critical Issues
+1. **Broken Login Redirects** - apps/web/components/auth/LoginForm.tsx
+   - router.push('/dashboard/faculty') may not exist
+   - No validation of redirect paths
+
+2. **Broken Test Import** - apps/web/__tests__/dashboard.test.ts
+   - Import error: Cannot find module '../components/dashboard'
+
+3. **TypeScript Compilation Errors** - Multiple files
+   - ignoreDeprecations removed from tsconfig.json (fixed)
+   - Potential null reference in download URL cleanup
+
+4. **Navigation Issues** - apps/web/app/dashboard/page.tsx
+   - notFound() called during render, causing hydration errors
+
+### High Priority
+5. **Mock Data Issues** - apps/web/lib/api/mock.ts
+   - institutionId undefined in some mock responses
 
 ### Medium Priority
+6. **State Mutation Bug** - apps/web/components/dashboard/workspaces/paper-workspace.tsx
+   - A || B = C pattern can cause unexpected state changes
 
-| ID    | Issue                    | Action Required                     |
-| ----- | ------------------------ | ----------------------------------- |
-| S-M1  | No password policy       | Add password validation in Supabase |
-| S-M2  | No account lockout       | Implement brute force protection    |
-| PE-H2 | Missing caching strategy | Implement Redis caching             |
-| TC-C1 | Low test coverage (~8%)  | Add unit/integration tests          |
-
-### Low Priority
-
-| ID    | Issue                     | Action Required           |
-| ----- | ------------------------- | ------------------------- |
-| AR-H1 | Missing background jobs   | Add job queue for exports |
-| D-M2  | Missing API documentation | Generate OpenAPI docs     |
+### Recommendations
+- Fix all redirect routes to valid paths
+- Repair broken imports and remove invalid tests
+- Add proper error boundaries for navigation
+- Fix state mutation patterns
 
 ---
 
-## 3. Architecture Compliance
+## 3. Security (7/10 🟡 Good)
 
-| Principle                    | Status | Notes                       |
-| ---------------------------- | ------ | --------------------------- |
-| SaaS-First                   | ✅     | Multi-tenant design         |
-| Multi-Tenancy by Design      | ✅     | RLS + tenant context        |
-| Backend-Controlled Workflows | ✅     | Paper generation + approval |
-| Modular Domain Boundaries    | ✅     | Well-organized modules      |
-| Free-Tier-First              | ✅     | Supabase + Vercel           |
-| Audit Logging                | ✅     | Table + triggers exist      |
-| Scalable                     | ⚠️     | Missing Redis caching       |
+### Strengths
+- Supabase authentication with JWT validation
+- Input sanitization middleware (DOMPurify)
+- RLS policies on database tables
+- CSRF protection with guards
 
----
+### Issues Found
+1. **Misleading CSRF Guard** - apps/api/src/common/guards/csrf.guard.ts
+   - Guard name suggests CSRF protection but implements different logic
 
-## 4. Security Posture
+2. **Exposed Development Pages** - apps/web/app/sentry-example-page/page.tsx
+   - Publicly accessible dev/test page
 
-### Fixed Vulnerabilities (All Resolved)
+3. **Console Logs in Production** - Multiple files
+   - console.log statements found in production code
 
-| Vulnerability               | Severity | Fix Applied                      |
-| --------------------------- | -------- | -------------------------------- |
-| Missing URL validation      | CRITICAL | Added @IsUrl + hex color regex   |
-| RolesGuard role source      | HIGH     | Added super_admin check          |
-| Unchecked role modification | HIGH     | Protected by @RequireRoles guard |
-| Token enumeration           | MEDIUM   | Constant error messages          |
-| Public preview endpoint     | MEDIUM   | Added @Throttle rate limiting    |
-| Empty throttle config       | MEDIUM   | Removed unused decorator         |
+4. **Missing Security Headers** - apps/api/src/main.ts
+   - No explicit security headers configured
 
-### Security Controls (Pre-Existing)
-
-| Control             | Status | Implementation                      |
-| ------------------- | ------ | ----------------------------------- |
-| SQL Injection       | ✅     | Parameterized queries (Supabase)    |
-| XSS Prevention      | ✅     | DOMPurify middleware                |
-| Audit Logging       | ✅     | @AuditLog decorator + interceptor   |
-| Tenant Isolation    | ✅     | RLS policies + tenant context guard |
-| Bulk DoS Protection | ✅     | MAX_BATCH_SIZE = 500 limit          |
-| Authentication      | ✅     | Supabase JWT + Bearer tokens        |
-
-**Security Score: 9/10**
+### Recommendations
+- Rename CSRF guard to reflect actual functionality
+- Remove or gate dev pages
+- Remove console logs
+- Add security headers (helmet, CORS configuration)
 
 ---
 
-## 5. Compliance Gap Analysis
+## 4. Performance (6/10 🟡 Good)
 
-| Requirement         | Status             | Gap                       |
-| ------------------- | ------------------ | ------------------------- |
-| Audit Trail         | ✅ Implemented     | Table + RLS in place      |
-| Tenant Isolation    | ✅ Implemented     | RLS policies in place     |
-| Role-Based Access   | ✅ Implemented     | Granular permissions      |
-| Data Privacy (GDPR) | ❌ Not Implemented | No export/delete features |
-| Data Retention      | ❌ Not Implemented | No policies defined       |
-| Access Reviews      | ❌ Not Implemented | No reporting              |
-| Encryption          | ⚠️ Partial         | Supabase default only     |
+### Issues Found
+1. **Repeated localStorage Access** - apps/web/lib/supabase-browser.ts
+   - Multiple calls to localStorage.getItem in loops
 
----
+2. **Large Bundle Size** - Potential
+   - No bundle analysis provided
 
-## 6. What's Working Well
+3. **Database Query Optimization** - Potential
+   - No query performance analysis
 
-1. ✅ Complete audit logging infrastructure
-2. ✅ Feature flags system with RLS
-3. ✅ Input sanitization middleware
-4. ✅ Health check endpoints (/health, /ready, /live)
-5. ✅ Composite indexes for common queries
-6. ✅ Comprehensive RLS policies on all tables
-7. ✅ Multi-tenancy by design
-8. ✅ Modern tech stack (Next.js 14, NestJS 10, Supabase)
-9. ✅ Strong TypeScript usage
-10. ✅ Clean code organization
-11. ✅ Parameterized queries prevent SQL injection
-12. ✅ Rate limiting on sensitive endpoints
+### Recommendations
+- Cache localStorage values
+- Implement bundle analysis
+- Add database indexes for common queries
 
 ---
 
-## 7. Production Readiness Checklist
+## 5. Code Quality (7/10 🟡 Good)
 
-- [x] Create audit_logs table migration
-- [x] Create feature_flags table migration
-- [x] Add input sanitization middleware
-- [x] Add health check endpoints
-- [x] Add composite database indexes
-- [x] Add RLS policies for all tables
-- [x] Fix security vulnerabilities
-- [x] Fix frontend bugs
-- [x] Fix all TypeScript build errors
-- [x] Normalize import paths across web app
-- [ ] Add Redis caching layer
-- [ ] Implement GDPR data export
-- [ ] Increase test coverage to 60%+
+### Strengths
+- TypeScript usage throughout
+- ESLint and Prettier configuration
+- Consistent naming conventions
 
-**Current Status:** PRODUCTION READY ✅  
-**Build Status:** BUILDING SUCCESS ✅  
-**Project ready for deployment**
+### Issues Found
+1. **Duplicated Logic** - Multiple components
+   - Similar patterns repeated across workspace components
 
----
+2. **Unused Imports** - Various files
+   - Import statements not used
 
-## 8. Files Modified This Session
+3. **Type Assertions** - apps/web/lib/api/production.ts
+   - Use of 'as any' type assertions
 
-### Backend (API)
-
-- `apps/api/src/tenant/dto/update-branding.dto.ts`
-- `apps/api/src/auth/guards/roles.guard.ts`
-- `apps/api/src/invitations/invitation.controller.ts`
-- `apps/api/src/invitations/invitation.service.ts`
-- `apps/api/src/auth/auth.controller.ts`
-- `apps/api/src/audit-logs/audit-action.enum.ts`
-
-### Frontend (Web)
-
-- `apps/web/components/dashboard/faculty/question-list.tsx`
-- `apps/web/components/dashboard/faculty/metadata-panel.tsx`
-- `apps/web/components/dashboard/workspaces/institution-admin-workspace.tsx`
-- `apps/web/components/dashboard/workspaces/academic-structure-workspace.tsx`
-- `apps/web/components/dashboard/workspaces/question-bank-workspace.tsx`
-- `apps/web/components/dashboard/workspaces/paper-workspace.tsx`
-- `apps/web/components/dashboard/workspaces/faculty-workspace.tsx`
-- `apps/web/components/dashboard/workspaces/academic-head-workspace.tsx`
-- `apps/web/components/dashboard/workspaces/super-admin-workspace.tsx`
-- `apps/web/components/dashboard/workspaces/reviewer-workspace.tsx`
-- `apps/web/components/dashboard/shared/dashboard-sidebar.tsx`
-- `apps/web/components/dashboard/shared/dashboard-home.tsx`
-- `apps/web/components/dashboard/shared/paper-preview-modal.tsx`
-- `apps/web/components/dashboard/shared/dashboard-shell.tsx`
-- `apps/web/components/dashboard/shared/role-dashboard.tsx`
-- `apps/web/components/dashboard/faculty/paper-list.tsx`
-- `apps/web/components/dashboard/faculty/home.tsx`
-- `apps/web/components/dashboard/faculty/paper-generator.tsx`
-- `apps/web/components/dashboard/faculty/syllabus-ai-client.tsx`
-- `apps/web/components/dashboard/faculty/template-builder.tsx`
-- `apps/web/components/dashboard/faculty/settings-client.tsx`
-- `apps/web/components/dashboard/head/AnalyticsDashboard.tsx`
-- `apps/web/components/dashboard/head/AuditLogsClient.tsx`
-- `apps/web/components/reviewer/PaperViewer.tsx`
-- `apps/web/components/reviewer/ReviewPanel.tsx`
-- `apps/web/components/reviewer/ReviewHistory.tsx`
-- `apps/web/components/reviewer/ReviewContent.tsx`
-- `apps/web/components/onboarding/OnboardingCard.tsx`
-- `apps/web/components/onboarding/steps/InstitutionDetails.tsx`
-- `apps/web/app/dashboard/[role]/page.tsx`
-- `apps/web/lib/dashboard.ts`
-- `apps/web/lib/api/mock.ts`
-
-### Database
-
-- All migrations already existed and are properly configured
+### Recommendations
+- Extract common logic into shared utilities
+- Remove unused imports
+- Replace type assertions with proper typing
 
 ---
 
-**Report Updated:** April 10, 2026  
-**Overall Project Score: 9/10**  
-**Status: PRODUCTION READY ✅**
+## 6. Testing (3/10 🔴 Critical)
+
+### Issues Found
+1. **Low Test Coverage** - ~5% coverage
+   - Minimal unit and integration tests
+
+2. **Broken Tests** - apps/web/__tests__/dashboard.test.ts
+   - Import errors preventing test execution
+
+3. **Missing Test Infrastructure**
+   - No API integration tests
+   - No E2E test coverage
+
+### Recommendations
+- Increase test coverage to at least 60%
+- Fix broken test imports
+- Add API and E2E tests
+- Implement test CI/CD pipeline
+
+---
+
+## 7. Accessibility (5/10 🟡 Good)
+
+### Issues Found
+1. **Missing ARIA Labels** - Form elements
+   - Login form inputs lack proper labels
+
+2. **Keyboard Navigation** - Potential issues
+   - No keyboard navigation testing
+
+3. **Color Contrast** - Not verified
+   - No contrast ratio checks
+
+### Recommendations
+- Add ARIA labels to all form elements
+- Test keyboard navigation
+- Verify color contrast ratios
+
+---
+
+## 8. Dependencies (6/10 🟡 Good)
+
+### Outdated Packages
+- TypeScript: 5.9.3 → 6.0.2 (major update available)
+- Vitest: 2.1.9 → 4.1.4 (major update available)
+- Other minor/patch updates available
+
+### Recommendations
+- Update to latest stable versions
+- Test major version updates thoroughly
+- Keep dependencies current for security
+
+---
+
+## 9. Deployment Readiness (7/10 🟡 Good)
+
+### Strengths
+- Docker configuration present
+- Environment variable management
+- Build scripts configured
+
+### Issues Found
+1. **Exposed Dev Routes** - sentry-example-page
+   - Development pages accessible in production
+
+2. **CORS Configuration** - apps/api/src/main.ts
+   - CORS settings may need review
+
+3. **Environment Validation** - apps/web/lib/env.ts
+   - No runtime environment validation
+
+### Recommendations
+- Remove dev routes from production builds
+- Configure CORS properly
+- Add environment validation
+
+---
+
+## Priority Action List
+
+### Critical (Fix Immediately)
+1. Fix login redirect routes in apps/web/components/auth/LoginForm.tsx
+2. Repair broken test import in apps/web/__tests__/dashboard.test.ts
+3. Correct download URL cleanup in apps/web/components/dashboard/workspaces/paper-workspace.tsx
+4. Remove dev/test pages (sentry-example-page, test-connection)
+
+### High Priority (Fix This Week)
+5. Enhance security: Review and fix CSRF guard semantics
+6. Ensure consistent tenant access guards
+7. Add error boundaries for navigation issues
+
+### Medium Priority (Fix This Sprint)
+8. Increase test coverage to 60%+
+9. Add ARIA labels for accessibility
+10. Update major dependencies (TypeScript 6.0, Vitest 4.x)
+
+### Low Priority (Backlog)
+11. Optimize performance (localStorage caching, bundle analysis)
+12. Clean up code quality issues (duplicates, unused imports)
+
+---
+
+**Health Score: 6/10**  
+**Status: REQUIRES IMMEDIATE ATTENTION**  
+**Estimated Time to Production Ready: 2-3 weeks with dedicated effort**

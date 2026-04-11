@@ -16,7 +16,8 @@
       "@examcraft/ui": ["packages/ui/src"],
       "@examcraft/types": ["packages/types/src"],
       "#api": ["apps/web/lib/api"]
-    }
+    },
+    "ignoreDeprecations": "6.0"
   }
 }
 

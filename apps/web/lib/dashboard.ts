@@ -19,8 +19,8 @@ export type MembershipSummary = {
   roleCodes: string[];
 };
 
-export type TenantContextResponse = {
-  tenantContext: {
+export type InstitutionContextResponse = {
+  institutionContext: {
     institutionId: string;
     institutionUserId: string;
     roleCodes: string[];

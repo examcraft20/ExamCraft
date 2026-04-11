@@ -1,14 +1,14 @@
 import { Controller, Get, Post, Param, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
-import { CurrentTenant } from "../common/decorators/tenant-context.decorator";
+import { CurrentInstitution } from "../common/decorators/institution-context.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
-import type { AuthenticatedUser, TenantContext } from "../common/types/authenticated-request";
+import type { AuthenticatedUser, InstitutionContext } from "../common/types/authenticated-request";
 import { GlobalTemplatesService } from "./global-templates.service";
-import { UseTenantAuthorization } from "../tenant/guards/tenant-context.guard";
+import { UseInstitutionAuthorization } from "../institution/guards/institution-context.guard";
 
 @Controller({ path: "global-templates", version: "1" })
-@UseTenantAuthorization()
+@UseInstitutionAuthorization()
 export class GlobalTemplatesController {
   constructor(private readonly globalTemplatesService: GlobalTemplatesService) {}
 
@@ -22,14 +22,14 @@ export class GlobalTemplatesController {
   @RequireRoles("institution_admin", "academic_head")
   @RequirePermissions("templates.create")
   async cloneTemplate(
-    @CurrentTenant() tenantContext: TenantContext | undefined,
+    @CurrentInstitution() institutionContext: InstitutionContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
     @Param("id") templateId: string
   ) {
-    if (!tenantContext || !currentUser) {
-      throw new InternalServerErrorException("Missing tenant or user context.");
+    if (!institutionContext || !currentUser) {
+      throw new InternalServerErrorException("Missing institution or user context.");
     }
 
-    return this.globalTemplatesService.cloneTemplate(tenantContext.institutionId, currentUser.id, templateId);
+    return this.globalTemplatesService.cloneTemplate(institutionContext.institutionId, currentUser.id, templateId);
   }
 }

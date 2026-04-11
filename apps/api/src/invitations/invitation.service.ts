@@ -10,12 +10,12 @@ import {
 } from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
-import type { TenantContext } from "../common/types/authenticated-request";
+import type { InstitutionContext } from "../common/types/authenticated-request";
 import type {
   AcceptInvitationDto,
   CreateInvitationDto,
 } from "./dto/create-invitation.dto";
-import { MailerService } from "../modules/mailer/mailer.service";
+import { MailerService } from "../mailer/mailer.service";
 
 type InvitationRecord = {
   id: string;
@@ -44,13 +44,13 @@ export class InvitationService {
   ) {}
 
   async createInvitation(
-    tenantContext: TenantContext,
+    institutionContext: InstitutionContext,
     invitedByUserId: string,
     payload: CreateInvitationDto,
   ) {
     if (
-      tenantContext.institutionId !== payload.institutionId ||
-      !tenantContext.roleCodes.includes("institution_admin")
+      institutionContext.institutionId !== payload.institutionId ||
+      !institutionContext.roleCodes.includes("institution_admin")
     ) {
       throw new ForbiddenException(
         "Only institution admins can create invitations.",
@@ -270,12 +270,12 @@ export class InvitationService {
     };
   }
 
-  async resendInvitation(tenantContext: TenantContext, invitationId: string) {
+  async resendInvitation(institutionContext: InstitutionContext, invitationId: string) {
     const { data: invitation, error } = await this.supabaseAdminClient
       .from("invitations")
       .select("id, email, role_code, expires_at, institutions(name)")
       .eq("id", invitationId)
-      .eq("institution_id", tenantContext.institutionId)
+      .eq("institution_id", institutionContext.institutionId)
       .eq("status", "pending")
       .single<InvitationRecord & { institutions: { name: string }[] }>();
 

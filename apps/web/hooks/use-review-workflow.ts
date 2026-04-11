@@ -23,10 +23,10 @@ export function useReviewWorkflow(accessToken: string, institutionId: string) {
     setStatus(null);
     try {
       const [summaryRes, questionsRes, templatesRes, papersRes] = await Promise.all([
-        apiRequest<InstitutionDashboardSummaryResponse>("/tenant/dashboard-summary", { method: "GET", accessToken, institutionId }),
-        apiRequest<QuestionRecord[]>("/content/questions", { method: "GET", accessToken, institutionId }),
-        apiRequest<TemplateRecord[]>("/content/templates", { method: "GET", accessToken, institutionId }),
-        apiRequest<PaperRecord[]>("/content/papers", { method: "GET", accessToken, institutionId })
+        apiRequest<InstitutionDashboardSummaryResponse>("/institution/dashboard-summary", { method: "GET", accessToken, institutionId }),
+        apiRequest<QuestionRecord[]>("/questions", { method: "GET", accessToken, institutionId }),
+        apiRequest<TemplateRecord[]>("/templates", { method: "GET", accessToken, institutionId }),
+        apiRequest<PaperRecord[]>("/papers", { method: "GET", accessToken, institutionId })
       ]);
       setSummary(summaryRes);
       setQuestions(questionsRes);
@@ -53,7 +53,7 @@ export function useReviewWorkflow(accessToken: string, institutionId: string) {
     setActiveActionKey(actionKey);
     setStatus(null);
     try {
-      const endpoint = kind === "question" ? `/content/questions/${id}/review` : kind === "template" ? `/content/templates/${id}/review` : `/content/papers/${id}/review`;
+      const endpoint = kind === "question" ? `/approvals/questions/${id}/review` : kind === "template" ? `/approvals/templates/${id}/review` : `/approvals/papers/${id}/review`;
       const response = await apiRequest<any>(endpoint, {
         method: "PATCH",
         accessToken,
@@ -92,3 +92,6 @@ export function useReviewWorkflow(accessToken: string, institutionId: string) {
     setStatus
   };
 }
+
+
+

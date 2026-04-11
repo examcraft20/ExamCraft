@@ -600,7 +600,7 @@ export function InstitutionOnboardingForm() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push('/dashboard/invite')}
+                onClick={() => router.push('/team')}
                 className="w-full px-6 py-3 border border-white/20 hover:border-white/40 text-white font-semibold rounded-lg transition"
               >
                 Invite Team Members

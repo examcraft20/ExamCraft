@@ -7,7 +7,7 @@ export interface AuthenticatedUser {
   isSuperAdmin: boolean;
 }
 
-export interface TenantContext {
+export interface InstitutionContext {
   institutionId: string;
   institutionUserId: string;
   roleCodes: string[];
@@ -16,5 +16,5 @@ export interface TenantContext {
 
 export interface AuthenticatedRequest extends Request {
   currentUser?: AuthenticatedUser;
-  tenantContext?: TenantContext;
+  institutionContext?: InstitutionContext;
 }

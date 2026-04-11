@@ -13,8 +13,8 @@ export function StatusBadge({ status, label }: Props) {
   const display = label ?? status.replace(/_/g, ' ')
   return (
     <span className={`
-      inline-flex items-center px-2.5 py-0.5 rounded-full text-xs
-      font-medium border capitalize ${classes}
+      inline-flex items-center px-2 py-0.5 rounded-full text-[9px]
+      font-black uppercase tracking-widest border shadow-sm ${classes}
     `}>
       {display}
     </span>

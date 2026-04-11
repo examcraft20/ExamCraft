@@ -118,33 +118,40 @@ pnpm clean        # Clean all build artifacts
 
 ## 📁 Project Structure
 
-`
 ExamCraft/
 ├── apps/
-│   ├── api/              # NestJS backend (Production Hardened)
+│   ├── api/              # NestJS backend (Domain-Modular Structure)
 │   │   ├── src/
-│   │   │   ├── audit-logs/   # Comprehensive system auditing
-│   │   │   ├── health/       # Health & Monitoring probes
-│   │   │   ├── common/       # Sanitization middleware & CSRF guards
-│   │   │   ├── modules/      # Feature modules
-│   │   │   ├── supabase/     # Supabase client
-│   │   │   └── auth/         # Authentication
+│   │   │   ├── academic/     # Academic Hierarchy
+│   │   │   ├── analytics/    # Reporting and metrics
+│   │   │   ├── approvals/    # Review workflows
+│   │   │   ├── auth/         # Authentication & Guards
+│   │   │   ├── mailer/       # System notifications
+│   │   │   ├── papers/       # Exam document generation
+│   │   │   ├── platform-admin/ # Super admin tools
+│   │   │   ├── questions/    # Repository & Item banking
+│   │   │   ├── templates/    # Blueprint architectures
+│   │   │   └── users/        # User management
 │   │   └── dist/         # Compiled output
 │   └── web/              # Next.js frontend
 │       ├── app/          # App router pages
-│       ├── components/   # React components
+│       │   ├── (auth)/   # Authenticated gateways
+│       │   └── (app)/    # Flat Role-based App Workspaces
+│       │       ├── (academic-head)/
+│       │       ├── (faculty)/
+│       │       ├── (institution-admin)/
+│       │       ├── (reviewer)/
+│       │       └── (super-admin)/
+│       ├── components/   # Feature-grouped React components
 │       └── lib/          # Utilities & hooks
 ├── packages/
 │   ├── ui/               # Shared component library
-│   ├── types/            # Shared TypeScript types
+│   ├── types/            # Shared TypeScript domain models
 │   ├── sdk/              # API SDK
 │   └── config/           # Shared configs
 ├── supabase/
-│   ├── migrations/       # Database migrations (RLS, Triggers, Indexes)
-│   └── seed.sql          # Seed data
-├── docs/                 # Documentation
-├── scripts/              # Utility scripts
-└── *.md                  # Root documentation files
+│   └── migrations/       # Progressive Database migrations & RLS schemas
+└── docs/                 # Documentation
 `
 
 ---

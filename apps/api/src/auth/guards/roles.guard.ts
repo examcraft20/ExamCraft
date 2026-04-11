@@ -25,12 +25,12 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
-    // Check super_admin first - global role overrides tenant roles
+    // Check super_admin first - global role overrides institution roles
     if (request.currentUser?.isSuperAdmin) {
       return true;
     }
 
-    const roleCodes = request.tenantContext?.roleCodes ?? [];
+    const roleCodes = request.institutionContext?.roleCodes ?? [];
     const hasAllowedRole = requiredRoles.some((requiredRole) =>
       roleCodes.includes(requiredRole),
     );

@@ -4,19 +4,23 @@ import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { AppController } from "./app.controller";
 import { EnvModule } from "./config/env.module";
 import { AuthModule } from "./auth/auth.module";
-import { TenantModule } from "./tenant/tenant.module";
+import { InstitutionModule } from "./institution/institution.module";
 import { OnboardingModule } from "./onboarding/onboarding.module";
 import { InvitationModule } from "./invitations/invitation.module";
-import { PeopleModule } from "./people/people.module";
-import { ContentModule } from "./content/content.module";
+import { UsersModule } from "./users/users.module";
+import { QuestionsModule } from "./questions/questions.module";
+import { TemplatesModule } from "./templates/templates.module";
+import { PapersModule } from "./papers/papers.module";
+import { ApprovalsModule } from "./approvals/approvals.module";
 import { AcademicModule } from "./academic/academic.module";
-import { AcademicStructureModule } from "./modules/academic-structure/academic-structure.module";
 import { AnalyticsModule } from "./analytics/analytics.module";
 import { GlobalTemplatesModule } from "./global-templates/global-templates.module";
 import { AuditLogsModule } from "./audit-logs/audit-logs.module";
 import { SupabaseModule } from "./supabase/supabase.module";
-import { MailerModule } from "./modules/mailer/mailer.module";
+import { MailerModule } from "./mailer/mailer.module";
 import { HealthModule } from "./health/health.module";
+import { AIModule } from "./ai/ai.module";
+import { AdminModule } from "./platform-admin/admin.module";
 import { SanitizeMiddleware } from "./common/middleware/sanitize.middleware";
 import { MutationAuthGuard } from "./common/guards/mutation-auth.guard";
 import { AuditLogInterceptor } from "./common/interceptors/audit-log.interceptor";
@@ -31,19 +35,23 @@ import { AuditLogsService } from "./audit-logs/audit-logs.service";
     ]),
     EnvModule,
     AuthModule,
-    TenantModule,
+    InstitutionModule,
     OnboardingModule,
     InvitationModule,
-    PeopleModule,
-    ContentModule,
+    UsersModule,
+    QuestionsModule,
+    TemplatesModule,
+    PapersModule,
+    ApprovalsModule,
     AcademicModule,
-    AcademicStructureModule,
     AnalyticsModule,
     GlobalTemplatesModule,
     AuditLogsModule,
     SupabaseModule,
     MailerModule,
     HealthModule,
+    AIModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

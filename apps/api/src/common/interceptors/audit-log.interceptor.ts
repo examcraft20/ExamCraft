@@ -32,11 +32,11 @@ export class AuditLogInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap(async (result) => {
         try {
-          const tenantContext = request.tenantContext;
+          const institutionContext = request.institutionContext;
           const user = request.user;
           const args = context.getArgs(); // Get the arguments passed to the method
           
-          if (!tenantContext || !user) {
+          if (!institutionContext || !user) {
             return;
           }
 
@@ -51,7 +51,7 @@ export class AuditLogInterceptor implements NestInterceptor {
           }
 
           await this.auditLogsService.createAuditLog({
-            institutionId: tenantContext.institutionId,
+            institutionId: institutionContext.institutionId,
             userId: user.id,
             action: auditMetadata.action,
             resourceType: auditMetadata.resourceType,

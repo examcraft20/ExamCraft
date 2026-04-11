@@ -31,7 +31,7 @@ test("dashboard selector routes into the chosen institution workspace", async ({
           }
         });
         return;
-      case "/api/tenant/memberships":
+      case "/api/institution/memberships":
         await route.fulfill({
           json: [
             {
@@ -46,10 +46,10 @@ test("dashboard selector routes into the chosen institution workspace", async ({
           ]
         });
         return;
-      case "/api/tenant/context":
+      case "/api/institution/context":
         await route.fulfill({
           json: {
-            tenantContext: {
+            institutionContext: {
               institutionId: "inst-1",
               institutionUserId: "membership-1",
               roleCodes: ["institution_admin"],
@@ -94,7 +94,7 @@ test("academic head can approve a question from the review queue", async ({ page
       return;
     }
 
-    if (url.pathname === "/api/tenant/memberships") {
+    if (url.pathname === "/api/institution/memberships") {
       await route.fulfill({
         json: [
           {
@@ -111,10 +111,10 @@ test("academic head can approve a question from the review queue", async ({ page
       return;
     }
 
-    if (url.pathname === "/api/tenant/context") {
+    if (url.pathname === "/api/institution/context") {
       await route.fulfill({
         json: {
-          tenantContext: {
+          institutionContext: {
             institutionId: "inst-1",
             institutionUserId: "membership-academic",
             roleCodes: ["academic_head"],
@@ -125,7 +125,7 @@ test("academic head can approve a question from the review queue", async ({ page
       return;
     }
 
-    if (url.pathname === "/api/tenant/dashboard-summary") {
+    if (url.pathname === "/api/institution/dashboard-summary") {
       await route.fulfill({
         json: {
           totals: {
@@ -150,7 +150,7 @@ test("academic head can approve a question from the review queue", async ({ page
       return;
     }
 
-    if (url.pathname === "/api/content/questions" && method === "GET") {
+    if (url.pathname === "/api/questions" && method === "GET") {
       await route.fulfill({
         json: [
           {
@@ -170,7 +170,7 @@ test("academic head can approve a question from the review queue", async ({ page
       return;
     }
 
-    if (url.pathname === "/api/content/templates" && method === "GET") {
+    if (url.pathname === "/api/templates" && method === "GET") {
       await route.fulfill({
         json: [
           {
@@ -188,7 +188,7 @@ test("academic head can approve a question from the review queue", async ({ page
       return;
     }
 
-    if (url.pathname === "/api/content/questions/question-1/review" && method === "PATCH") {
+    if (url.pathname === "/api/approvals/questions/question-1/review" && method === "PATCH") {
       const body = route.request().postDataJSON() as { action: string; comment?: string };
       questionStatus = body.action === "approve" ? "ready" : "draft";
       questionReviewComment = body.comment ?? null;
@@ -245,7 +245,7 @@ test("reviewer can record a comment in the review queue", async ({ page }) => {
       return;
     }
 
-    if (url.pathname === "/api/tenant/memberships") {
+    if (url.pathname === "/api/institution/memberships") {
       await route.fulfill({
         json: [
           {
@@ -262,10 +262,10 @@ test("reviewer can record a comment in the review queue", async ({ page }) => {
       return;
     }
 
-    if (url.pathname === "/api/tenant/context") {
+    if (url.pathname === "/api/institution/context") {
       await route.fulfill({
         json: {
-          tenantContext: {
+          institutionContext: {
             institutionId: "inst-1",
             institutionUserId: "membership-reviewer",
             roleCodes: ["reviewer_approver"],
@@ -276,7 +276,7 @@ test("reviewer can record a comment in the review queue", async ({ page }) => {
       return;
     }
 
-    if (url.pathname === "/api/tenant/dashboard-summary") {
+    if (url.pathname === "/api/institution/dashboard-summary") {
       await route.fulfill({
         json: {
           totals: {
@@ -293,7 +293,7 @@ test("reviewer can record a comment in the review queue", async ({ page }) => {
       return;
     }
 
-    if (url.pathname === "/api/content/questions" && method === "GET") {
+    if (url.pathname === "/api/questions" && method === "GET") {
       await route.fulfill({
         json: [
           {
@@ -313,12 +313,12 @@ test("reviewer can record a comment in the review queue", async ({ page }) => {
       return;
     }
 
-    if (url.pathname === "/api/content/templates" && method === "GET") {
+    if (url.pathname === "/api/templates" && method === "GET") {
       await route.fulfill({ json: [] });
       return;
     }
 
-    if (url.pathname === "/api/content/questions/question-2/review" && method === "PATCH") {
+    if (url.pathname === "/api/approvals/questions/question-2/review" && method === "PATCH") {
       const body = route.request().postDataJSON() as { comment?: string };
       reviewerComment = body.comment ?? null;
 
@@ -373,7 +373,7 @@ test("super admin can filter tenants and update institution status", async ({ pa
       return;
     }
 
-    if (url.pathname === "/api/tenant/platform-summary") {
+    if (url.pathname === "/api/institution/platform-summary") {
       await route.fulfill({
         json: {
           totals: {
@@ -389,7 +389,7 @@ test("super admin can filter tenants and update institution status", async ({ pa
       return;
     }
 
-    if (url.pathname === "/api/tenant/platform-institutions" && method === "GET") {
+    if (url.pathname === "/api/institution/platform-institutions" && method === "GET") {
       await route.fulfill({
         json: [
           {
@@ -425,7 +425,7 @@ test("super admin can filter tenants and update institution status", async ({ pa
       return;
     }
 
-    if (url.pathname === "/api/tenant/platform-audit-feed") {
+    if (url.pathname === "/api/institution/platform-audit-feed") {
       await route.fulfill({
         json: [
           {
@@ -442,7 +442,7 @@ test("super admin can filter tenants and update institution status", async ({ pa
       return;
     }
 
-    if (url.pathname === "/api/tenant/platform-institutions/inst-1/status" && method === "PATCH") {
+    if (url.pathname === "/api/institution/platform-institutions/inst-1/status" && method === "PATCH") {
       const body = route.request().postDataJSON() as { status: string };
       institutionStatus = body.status;
 
@@ -468,7 +468,7 @@ test("super admin can filter tenants and update institution status", async ({ pa
     await route.fulfill({ json: {} });
   });
 
-  await page.goto("/dashboard/super_admin");
+  await page.goto("/dashboard");
   await page.getByLabel("Search institutions").fill("examcraft");
   await expect(page.locator("strong", { hasText: "ExamCraft Test Institute" }).first()).toBeVisible();
   await page.getByLabel("Lifecycle status").selectOption("suspended");
@@ -478,3 +478,5 @@ test("super admin can filter tenants and update institution status", async ({ pa
   await expect(page.getByText('Institution "ExamCraft Test Institute" updated to suspended.')).toBeVisible();
   await expect(page.locator(".dashboard-role-pill", { hasText: "suspended" }).first()).toBeVisible();
 });
+
+

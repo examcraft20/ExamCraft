@@ -145,10 +145,10 @@ describe("InvitationService — createInvitation", () => {
       mockMailer() as never
     );
 
-    const tenantCtx = { institutionId: "inst-1", roleCodes: ["institution_admin"], permissionCodes: [] };
+    const institutionCtx = { institutionId: "inst-1", roleCodes: ["institution_admin"], permissionCodes: [] };
 
     await expect(
-      service.createInvitation(tenantCtx as any, "admin-user-id", {
+      service.createInvitation(institutionCtx as any, "admin-user-id", {
         institutionId: "inst-1",
         email: "duplicate@test.com",
         roleCode: "faculty",

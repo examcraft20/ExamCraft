@@ -12,13 +12,13 @@ import { Throttle } from "@nestjs/throttler";
 import { SupabaseAuthGuard } from "../auth/guards/supabase-auth.guard";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
-import { CurrentTenant } from "../common/decorators/tenant-context.decorator";
+import { CurrentInstitution } from "../common/decorators/institution-context.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import type {
   AuthenticatedUser,
-  TenantContext,
+  InstitutionContext,
 } from "../common/types/authenticated-request";
-import { UseTenantAuthorization } from "../tenant/guards/tenant-context.guard";
+import { UseInstitutionAuthorization } from "../institution/guards/institution-context.guard";
 import type {
   AcceptInvitationDto,
   CreateInvitationDto,
@@ -42,7 +42,7 @@ export class InvitationController {
   }
 
   @Post()
-  @UseTenantAuthorization()
+  @UseInstitutionAuthorization()
   @RequireRoles("institution_admin")
   @RequirePermissions("users.invite")
   @AuditLog(
@@ -51,16 +51,16 @@ export class InvitationController {
     (result: any) => result.invitation.id,
   )
   createInvitation(
-    @CurrentTenant() tenantContext: TenantContext | undefined,
+    @CurrentInstitution() institutionContext: InstitutionContext | undefined,
     @CurrentUser() currentUser: AuthenticatedUser | undefined,
     @Body() body: CreateInvitationDto,
   ) {
-    if (!tenantContext || !currentUser) {
-      throw new InternalServerErrorException("Missing tenant or user context.");
+    if (!institutionContext || !currentUser) {
+      throw new InternalServerErrorException("Missing institution or user context.");
     }
 
     return this.invitationService.createInvitation(
-      tenantContext,
+      institutionContext,
       currentUser.id,
       body,
     );

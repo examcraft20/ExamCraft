@@ -1,7 +1,7 @@
 import { Injectable, Inject, InternalServerErrorException, Logger } from "@nestjs/common";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
-import { TenantContext } from "../common/types/authenticated-request";
+import { InstitutionContext } from "../common/types/authenticated-request";
 import { AuditAction } from "./audit-action.enum";
 
 @Injectable()
@@ -13,11 +13,11 @@ export class AuditLogsService {
     private readonly supabaseAdminClient: SupabaseClient
   ) {}
 
-  async listAuditLogs(tenantContext: TenantContext) {
+  async listAuditLogs(institutionContext: InstitutionContext) {
     const { data, error } = await this.supabaseAdminClient
       .from("institution_audit_logs")
       .select("*, actor:institution_users(user_id, role, users(email))")
-      .eq("institution_id", tenantContext.institutionId)
+      .eq("institution_id", institutionContext.institutionId)
       .order("created_at", { ascending: false })
       .limit(100);
 

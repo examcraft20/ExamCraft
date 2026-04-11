@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { LoginForm } from "./LoginForm";
-import { SignupForm } from "./SignupForm";
+import { LoginForm } from "./login-form";
+import { SignupForm } from "./signup-form";
 
 export function AuthPage() {
   const searchParams = useSearchParams();

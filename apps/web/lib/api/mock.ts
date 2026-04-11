@@ -10,7 +10,7 @@ import type {
   PlatformInstitutionRecord,
   QuestionRecord,
   TemplateRecord,
-  TenantContextResponse,
+  InstitutionContextResponse,
 } from "../dashboard";
 import type {
   DepartmentRecord,
@@ -21,7 +21,7 @@ import type {
 type DemoState = {
   user: NonNullable<AuthMeResponse["user"]>;
   memberships: MembershipSummary[];
-  tenantContexts: Record<string, TenantContextResponse["tenantContext"]>;
+  institutionContexts: Record<string, InstitutionContextResponse["institutionContext"]>;
   questions: QuestionRecord[];
   templates: TemplateRecord[];
   papers: PaperRecord[];
@@ -220,7 +220,7 @@ function createInitialDemoState(): DemoState {
         ],
       },
     ],
-    tenantContexts: {
+    institutionContexts: {
       [demoInstitutionId]: {
         institutionId: demoInstitutionId,
         institutionUserId: demoInstitutionUserId,
@@ -241,9 +241,9 @@ function createInitialDemoState(): DemoState {
           "templates.review",
           "templates.approve",
           "templates.reject",
-          "people.read",
-          "people.invite",
-          "tenant.dashboard",
+          "users.read",
+          "users.invite",
+          "institution.dashboard",
         ],
       },
     },
@@ -359,29 +359,29 @@ export async function demoApiRequest<TResponse>(
     return { user: demoState.user } as TResponse;
   }
 
-  if (method === "GET" && rawPath === "/tenant/memberships") {
+  if (method === "GET" && rawPath === "/institution/memberships") {
     return demoState.memberships as TResponse;
   }
 
-  if (method === "GET" && rawPath === "/tenant/context") {
+  if (method === "GET" && rawPath === "/institution/context") {
     const institutionId =
-      options.institutionId || demoState.memberships[0]?.institutionId || demoInstitutionId;
-    const tenantContext = demoState.tenantContexts[institutionId];
-    if (!tenantContext) {
+      options.institutionId || demoState.memberships[0]?.institutionId || "inst-demo-1";
+    const institutionContext = demoState.institutionContexts[institutionId];
+    if (!institutionContext) {
       throw new Error("Institution context not found.");
     }
-    return { tenantContext } as TResponse;
+    return { institutionContext } as TResponse;
   }
 
-  if (method === "GET" && rawPath === "/tenant/dashboard-summary") {
+  if (method === "GET" && rawPath === "/institution/dashboard-summary") {
     return buildInstitutionSummary() as TResponse;
   }
 
-  if (method === "GET" && rawPath === "/content/questions") {
+  if (method === "GET" && rawPath === "/questions") {
     return demoState.questions as TResponse;
   }
 
-  if (method === "POST" && rawPath === "/content/questions") {
+  if (method === "POST" && rawPath === "/questions") {
     const created = {
       id: `q-${Date.now()}`,
       title: body?.title || "Untitled question",
@@ -403,7 +403,7 @@ export async function demoApiRequest<TResponse>(
     return created as TResponse;
   }
 
-  if (method === "POST" && rawPath === "/content/questions/bulk") {
+  if (method === "POST" && rawPath === "/questions/bulk") {
     const createdArray = (body?.questions || []).map(
       (q: any, i: number) =>
         ({
@@ -433,7 +433,7 @@ export async function demoApiRequest<TResponse>(
   }
 
   const questionReviewMatch = rawPath.match(
-    /^\/content\/questions\/([^/]+)\/review$/,
+    /^\/approvals\/questions\/([^/]+)\/review$/,
   );
   if (questionReviewMatch && method === "PATCH") {
     const questionId = questionReviewMatch[1];
@@ -445,20 +445,20 @@ export async function demoApiRequest<TResponse>(
     return question as TResponse;
   }
 
-  if (method === "GET" && rawPath === "/content/templates") {
+  if (method === "GET" && rawPath === "/templates") {
     return demoState.templates as TResponse;
   }
 
-  if (method === "GET" && rawPath === "/content/global-templates") {
+  if (method === "GET" && rawPath === "/global-templates") {
     return demoState.globalTemplates as TResponse;
   }
 
   if (
     method === "POST" &&
-    rawPath.startsWith("/content/global-templates/") &&
+    rawPath.startsWith("/global-templates/") &&
     rawPath.endsWith("/clone")
   ) {
-    const globalId = rawPath.split("/")[3];
+    const globalId = rawPath.split("/")[2];
     const source = demoState.globalTemplates.find((t) => t.id === globalId);
     if (!source) throw new Error("Global template not found.");
 
@@ -481,7 +481,7 @@ export async function demoApiRequest<TResponse>(
     return clone as TResponse;
   }
 
-  if (method === "POST" && rawPath === "/content/templates") {
+  if (method === "POST" && rawPath === "/templates") {
     const created = {
       id: `t-${Date.now()}`,
       name: body?.name || "Untitled template",
@@ -501,7 +501,7 @@ export async function demoApiRequest<TResponse>(
   }
 
   const templateReviewMatch = rawPath.match(
-    /^\/content\/templates\/([^/]+)\/review$/,
+    /^\/approvals\/templates\/([^/]+)\/review$/,
   );
   if (templateReviewMatch && method === "PATCH") {
     const templateId = templateReviewMatch[1];
@@ -513,11 +513,11 @@ export async function demoApiRequest<TResponse>(
     return template as TResponse;
   }
 
-  if (method === "GET" && rawPath === "/content/papers") {
+  if (method === "GET" && rawPath === "/papers") {
     return demoState.papers as TResponse;
   }
 
-  if (method === "POST" && rawPath === "/content/papers/generate") {
+  if (method === "POST" && rawPath === "/papers/generate") {
     const templateId = body?.templateId;
     const template = demoState.templates.find((t) => t.id === templateId);
     if (!template) throw new Error("Template not found.");
@@ -549,7 +549,7 @@ export async function demoApiRequest<TResponse>(
   }
 
   const paperReviewMatch = rawPath.match(
-    /^\/content\/papers\/([^/]+)\/review$/,
+    /^\/approvals\/papers\/([^/]+)\/review$/,
   );
   if (paperReviewMatch && method === "PATCH") {
     const paperId = paperReviewMatch[1];
@@ -560,7 +560,7 @@ export async function demoApiRequest<TResponse>(
   }
 
   const paperSubmitMatch = rawPath.match(
-    /^\/content\/papers\/([^/]+)\/submit$/,
+    /^\/papers\/([^/]+)\/submit$/,
   );
   if (paperSubmitMatch && method === "PATCH") {
     const paperId = paperSubmitMatch[1];
@@ -571,11 +571,11 @@ export async function demoApiRequest<TResponse>(
     return paper as TResponse;
   }
 
-  if (method === "GET" && rawPath === "/people/users") {
+  if (method === "GET" && rawPath === "/users/users") {
     return demoState.people as TResponse;
   }
 
-  if (method === "POST" && rawPath === "/people/invitations") {
+  if (method === "POST" && rawPath === "/users/invitations") {
     const invitation = {
       id: `invite-${Date.now()}`,
       email: body?.email || "new.staff@examcraft.test",
@@ -665,13 +665,13 @@ export async function demoApiRequest<TResponse>(
         roleCodes: ["institution_admin"],
       },
     ];
-    demoState.tenantContexts[institutionId] = {
+    demoState.institutionContexts[institutionId] = {
       institutionId,
       institutionUserId:
         demoState.memberships[demoState.memberships.length - 1]
           .institutionUserId,
       roleCodes: ["institution_admin"],
-      permissionCodes: ["tenant.dashboard", "people.invite", "people.read"],
+      permissionCodes: ["institution.dashboard", "users.invite", "users.read"],
     };
     demoState.platformInstitutions = [
       ...demoState.platformInstitutions,
@@ -808,7 +808,7 @@ export async function demoApiRequest<TResponse>(
     } as TResponse;
   }
 
-  if (rawPath.startsWith("/people/users/") && method === "PATCH") {
+  if (rawPath.startsWith("/users/users/") && method === "PATCH") {
     const userId = rawPath.split("/")[3];
     const user = demoState.people.users.find((u) => u.userId === userId);
     if (user) {
@@ -818,11 +818,11 @@ export async function demoApiRequest<TResponse>(
     return user as TResponse;
   }
 
-  if (rawPath === "/tenant/platform-summary" && method === "GET") {
+  if (rawPath === "/institution/platform-summary" && method === "GET") {
     return buildPlatformSummary() as TResponse;
   }
 
-  if (rawPath === "/tenant/platform-institutions" && method === "GET") {
+  if (rawPath === "/institution/platform-institutions" && method === "GET") {
     return demoState.platformInstitutions as TResponse;
   }
 
@@ -845,11 +845,11 @@ export async function demoApiRequest<TResponse>(
     return institution as TResponse;
   }
 
-  if (rawPath === "/tenant/platform-audit-feed" && method === "GET") {
+  if (rawPath === "/institution/platform-audit-feed" && method === "GET") {
     return demoState.platformAudit as TResponse;
   }
 
-  if (rawPath === "/tenant/branding" && method === "PATCH") {
+  if (rawPath === "/institution/branding" && method === "PATCH") {
     const institutionId =
       options.institutionId || demoState.memberships[0]?.institutionId;
     const membership = demoState.memberships.find(
@@ -1106,3 +1106,4 @@ function addAuditEvent(
     ...demoState.platformAudit,
   ];
 }
+

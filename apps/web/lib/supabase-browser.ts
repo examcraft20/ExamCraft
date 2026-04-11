@@ -1,10 +1,10 @@
 "use client";
 
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 import { assertPublicEnv, env } from "./env";
 
-let browserClient: ReturnType<typeof createClient> | null = null;
-let demoClient: ReturnType<typeof createClient> | null = null;
+let browserClient: ReturnType<typeof createBrowserClient> | null = null;
+let demoClient: ReturnType<typeof createBrowserClient> | null = null;
 const demoStorageKey = "examcraft.demo.session";
 const demoFallbackEmail = "demo.user@examcraft.test";
 
@@ -20,16 +20,16 @@ declare global {
 export function getSupabaseBrowserClient() {
   if (env.demoMode) {
     if (!demoClient) {
-      demoClient = createDemoClient();
+      demoClient = createDemoClient() as any;
     }
     return demoClient;
   }
   if (!browserClient) {
     assertPublicEnv();
-    browserClient = createClient(env.supabaseUrl, env.supabaseAnonKey);
+    browserClient = createBrowserClient(env.supabaseUrl, env.supabaseAnonKey);
   }
 
-  return browserClient;
+  return browserClient as any;
 }
 
 export async function getSupabaseBrowserSession() {

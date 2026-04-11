@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const DEMO_INSTITUTION_ID = "inst-demo-1";
 const DEMO_INSTITUTION_NAME = "Demo Institute of Technology";
@@ -20,6 +21,9 @@ function isDemoMode(): boolean {
 }
 
 export function useInstitution() {
+  const searchParams = useSearchParams();
+  const urlInstId = searchParams.get("institutionId") || searchParams.get("institution_id");
+
   const [institutionId, setInstitutionId] = useState<string | null>(null);
   const [institutionName, setInstitutionName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +33,15 @@ export function useInstitution() {
 
     async function loadInstitution() {
       try {
+        // 0. Use URL parameter if available (Highest Priority)
+        if (urlInstId) {
+          if (isMounted) {
+            setInstitutionId(urlInstId);
+            // We might not have the name yet, but setting ID is most important
+            const cachedName = localStorage.getItem('examcraft_institution_name');
+            if (cachedName) setInstitutionName(cachedName);
+          }
+        }
         // In demo mode, return the hardcoded demo institution immediately
         if (isDemoMode()) {
           if (isMounted) {
@@ -69,7 +82,7 @@ export function useInstitution() {
             .eq('user_id', user.id)
             .eq('status', 'active')
             .limit(1)
-            .single();
+            .maybeSingle();
             
           const typedMemberData = memberData as any;
             

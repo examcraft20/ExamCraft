@@ -149,6 +149,11 @@ export function DashboardHome() {
           throw new Error(
             "No supported dashboard is available for your current roles.",
           );
+
+        // Update local storage for immediate context in hooks
+        localStorage.setItem('examcraft_institution_id', membership.institutionId);
+        localStorage.setItem('examcraft_institution_name', membership.institutionName);
+
         router.push(
           `/dashboard/${resolvedRole}?institutionId=${encodeURIComponent(membership.institutionId)}`,
         );

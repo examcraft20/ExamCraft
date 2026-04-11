@@ -241,42 +241,42 @@ function getRoleLinks(role: string, instId: string | null) {
         },
         {
           label: "Generate Paper",
-          href: `/dashboard/faculty/papers/new${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/papers/new${instId ? `?institutionId=${instId}` : ""}`,
           icon: FileText,
         },
         {
           label: "My Papers",
-          href: `/dashboard/faculty/papers${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/papers${instId ? `?institutionId=${instId}` : ""}`,
           icon: Book,
         },
         {
           label: "Question Bank",
-          href: `/dashboard/faculty/questions${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/questions${instId ? `?institutionId=${instId}` : ""}`,
           icon: Layers,
         },
         {
           label: "My Submissions",
-          href: `/dashboard/faculty/submissions${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/submissions${instId ? `?institutionId=${instId}` : ""}`,
           icon: ClipboardList,
         },
         {
           label: "My Subjects",
-          href: `/dashboard/faculty/subjects${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/subjects${instId ? `?institutionId=${instId}` : ""}`,
           icon: BookOpen,
         },
         {
           label: "Templates",
-          href: `/dashboard/faculty/templates${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/templates${instId ? `?institutionId=${instId}` : ""}`,
           icon: LayoutTemplate,
         },
         {
           label: "AI from Syllabus",
-          href: `/dashboard/faculty/syllabus-ai${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/syllabus-ai${instId ? `?institutionId=${instId}` : ""}`,
           icon: Bot,
         },
         {
           label: "Settings",
-          href: `/dashboard/faculty/settings${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/settings${instId ? `?institutionId=${instId}` : ""}`,
           icon: Settings,
         },
       ];
@@ -290,12 +290,12 @@ function getRoleLinks(role: string, instId: string | null) {
         },
         {
           label: "Analytics",
-          href: `/dashboard/head/analytics${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/analytics${instId ? `?institutionId=${instId}` : ""}`,
           icon: BarChart2,
         },
         {
           label: "Audit Logs",
-          href: `/dashboard/head/audit-logs${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/audit-logs${instId ? `?institutionId=${instId}` : ""}`,
           icon: ShieldAlert,
         },
       ];
@@ -308,42 +308,42 @@ function getRoleLinks(role: string, instId: string | null) {
         },
         {
           label: "Manage Faculty",
-          href: `/dashboard/institution_admin/manage-faculty${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/manage-faculty${instId ? `?institutionId=${instId}` : ""}`,
           icon: Users,
         },
         {
           label: "Approve Questions",
-          href: `/dashboard/institution_admin/approve-questions${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/approve-questions${instId ? `?institutionId=${instId}` : ""}`,
           icon: CheckSquare,
         },
         {
           label: "Approve Papers",
-          href: `/dashboard/institution_admin/approve-papers${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/approve-papers${instId ? `?institutionId=${instId}` : ""}`,
           icon: BookMarked,
         },
         {
           label: "Manage Questions",
-          href: `/dashboard/institution_admin/manage-questions${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/manage-questions${instId ? `?institutionId=${instId}` : ""}`,
           icon: Layers,
         },
         {
           label: "Analytics",
-          href: `/dashboard/institution_admin/analytics${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/analytics${instId ? `?institutionId=${instId}` : ""}`,
           icon: PieChart,
         },
         {
           label: "Reports",
-          href: `/dashboard/institution_admin/reports${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/reports${instId ? `?institutionId=${instId}` : ""}`,
           icon: LineChart,
         },
         {
           label: "Subjects",
-          href: `/dashboard/institution_admin/subjects${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/subjects${instId ? `?institutionId=${instId}` : ""}`,
           icon: BookOpen,
         },
         {
           label: "Settings",
-          href: `/dashboard/institution_admin/settings${instId ? `?institutionId=${instId}` : ""}`,
+          href: `${base}/settings${instId ? `?institutionId=${instId}` : ""}`,
           icon: Settings,
         },
       ];

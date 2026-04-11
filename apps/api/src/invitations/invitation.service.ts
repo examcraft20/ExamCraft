@@ -242,6 +242,21 @@ export class InvitationService {
         );
       }
 
+      // Update Supabase auth user's app_metadata with the assigned role
+      const { error: updateAuthError } = await this.supabaseAdminClient.auth.admin.updateUserById(
+        createdUserId,
+        {
+          app_metadata: {
+            roles: [invitation.role_code],
+            isSuperAdmin: false
+          }
+        }
+      );
+
+      if (updateAuthError) {
+        throw new InternalServerErrorException("Failed to update user roles in auth system.");
+      }
+
       const { error: invitationUpdateError } = await this.supabaseAdminClient
         .from("invitations")
         .update({

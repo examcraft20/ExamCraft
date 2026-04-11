@@ -78,6 +78,21 @@ export class OnboardingService {
         throw new InternalServerErrorException("Failed to assign institution admin role.");
       }
 
+      // Update Supabase auth user's app_metadata with the institution_admin role
+      const { error: updateAuthError } = await this.supabaseAdminClient.auth.admin.updateUserById(
+        authenticatedUserId,
+        {
+          app_metadata: {
+            roles: ["institution_admin"],
+            isSuperAdmin: false
+          }
+        }
+      );
+
+      if (updateAuthError) {
+        throw new InternalServerErrorException("Failed to update user roles in auth system.");
+      }
+
       const { error: subscriptionError } = await this.supabaseAdminClient
         .from("institution_subscriptions")
         .insert({

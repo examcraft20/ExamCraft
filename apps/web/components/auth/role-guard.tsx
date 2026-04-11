@@ -33,7 +33,9 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
         const user: any = session.user;
         
         // 1. Check Metadata (Fastest)
-        let role = (user?.app_metadata?.role || user?.user_metadata?.role) as string;
+        let role = (user?.app_metadata?.role || 
+                    (Array.isArray(user?.app_metadata?.roles) ? user.app_metadata.roles[0] : null) ||
+                    user?.user_metadata?.role) as string;
         console.log('RoleGuard: Current user metadata role:', role);
         
         // 2. API Fallback (More reliable for multi-tenant roles)

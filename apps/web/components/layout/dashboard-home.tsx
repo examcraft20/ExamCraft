@@ -277,7 +277,7 @@ export function DashboardHome() {
               slug="global"
               type="platform"
               roleLines={["super_admin"]}
-              onOpen={() => router.push("/dashboard")}
+              onOpen={() => router.push("/dashboard/super_admin/tenants")}
             />
           )}
 

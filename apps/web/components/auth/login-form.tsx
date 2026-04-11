@@ -32,7 +32,9 @@ export function LoginForm() {
       return;
     }
 
-    const role = data?.user?.app_metadata?.role || data?.user?.user_metadata?.role;
+    const role = data?.user?.app_metadata?.role || 
+                 (Array.isArray(data?.user?.app_metadata?.roles) ? data.user.app_metadata.roles[0] : null) ||
+                 data?.user?.user_metadata?.role;
     
     if (role === 'super_admin') {
       router.push('/dashboard');

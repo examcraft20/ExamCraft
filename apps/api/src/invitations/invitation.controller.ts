@@ -1,0 +1,73 @@
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
+import { SupabaseAuthGuard } from "../auth/guards/supabase-auth.guard";
+import { RequirePermissions } from "../auth/decorators/permissions.decorator";
+import { RequireRoles } from "../auth/decorators/roles.decorator";
+import { CurrentInstitution } from "../common/decorators/institution-context.decorator";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
+import type {
+  AuthenticatedUser,
+  InstitutionContext,
+} from "../common/types/authenticated-request";
+import { UseInstitutionAuthorization } from "../institution/guards/institution-context.guard";
+import type {
+  AcceptInvitationDto,
+  CreateInvitationDto,
+} from "./dto/create-invitation.dto";
+import { InvitationService } from "./invitation.service";
+import { AuditLog } from "../common/decorators/audit-log.decorator";
+import { AuditAction } from "../audit-logs/audit-action.enum";
+
+@Controller({ path: "invitations", version: "1" })
+export class InvitationController {
+  constructor(private readonly invitationService: InvitationService) {}
+
+  @Get("preview")
+  @Throttle({ short: { limit: 10, ttl: 60000 } }) // Rate limit: 10 requests per minute
+  previewInvitation(@Query("token") token?: string) {
+    if (!token) {
+      throw new BadRequestException("Missing invitation token.");
+    }
+
+    return this.invitationService.previewInvitation(token);
+  }
+
+  @Post()
+  @UseInstitutionAuthorization()
+  @RequireRoles("institution_admin")
+  @RequirePermissions("users.invite")
+  @AuditLog(
+    AuditAction.USER_INVITED,
+    "invitations",
+    (result: any) => result.invitation.id,
+  )
+  createInvitation(
+    @CurrentInstitution() institutionContext: InstitutionContext | undefined,
+    @CurrentUser() currentUser: AuthenticatedUser | undefined,
+    @Body() body: CreateInvitationDto,
+  ) {
+    if (!institutionContext || !currentUser) {
+      throw new InternalServerErrorException("Missing institution or user context.");
+    }
+
+    return this.invitationService.createInvitation(
+      institutionContext,
+      currentUser.id,
+      body,
+    );
+  }
+
+  @Post("accept")
+  acceptInvitation(@Body() body: AcceptInvitationDto) {
+    return this.invitationService.acceptInvitation(body);
+  }
+}

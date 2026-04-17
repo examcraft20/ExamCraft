@@ -1,0 +1,35 @@
+node_modules
+.next
+dist
+coverage
+.turbo
+.turbo-cache
+*.tsbuildinfo
+.DS_Store
+*.log
+logs
+
+# Build Artifacts
+apps/web/.next
+apps/web/.next-build
+apps/api/dist
+packages/types/dist
+packages/ui/dist
+
+# Temp Folders
+supabase/.temp/
+
+# Env Files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+
+# Sensitive Data
+TEST_CREDENTIALS.md
+*.credentials.md
+
+# Debug & Audit Artifacts
+api-startup.log

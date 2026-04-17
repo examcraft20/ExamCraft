@@ -36,7 +36,7 @@ export class AuditLogInterceptor implements NestInterceptor {
       tap(async (result) => {
         try {
           const institutionContext = request.institutionContext;
-          const user = request.user;
+          const user = request.currentUser;
           const args = context.getArgs(); // Get the arguments passed to the method
           
           if (!institutionContext || !user) {

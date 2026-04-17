@@ -34,7 +34,7 @@ export function useInstitution() {
         if (!isMounted) return;
         
         if (user?.id) {
-          const { data: memberData } = await supabase
+          let query = supabase
             .from('institution_users')
             .select(`
               institution_id,
@@ -43,9 +43,13 @@ export function useInstitution() {
               )
             `)
             .eq('user_id', user.id)
-            .eq('status', 'active')
-            .limit(1)
-            .maybeSingle();
+            .eq('status', 'active');
+            
+          if (urlInstId) {
+            query = query.eq('institution_id', urlInstId);
+          }
+          
+          const { data: memberData } = await query.limit(1).maybeSingle();
             
           const typedMemberData = memberData as {
             institution_id: string;

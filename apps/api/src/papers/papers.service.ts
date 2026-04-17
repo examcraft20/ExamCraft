@@ -238,10 +238,9 @@ export class PapersService {
       );
     }
 
-    // Notification logic...
-    this.notifyReviewers(institutionContext, data.title, currentUser.email);
-
-    return data;
+    this.notifyReviewers(institutionContext, data.title, currentUser.email).catch(e =>
+      this.logger.warn("notifyReviewers failed silently", e)
+    );
   }
 
   private async notifyReviewers(

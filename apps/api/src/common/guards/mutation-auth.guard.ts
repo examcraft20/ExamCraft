@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class MutationAuthGuard implements CanActivate {
     if (isMutation) {
       const authHeader = request.headers['authorization'];
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new ForbiddenException('Mutation authentication failed: Missing or invalid Authorization header for state-mutating request.');
+        throw new UnauthorizedException('Mutation authentication failed: Missing or invalid Authorization header for state-mutating request.');
       }
     }
     

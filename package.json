@@ -5,7 +5,6 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "pnpm db:start && turbo run dev",
-    "dev:with-db": "pnpm db:start && turbo run dev",
     "dev:all": "pnpm db:start && pnpm db:migrate && pnpm seed && turbo run dev",
     "dev:web": "turbo run dev --filter=web",
     "dev:api": "turbo run dev --filter=api",
@@ -18,7 +17,7 @@
     "seed:reset": "tsx scripts/seed-test-data.ts --reset-only",
     "pilot:seed": "tsx scripts/pilot-seed.ts",
     "clean": "turbo run clean && rimraf node_modules",
-    "clean:web": "rimraf apps/web/.next apps/web/node_modules",
+    "clean:web": "rimraf apps/web/.next-build apps/web/.next apps/web/node_modules",
     "clean:api": "rimraf apps/api/dist apps/api/node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "kill:ports": "npx kill-port 3000 4000",

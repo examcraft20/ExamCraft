@@ -8,12 +8,16 @@
 ## Setup Instructions
 1. `pnpm install`
 2. Ensure Docker is running (`docker info`).
-3. `pnpm db:start` — Starts Supabase, Postgres, and Auth.
-4. `pnpm db:migrate` — Apply initial schema.
-5. `pnpm test:db-connection` — Verify connection.
-6. `pnpm seed` — Create admin accounts and test data.
-7. Ensure `apps/web/.env.local` and `apps/api/.env.local` are configured (Run `pnpm db:setup` if unsure).
-8. `pnpm dev` — Start all services.
+3. Run `pnpm dev:all` — Starts database, applies migrations, seeds data, and starts all services.
+
+### Manual Setup (Step-by-Step)
+If you prefer starting services individually:
+1. `pnpm db:start` — Starts Supabase, Postgres, and Auth.
+2. `pnpm db:migrate` — Apply initial schema.
+3. `pnpm test:db-connection` — Verify connection.
+4. `pnpm seed` — Create admin accounts and test data.
+5. Ensure `apps/web/.env.local` and `apps/api/.env.local` are configured (Run `pnpm db:setup` if unsure).
+6. `pnpm dev` — Start all services.
 9. Login with: `admin.dtc@examcraft-test.com` / `TestPass@123`.
 
 ## Interactive Setup

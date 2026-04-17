@@ -4,7 +4,7 @@
 Get up and running with the full feature set:
 1. `pnpm install`
 2. `pnpm db:setup` (Guided setup)
-3. `pnpm dev`
+3. `pnpm dev:all` (Starts DB, applies migrations, seeds data, and starts Next/Nest)
 4. Visit `http://localhost:3000`.
 
 ## Architecture Note

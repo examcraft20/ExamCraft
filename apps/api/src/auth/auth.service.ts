@@ -2,6 +2,12 @@ import { Injectable, Inject, Logger } from "@nestjs/common";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
 
+export interface SignUpPayload {
+  email: string;
+  password?: string;
+  options?: any;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -11,7 +17,7 @@ export class AuthService {
     private readonly supabaseAdminClient: SupabaseClient
   ) {}
 
-  async signUp(body: any) {
+  async signUp(body: SignUpPayload) {
     const { email, password, options } = body;
     const { data, error } = await this.supabaseAdminClient.auth.signUp({
       email,

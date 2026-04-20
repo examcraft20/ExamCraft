@@ -32,7 +32,7 @@ import {
 export function DashboardSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [, setEmail] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const { institutionId, institutionName, isLoading } = useInstitution();
 
   const paramRole = undefined;
@@ -91,7 +91,7 @@ export function DashboardSidebar() {
   const navItems = role ? getRoleLinks(role, institutionId) : [];
 
   return (
-    <aside className="w-64 flex-shrink-0 bg-[#0f152d] flex flex-col hidden md:flex sticky top-0 h-screen relative group/sidebar">
+    <aside className="w-64 flex-shrink-0 bg-[#0f152d] flex flex-col sticky top-0 h-screen relative group/sidebar">
       <div className="px-6 py-8 pb-10 flex flex-col gap-6">
         <Link
           href="/dashboard"
@@ -164,7 +164,18 @@ export function DashboardSidebar() {
         })}
       </nav>
 
-      <div className="p-6">
+      <div className="p-6 mt-auto">
+        {email && (
+          <div className="flex items-center gap-3 mb-6 px-1">
+            <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold border border-indigo-500/30 shrink-0">
+              {email.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex flex-col truncate">
+              <span className="text-white text-sm font-bold truncate">{email.split('@')[0]}</span>
+              <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">{role?.replace('_', ' ')}</span>
+            </div>
+          </div>
+        )}
         <div className="w-full h-px bg-[#23314a]/50 mb-6" />
         <button
           onClick={handleSignOut}
@@ -228,12 +239,7 @@ function getRoleLinks(role: string, instId: string | null) {
           icon: Gauge,
         },
         {
-          label: "Generate Paper",
-          href: `${base}/papers/new${instId ? `?institutionId=${instId}` : ""}`,
-          icon: FileText,
-        },
-        {
-          label: "My Papers",
+          label: "Papers",
           href: `${base}/papers${instId ? `?institutionId=${instId}` : ""}`,
           icon: Book,
         },
@@ -243,22 +249,12 @@ function getRoleLinks(role: string, instId: string | null) {
           icon: Layers,
         },
         {
-          label: "My Submissions",
-          href: `${base}/submissions${instId ? `?institutionId=${instId}` : ""}`,
-          icon: ClipboardList,
-        },
-        {
-          label: "My Subjects",
-          href: `${base}/subjects${instId ? `?institutionId=${instId}` : ""}`,
-          icon: BookOpen,
-        },
-        {
           label: "Templates",
           href: `${base}/templates${instId ? `?institutionId=${instId}` : ""}`,
           icon: LayoutTemplate,
         },
         {
-          label: "AI from Syllabus",
+          label: "AI Assistant",
           href: `${base}/syllabus-ai${instId ? `?institutionId=${instId}` : ""}`,
           icon: Bot,
         },

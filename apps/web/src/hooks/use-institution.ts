@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { apiRequest } from "@/lib/api";
+import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
 
 export function useInstitution() {
   const searchParams = useSearchParams();
@@ -16,54 +18,53 @@ export function useInstitution() {
 
     async function loadInstitution() {
       try {
-        // 0. Use URL parameter if available (Highest Priority)
+        // 1. URL has highest priority
         if (urlInstId) {
           if (isMounted) {
             setInstitutionId(urlInstId);
-            // We might not have the name yet, but setting ID is most important
-            const cachedName = localStorage.getItem('examcraft_institution_name');
+            const cachedName = localStorage.getItem("examcraft_institution_name");
+            if (cachedName) setInstitutionName(cachedName);
+            localStorage.setItem("examcraft_institution_id", urlInstId);
+          }
+          // We can optionally fetch to get the proper name, but let's proceed for speed
+        } else {
+          // 2. Check local storage if no URL query
+          const cachedId = localStorage.getItem("examcraft_institution_id");
+          const cachedName = localStorage.getItem("examcraft_institution_name");
+          if (cachedId && isMounted) {
+            setInstitutionId(cachedId);
             if (cachedName) setInstitutionName(cachedName);
           }
         }
 
-        // 1. We ONLY trust the server for resolution; client cache is untrusted
-        const { getSupabaseBrowserClient } = await import("../lib/supabase-browser");
+        // 3. To be absolutely safe and fresh, if we don't have the ID fetched, let's fetch memberships
+        // (We do this to handle cases where localStorage is cleared, and URL has no ID)
+        const session = await getSupabaseBrowserSession();
+        if (!isMounted || !session?.access_token) return;
 
-        const supabase = getSupabaseBrowserClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!isMounted) return;
-        
-        if (user?.id) {
-          let query = supabase
-            .from('institution_users')
-            .select(`
-              institution_id,
-              institutions (
-                name
-              )
-            `)
-            .eq('user_id', user.id)
-            .eq('status', 'active');
-            
-          if (urlInstId) {
-            query = query.eq('institution_id', urlInstId);
+        const memberships = await apiRequest<any[]>("/institution/memberships", {
+          method: "GET",
+          accessToken: session.access_token,
+        }).catch(() => null);
+
+        if (isMounted && memberships && memberships.length > 0) {
+          // If we had a preferred ID, try to find it in memberships to get the updated name
+          const currentId = urlInstId || localStorage.getItem("examcraft_institution_id");
+          let targetMembership = memberships.find((m) => m.institution_id === currentId);
+
+          // If no preferred ID or not found in memberships, default to the first one
+          if (!targetMembership) {
+            targetMembership = memberships[0];
           }
-          
-          const { data: memberData } = await query.limit(1).maybeSingle();
-            
-          const typedMemberData = memberData as {
-            institution_id: string;
-            institutions: { name: string } | null;
-          } | null;
-            
-          if (isMounted && typedMemberData?.institution_id) {
-            setInstitutionId(typedMemberData.institution_id);
-            localStorage.setItem('examcraft_institution_id', typedMemberData.institution_id);
-            
-            const name = typedMemberData.institutions?.name;
+
+          if (targetMembership) {
+            setInstitutionId(targetMembership.institution_id);
+            localStorage.setItem("examcraft_institution_id", targetMembership.institution_id);
+
+            const name = targetMembership.institutions?.name;
             if (name) {
               setInstitutionName(name);
-              localStorage.setItem('examcraft_institution_name', name);
+              localStorage.setItem("examcraft_institution_name", name);
             }
           }
         }
@@ -73,9 +74,11 @@ export function useInstitution() {
         if (isMounted) setIsLoading(false);
       }
     }
-    
+
     loadInstitution();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [urlInstId]);
 
   return { institutionId, institutionName, isLoading };

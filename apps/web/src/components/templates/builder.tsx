@@ -7,6 +7,7 @@ import { Card, Input, Button } from "@examcraft/ui";
 import { apiRequest } from "@/lib/api";
 import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface ChoiceGroup {
   label: string;
@@ -37,6 +38,8 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [availableQuestions, setAvailableQuestions] = useState<any[]>([]);
+  const [dbDepartments, setDbDepartments] = useState<any[]>([]);
+  const [dbSubjects, setDbSubjects] = useState<any[]>([]);
 
   // Template Meta
   const [name, setName] = useState("");
@@ -72,21 +75,39 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
 
   useEffect(() => {
     let isMounted = true;
-    async function loadQuestions() {
+    async function loadData() {
       try {
         const session = await getSupabaseBrowserSession();
         if (!session?.access_token || !isMounted) return;
-        const res = await apiRequest<any[]>("/questions", {
-          method: "GET",
-          accessToken: session.access_token,
-          institutionId
-        });
-        if (isMounted) setAvailableQuestions(res);
+        
+        const [questionsRes, deptsRes, subjsRes] = await Promise.all([
+          apiRequest<any[]>("/questions", {
+            method: "GET",
+            accessToken: session.access_token,
+            institutionId
+          }).catch(() => []),
+          apiRequest<{ departments: any[] }>("/academic/departments", {
+            method: "GET",
+            accessToken: session.access_token,
+            institutionId
+          }).catch(() => ({ departments: [] })),
+          apiRequest<{ subjects: any[] }>("/academic/subjects", {
+            method: "GET",
+            accessToken: session.access_token,
+            institutionId
+          }).catch(() => ({ subjects: [] }))
+        ]);
+        
+        if (isMounted) {
+          setAvailableQuestions(questionsRes);
+          setDbDepartments(deptsRes?.departments || []);
+          setDbSubjects(subjsRes?.subjects || []);
+        }
       } catch (e) {
         // silently fail for metadata scope
       }
     }
-    void loadQuestions();
+    void loadData();
     return () => { isMounted = false; };
   }, [institutionId]);
 
@@ -156,6 +177,7 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
         body: JSON.stringify(payload)
       });
 
+      toast.success("Template created successfully!");
       router.push(`/dashboard/faculty/templates?institutionId=${institutionId}`);
       router.refresh();
     } catch (err) {
@@ -164,7 +186,6 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
     }
   };
 
-  const departments = ["Computer Science", "Information Technology", "Electronics", "Mechanical"];
   const semesters = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5", "Semester 6", "Semester 7", "Semester 8"];
   const examTypes = ["Unit Test", "Midterm", "Final Exam", "Mock Test", "Assignment", "Weekly Quiz"];
   const difficultyLevels = ["Easy", "Medium", "Hard"];
@@ -215,7 +236,7 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                        className="h-12 w-full rounded-xl bg-black/20 border border-white/10 text-white text-sm font-medium px-4 focus:outline-none focus:border-indigo-500/50"
                     >
                       <option value="">Select...</option>
-                      {departments.map(d => <option key={d} value={d} className="bg-zinc-900">{d}</option>)}
+                      {dbDepartments.map(d => <option key={d.id} value={d.name} className="bg-zinc-900">{d.name}</option>)}
                     </select>
                  </div>
                  <div className="flex flex-col gap-2">
@@ -241,13 +262,25 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                  </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                  <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Subject *</label>
-                    <Input 
-                       placeholder="Select Subject..."
+                    <select 
                        value={subject}
                        onChange={(e) => setSubject(e.target.value)}
+                       className="h-12 w-full rounded-xl bg-black/20 border border-white/10 text-white text-sm font-medium px-4 focus:outline-none focus:border-indigo-500/50"
+                    >
+                      <option value="">Select Subject...</option>
+                      {dbSubjects.map(s => <option key={s.id} value={s.name} className="bg-zinc-900">{s.name}</option>)}
+                    </select>
+                 </div>
+                 <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Duration (Mins)</label>
+                    <Input 
+                       type="number"
+                       placeholder="e.g. 120"
+                       value={duration}
+                       onChange={(e) => setDuration(parseInt(e.target.value))}
                        className="bg-black/20 border-white/10 h-12"
                     />
                  </div>
@@ -297,7 +330,6 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                      <div className="flex flex-col gap-3">
                         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Question A Label</label>
                         <Input 
-                           variant="ghost" 
                            className="bg-black/20 border-white/5 h-12 font-bold focus:bg-black/40" 
                            value={section.choiceA?.label || 'Q1'} 
                            onChange={(e) => updateSection(section.id, 'choiceA', { ...section.choiceA, label: e.target.value })}
@@ -306,7 +338,6 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                      <div className="flex flex-col gap-3">
                         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Question B Label</label>
                         <Input 
-                           variant="ghost" 
                            className="bg-black/20 border-white/5 h-12 font-bold focus:bg-black/40" 
                            value={section.choiceB?.label || 'Q2'} 
                            onChange={(e) => updateSection(section.id, 'choiceB', { ...section.choiceB, label: e.target.value })}
@@ -319,7 +350,6 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Sub-Questions (A, B, C...)</label>
                         <Input 
                            type="number"
-                           variant="ghost" 
                            className="bg-black/20 border-white/5 h-12 font-bold text-center sm:text-left focus:bg-black/40" 
                            value={section.choiceA?.subQuestions || 1}
                            onChange={(e) => {
@@ -333,7 +363,6 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Marks per Sub-Question</label>
                         <Input 
                            type="number"
-                           variant="ghost" 
                            className="bg-black/20 border-white/5 h-12 font-bold text-center sm:text-left focus:bg-black/40" 
                            value={section.choiceA?.marksPerSub || 5}
                            onChange={(e) => {
@@ -353,7 +382,6 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                         </label>
                         <Input 
                            type="number"
-                           variant="ghost" 
                            className="bg-black/20 border-white/5 h-12 font-bold text-center focus:bg-black/40" 
                            value={section.difficultyCount.easy}
                            onChange={(e) => updateSection(section.id, 'difficultyCount', { ...section.difficultyCount, easy: parseInt(e.target.value) })}
@@ -365,7 +393,6 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                         </label>
                         <Input 
                            type="number"
-                           variant="ghost" 
                            className="bg-black/20 border-white/5 h-12 font-bold text-center focus:bg-black/40" 
                            value={section.difficultyCount.medium}
                            onChange={(e) => updateSection(section.id, 'difficultyCount', { ...section.difficultyCount, medium: parseInt(e.target.value) })}
@@ -377,7 +404,6 @@ export function TemplateBuilder({ institutionId }: { institutionId: string }) {
                         </label>
                         <Input 
                            type="number"
-                           variant="ghost" 
                            className="bg-black/20 border-white/5 h-12 font-bold text-center focus:bg-black/40" 
                            value={section.difficultyCount.hard}
                            onChange={(e) => updateSection(section.id, 'difficultyCount', { ...section.difficultyCount, hard: parseInt(e.target.value) })}

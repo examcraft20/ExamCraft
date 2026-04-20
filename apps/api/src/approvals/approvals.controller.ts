@@ -1,12 +1,15 @@
 import {
   Controller,
+  Get,
   Post,
+  Query,
   Body,
   Param,
   Req,
   UseGuards,
   BadRequestException,
 } from "@nestjs/common";
+import { ParseIntPipe, DefaultValuePipe } from "@nestjs/common";
 import { SupabaseAuthGuard } from "../auth/guards/supabase-auth.guard";
 import { InstitutionContextGuard } from "../institution/guards/institution-context.guard";
 import { ApprovalsService } from "./approvals.service";
@@ -17,6 +20,16 @@ import { AuthenticatedRequest } from "../common/types/authenticated-request";
 @UseGuards(SupabaseAuthGuard, InstitutionContextGuard)
 export class ApprovalsController {
   constructor(private readonly approvalsService: ApprovalsService) {}
+
+  @Get()
+  async findAll(
+    @Req() req: AuthenticatedRequest,
+    @Query("limit", new DefaultValuePipe(50), ParseIntPipe) limit: number,
+    @Query("offset", new DefaultValuePipe(0), ParseIntPipe) offset: number,
+  ) {
+    if (!req.institutionContext) throw new BadRequestException("Institution context required");
+    return this.approvalsService.getPendingApprovals(req.institutionContext, limit, offset);
+  }
 
   @Post("questions/:id/review")
   async reviewQuestion(

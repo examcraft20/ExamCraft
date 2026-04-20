@@ -335,4 +335,32 @@ export class InvitationService {
 
     return { id: invitationId, email: invitation.email };
   }
+
+  async revokeInvitation(institutionContext: InstitutionContext, invitationId: string) {
+    const { data: invitation, error: findError } = await this.supabaseAdminClient
+      .from("invitations")
+      .select("id, status")
+      .eq("id", invitationId)
+      .eq("institution_id", institutionContext.institutionId)
+      .single();
+
+    if (findError || !invitation) {
+      throw new NotFoundException("Invitation not found.");
+    }
+
+    if (invitation.status !== "pending") {
+      throw new BadRequestException("Only pending invitations can be revoked.");
+    }
+
+    const { error: updateError } = await this.supabaseAdminClient
+      .from("invitations")
+      .update({ status: "revoked" })
+      .eq("id", invitationId);
+
+    if (updateError) {
+      throw new InternalServerErrorException("Failed to revoke invitation.");
+    }
+
+    return { id: invitationId };
+  }
 }

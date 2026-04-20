@@ -6,6 +6,7 @@ export * from "./components/primitives/select";
 export * from "./components/primitives/skeleton";
 export * from "./components/primitives/spinner";
 export * from "./components/primitives/textarea";
+export * from "./components/primitives/modal";
 
 // Display components
 export * from "./components/display/avatar-tailwind";

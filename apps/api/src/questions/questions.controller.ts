@@ -4,6 +4,7 @@ import {
   Post,
   Put,
   Delete,
+  Patch,
   Body,
   Param,
   Query,
@@ -30,12 +31,31 @@ export class QuestionsController {
     @Req() req: AuthenticatedRequest,
     @Query("limit", new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @Query("offset", new DefaultValuePipe(0), ParseIntPipe) offset: number,
+    @Query("subjectId") subjectId?: string,
+    @Query("subject") subject?: string,
+    @Query("difficulty") difficulty?: string,
+    @Query("bloomLevel") bloomLevel?: string,
+    @Query("tags") tags?: string,
   ) {
     if (!req.institutionContext) throw new BadRequestException("Institution context required");
+
+    // Resolve subject-level access for faculty
+    const assignedSubjectIds = await this.questionsService.getAssignedSubjectIds(
+      req.institutionContext,
+    );
+
     return this.questionsService.listQuestions(
       req.institutionContext,
       limit,
       offset,
+      {
+        subjectId,
+        subject,
+        difficulty,
+        bloomLevel,
+        tags: tags ? tags.split(",") : undefined,
+        assignedSubjectIds,
+      },
     );
   }
 
@@ -73,6 +93,12 @@ export class QuestionsController {
     return this.questionsService.getQuestion(req.institutionContext, id);
   }
 
+  @Get(":id/history")
+  async getHistory(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    if (!req.institutionContext) throw new BadRequestException("Institution context required");
+    return this.questionsService.getQuestionHistory(req.institutionContext, id);
+  }
+
   @Put(":id")
   async edit(
     @Req() req: AuthenticatedRequest,
@@ -97,6 +123,31 @@ export class QuestionsController {
       req.institutionContext,
       req.currentUser,
       id,
+    );
+  }
+
+  @Get("duplicates/flagged")
+  async listDuplicates(@Req() req: AuthenticatedRequest) {
+    if (!req.institutionContext) throw new BadRequestException("Institution context required");
+    return this.questionsService.listDuplicates(req.institutionContext);
+  }
+
+  @Patch("duplicates/:id/resolve")
+  async resolveDuplicate(
+    @Req() req: AuthenticatedRequest,
+    @Param("id") id: string,
+    @Body("action") action: "ignore" | "merge",
+  ) {
+    if (!req.institutionContext || !req.currentUser)
+      throw new BadRequestException("Auth context required");
+    if (!action || !["ignore", "merge"].includes(action)) {
+      throw new BadRequestException("Invalid action. Must be 'ignore' or 'merge'.");
+    }
+    return this.questionsService.resolveDuplicate(
+      req.institutionContext,
+      req.currentUser,
+      id,
+      action,
     );
   }
 }

@@ -5,6 +5,8 @@ import {
   Get,
   InternalServerErrorException,
   Post,
+  Delete,
+  Param,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -69,5 +71,19 @@ export class InvitationController {
   @Post("accept")
   acceptInvitation(@Body() body: AcceptInvitationDto) {
     return this.invitationService.acceptInvitation(body);
+  }
+
+  @Delete(":id")
+  @UseInstitutionAuthorization()
+  @RequireRoles("institution_admin")
+  @RequirePermissions("users.invite")
+  revokeInvitation(
+    @CurrentInstitution() institutionContext: InstitutionContext | undefined,
+    @Param("id") id: string,
+  ) {
+    if (!institutionContext) {
+      throw new InternalServerErrorException("Missing institution context.");
+    }
+    return this.invitationService.revokeInvitation(institutionContext, id);
   }
 }

@@ -16,6 +16,7 @@ export class AnalyticsService {
     );
 
     if (error || !data) {
+      console.error("Analytics RPC Error:", error);
       throw new InternalServerErrorException("Failed to read analytics metrics");
     }
 
@@ -23,13 +24,54 @@ export class AnalyticsService {
   }
 
   async getQuestionCoverage(institutionId: string) {
-    // TODO: Implement question coverage by subject/unit
-    throw new InternalServerErrorException("Not yet implemented");
+    const { data: questions, error } = await this.supabaseAdminClient
+      .from("institution_questions")
+      .select("unit_number, bloom_level, subject_id")
+      .eq("institution_id", institutionId)
+      .eq("status", "approved");
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to fetch coverage data");
+    }
+
+    const coverage = {
+       units: {} as Record<string, number>,
+       bloomLevels: {} as Record<string, number>,
+    };
+
+    questions?.forEach(q => {
+       const u = q.unit_number || "Unknown";
+       coverage.units[u] = (coverage.units[u] || 0) + 1;
+       
+       const b = q.bloom_level || "Unknown";
+       coverage.bloomLevels[b] = (coverage.bloomLevels[b] || 0) + 1;
+    });
+
+    return coverage;
   }
 
   async getDifficultyDistribution(institutionId: string) {
-    // TODO: Implement difficulty distribution analysis
-    throw new InternalServerErrorException("Not yet implemented");
+    const { data, error } = await this.supabaseAdminClient
+      .from("institution_questions")
+      .select("difficulty")
+      .eq("institution_id", institutionId);
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to fetch distribution");
+    }
+
+    const distribution = { Easy: 0, Medium: 0, Hard: 0 };
+    data?.forEach(q => {
+      const diff = q.difficulty as "Easy" | "Medium" | "Hard" | "easy" | "medium" | "hard";
+      if (!diff) return;
+      
+      const capDiff = diff.charAt(0).toUpperCase() + diff.slice(1).toLowerCase();
+      if ((distribution as any)[capDiff] !== undefined) {
+         (distribution as any)[capDiff]++;
+      }
+    });
+
+    return distribution;
   }
 
   async getUsageTrends(institutionId: string) {

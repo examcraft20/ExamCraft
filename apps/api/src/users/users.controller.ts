@@ -4,6 +4,7 @@ import {
   Get,
   InternalServerErrorException,
   Post,
+  Put,
   Patch,
   Delete,
   Param,
@@ -32,7 +33,7 @@ export class UsersController {
     private readonly invitationService: InvitationService,
   ) {}
 
-  @Get("users")
+  @Get()
   @RequirePermissions("users.manage")
   getInstitutionUsers(
     @CurrentInstitution() institutionContext: InstitutionContext | undefined,
@@ -80,7 +81,7 @@ export class UsersController {
     return this.invitationService.resendInvitation(institutionContext, id);
   }
 
-  @Patch("users/:id")
+  @Patch(":id")
   @RequirePermissions("users.manage")
   @AuditLog(
     AuditAction.USER_UPDATED,
@@ -100,7 +101,7 @@ export class UsersController {
     return this.usersService.updateUser(institutionContext, id, body);
   }
 
-  @Patch("users/:id/role")
+  @Put(":id/role")
   @RequirePermissions("users.manage")
   @AuditLog(
     AuditAction.USER_ROLE_CHANGED,
@@ -118,7 +119,37 @@ export class UsersController {
     return this.usersService.updateUserRole(institutionContext, id, roleCode);
   }
 
-  @Delete("users/:id")
+  @Get(":id/subjects")
+  @RequirePermissions("users.manage")
+  getUserSubjects(
+    @CurrentInstitution() institutionContext: InstitutionContext | undefined,
+    @Param("id") id: string,
+  ) {
+    if (!institutionContext) {
+      throw new InternalServerErrorException("Missing institution context.");
+    }
+    return this.usersService.getUserSubjects(institutionContext, id);
+  }
+
+  @Patch(":id/subjects")
+  @RequirePermissions("users.manage")
+  @AuditLog(
+    AuditAction.USER_UPDATED,
+    "faculty_subject_assignments",
+    (_result: any, args: any[]) => args[1],
+  )
+  updateUserSubjects(
+    @CurrentInstitution() institutionContext: InstitutionContext | undefined,
+    @Param("id") id: string,
+    @Body("subjectIds") subjectIds: string[],
+  ) {
+    if (!institutionContext) {
+      throw new InternalServerErrorException("Missing institution context.");
+    }
+    return this.usersService.updateUserSubjects(institutionContext, id, subjectIds);
+  }
+
+  @Delete(":id")
   @RequirePermissions("users.manage")
   @AuditLog(
     AuditAction.USER_REMOVED,

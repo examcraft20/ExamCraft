@@ -18,14 +18,17 @@ interface QuestionFormProps {
     unitNumber: number | null;
     courseOutcomes: string[];
     tags: string[];
+    subject: string;
   };
   onSubmit: (data: any) => Promise<void>;
+  subjects?: Array<{ id: string; name: string }>;
   isLoading?: boolean;
 }
 
 export function QuestionForm({
   initialData,
   onSubmit,
+  subjects = [],
   isLoading = false
 }: QuestionFormProps) {
   const [questionType, setQuestionType] = useState<"subjective" | "mcq" | "true_false">(
@@ -35,6 +38,7 @@ export function QuestionForm({
   const [questionBody, setQuestionBody] = useState(
     initialData?.questionBody || ""
   );
+  const [subject, setSubject] = useState(initialData?.subject || "");
   const [difficulty, setDifficulty] = useState(initialData?.difficulty || "medium");
   const [bloomLevel, setBloomLevel] = useState(initialData?.bloomLevel || "");
   const [unitNumber, setUnitNumber] = useState(initialData?.unitNumber || null);
@@ -64,6 +68,7 @@ export function QuestionForm({
       questionType !== (initialData?.questionType || "subjective") ||
       difficulty !== (initialData?.difficulty || "medium") ||
       bloomLevel !== (initialData?.bloomLevel || "") ||
+      subject !== (initialData?.subject || "") ||
       unitNumber !== (initialData?.unitNumber || null);
     
     setIsDirty(hasChanged);
@@ -86,6 +91,7 @@ export function QuestionForm({
 
     if (!title.trim()) newErrors.title = "Question title required";
     if (!questionBody.trim()) newErrors.body = "Question body required";
+    if (!subject) newErrors.subject = "Subject selection required";
     if (!bloomLevel) newErrors.bloomLevel = "Bloom level required";
 
     if (questionType === "mcq") {
@@ -117,6 +123,7 @@ export function QuestionForm({
         title,
         questionType,
         questionBody,
+        subject,
         difficulty,
         bloomLevel,
         unitNumber,
@@ -295,11 +302,14 @@ export function QuestionForm({
       <MetadataPanel
         difficulty={difficulty}
         bloomLevel={bloomLevel}
+        subject={subject}
+        subjects={subjects}
         unitNumber={unitNumber}
         courseOutcomes={courseOutcomes}
         tags={tags}
         onDifficultyChange={setDifficulty}
         onBloomLevelChange={setBloomLevel}
+        onSubjectChange={setSubject}
         onUnitNumberChange={setUnitNumber}
         onCourseOutcomesChange={setCourseOutcomes}
         onTagsChange={setTags}

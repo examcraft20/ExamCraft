@@ -106,7 +106,7 @@ export default async function PaperPage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const { institutionId } = await searchParams;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   const accessToken = session?.access_token;
 

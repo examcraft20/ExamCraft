@@ -58,7 +58,7 @@ export class PlatformAdministrationService {
 
   async updateInstitutionStatus(
     institutionId: string,
-    status: "active" | "suspended",
+    status: "active" | "suspended" | "trial" | "archived",
     updatedByUserId: string,
     note?: string
   ): Promise<void> {

@@ -61,4 +61,12 @@ export class CreateQuestionDto {
   @IsOptional()
   @IsString()
   courseId?: string;
+
+  @IsOptional()
+  @IsString()
+  questionType?: string;
+
+  @IsOptional()
+  @IsString()
+  questionBody?: string;
 }

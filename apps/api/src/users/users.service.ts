@@ -184,6 +184,56 @@ export class UsersService {
     return { id: institutionUserId };
   }
 
+  async getUserSubjects(institutionContext: InstitutionContext, institutionUserId: string) {
+    const { data, error } = await this.supabaseAdminClient
+      .from("faculty_subject_assignments")
+      .select("subject_id")
+      .eq("institution_user_id", institutionUserId)
+      .eq("institution_id", institutionContext.institutionId);
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to load user subjects.");
+    }
+
+    return (data || []).map((row: any) => row.subject_id);
+  }
+
+  async updateUserSubjects(
+    institutionContext: InstitutionContext,
+    institutionUserId: string,
+    subjectIds: string[],
+  ) {
+    // 1. Delete existing assignments
+    const { error: deleteError } = await this.supabaseAdminClient
+      .from("faculty_subject_assignments")
+      .delete()
+      .eq("institution_user_id", institutionUserId)
+      .eq("institution_id", institutionContext.institutionId);
+
+    if (deleteError) {
+      throw new InternalServerErrorException("Failed to reset subject assignments.");
+    }
+
+    // 2. Insert new ones
+    if (subjectIds.length > 0) {
+      const inserts = subjectIds.map((sid) => ({
+        institution_id: institutionContext.institutionId,
+        institution_user_id: institutionUserId,
+        subject_id: sid,
+      }));
+
+      const { error: insertError } = await this.supabaseAdminClient
+        .from("faculty_subject_assignments")
+        .insert(inserts);
+
+      if (insertError) {
+        throw new InternalServerErrorException("Failed to save subject assignments.");
+      }
+    }
+
+    return { id: institutionUserId, count: subjectIds.length };
+  }
+
   async removeUser(institutionContext: InstitutionContext, institutionUserId: string) {
     const { error } = await this.supabaseAdminClient
       .from("institution_users")
@@ -198,5 +248,16 @@ export class UsersService {
     }
 
     return { id: institutionUserId };
+  }
+
+  async deleteGdprUser(userId: string) {
+    // Fulfills the GDPR right to erasure by securely invoking Supabase's auth admin hard-deletion API.
+    // This wipes the identity in auth.users, and cascades through all tables defining 'ON DELETE CASCADE'
+    // to strictly purge all PII and individually ascribed data fragments matching this user's UID.
+    const { error } = await this.supabaseAdminClient.auth.admin.deleteUser(userId);
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to completely erase user data during GDPR request.");
+    }
   }
 }

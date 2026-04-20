@@ -1,278 +1,210 @@
-# ExamCraft Tenant Model and MVP Role Matrix
+# ExamCraft Tenant Model and Role Matrix
+
+> **Version:** 2.0 — Updated April 18, 2026  
+> **Source of Truth:** [PRD.md §5](../PRD.md#5-user-roles--permissions-rbac) · [Database Migration: auth_tenant_foundation.sql](../supabase/migrations/20260401000100_auth_tenant_foundation.sql)
+
+---
 
 ## Purpose
 
-This document finalizes the tenant model and MVP role matrix for the first build of `ExamCraft`.
+This document defines the tenant isolation model, role hierarchy, and permission matrix for ExamCraft. It serves as the authoritative reference for:
 
-It is the working source of truth for:
+- Tenant isolation boundaries
+- Institution ownership rules
+- Role definitions and responsibilities
+- Permission-to-role assignments
+- Onboarding and invitation ownership rules
+- Workflow authorization policies
 
-- tenant isolation decisions
-- institution ownership boundaries
-- role definitions
-- permission grouping
-- onboarding and invite ownership rules
+---
 
 ## Tenant Model
 
 ### Tenant Unit
 
-The primary tenant in MVP is the `institution`.
+The primary tenant is the **`institution`**. Each institution is a fully isolated customer workspace containing:
 
-Each institution represents an isolated customer workspace with:
+| Resource | Isolation Level |
+|---|---|
+| Users & memberships | Per-institution |
+| Academic structure (departments, courses, batches, subjects) | Per-institution |
+| Question banks | Per-institution |
+| Institution templates | Per-institution |
+| Generated papers | Per-institution |
+| Approval/review records | Per-institution |
+| Audit logs | Per-institution |
+| Branding & settings | Per-institution |
+| Subscription & usage metrics | Per-institution |
+| Feature flags | Per-institution |
 
-- its own users
-- its own academic structure
-- its own question banks
-- its own institution templates
-- its own papers
-- its own approvals
-- its own analytics and audit records
-- its own branding and settings
+### Tenant Isolation Enforcement
 
-### Tenant Isolation Rules
+| Layer | Mechanism |
+|---|---|
+| **Database** | PostgreSQL Row Level Security (RLS) policies on every tenant-scoped table |
+| **Application** | `InstitutionContextGuard` validates institution membership and attaches context to every request |
+| **API** | Controllers enforce `institutionContext.institutionId` in all service calls |
+| **Frontend** | `useInstitution()` hook manages active institution selection and API header injection |
 
-- Every functional business record is scoped to `institution_id` unless it is explicitly platform-owned.
-- Tenant-scoped reads and writes must always be filtered by the authenticated user's active institution membership.
-- Cross-institution access is not allowed in MVP.
-- Tenant boundaries are enforced in the backend, not only in the frontend.
+### Isolation Rules
 
-### Platform-Owned Data
+1. Every functional business record is scoped to `institution_id` unless explicitly platform-owned.
+2. Tenant-scoped reads and writes MUST be filtered by the authenticated user's active institution membership.
+3. Cross-institution access is forbidden — enforced at both database and application layers.
+4. Multi-membership is supported: a user can belong to multiple institutions with different roles in each.
 
-The following records can exist outside tenant ownership:
+### Platform-Owned Data (Not Tenant-Scoped)
 
-- platform configuration
-- global template library records
-- platform roles and permission definitions
-- subscription plan definitions
-- super admin operations data
+| Resource | Owner | Purpose |
+|---|---|---|
+| Global template library | Platform | Standardized exam patterns available to all institutions |
+| Role definitions | Platform | 5 system roles shared across all tenants |
+| Permission definitions | Platform | 24 permissions shared across all tenants |
+| Subscription plan definitions | Platform | Free, Growth, Enterprise tier configurations |
+| Platform audit feed | Platform | Cross-tenant audit activity for super admins |
 
-### Branches and Departments
+### Sub-Tenant Hierarchy
 
-Campuses, branches, and departments are not separate tenants in MVP.
+Departments, courses, batches, and subjects are **child entities** within an institution tenant — not separate tenants. This supports multi-department institutions while maintaining a single tenant boundary.
 
-They are child entities inside an institution tenant. This keeps the first release simpler while still supporting colleges, schools, and multi-branch coaching institutes.
+```
+Institution (Tenant)
+  └── Department
+        └── Course
+              ├── Batch
+              └── Subject
+```
 
-### Templates
+---
 
-The template model has two layers:
-
-1. Global templates
-2. Institution templates
-
-Global templates are platform-managed, read-only defaults.
-
-Institution templates are tenant-owned and can be:
-
-- created from scratch
-- cloned from global templates
-- customized for departments
-
-## MVP Role Model
+## Role Model
 
 ### Platform Role
 
-- `super_admin`
+| Role | Code | Scope | Description |
+|---|---|---|---|
+| Super Admin | `super_admin` | Platform | Platform operator with full cross-tenant access |
 
 ### Institution Roles
 
-- `institution_admin`
-- `academic_head`
-- `faculty`
-- `reviewer_approver`
+| Role | Code | Scope | Description |
+|---|---|---|---|
+| Institution Admin | `institution_admin` | Institution | Workspace owner — manages users, branding, settings, publishes papers |
+| Academic Head | `academic_head` | Institution | Academic leadership — manages structure, creates content, reviews quality |
+| Faculty | `faculty` | Institution | Content creator — manages questions, templates, generates papers |
+| Reviewer Approver | `reviewer_approver` | Institution | Quality gate — reviews and approves/rejects submitted content |
 
-### Role Principles
+### Role Assignment Rules
 
-- A user can belong to one or more institutions if this is needed later, but MVP should optimize for one active institution context at a time.
-- A user can hold multiple roles inside the same institution when required.
-- Permissions are granted through role-permission mapping, not hardcoded in the UI.
-- The backend remains the source of truth for authorization.
+1. The first user of a new institution is automatically assigned `institution_admin`.
+2. Only `institution_admin` can invite new users.
+3. A user can hold multiple roles within the same institution.
+4. Role codes are stored in `institution_user_roles` via `role_id` foreign key.
+5. The backend resolves role codes from the database on every authenticated request.
 
-## Role Responsibilities
+---
 
-### `super_admin`
+## Permission Matrix (24 Permissions)
 
-Platform operator with cross-tenant access for support and governance.
+### Complete Role-Permission Assignment
 
-Responsibilities:
+| Permission | Module | `institution_admin` | `academic_head` | `faculty` | `reviewer_approver` |
+|---|---|---|---|---|---|
+| `institution.manage` | Institution | ✓ | — | — | — |
+| `users.invite` | Users | ✓ | — | — | — |
+| `users.manage` | Users | ✓ | — | — | — |
+| `academic_structure.manage` | Academic | ✓ | ✓ | — | — |
+| `questions.create` | Questions | — | ✓ | ✓ | — |
+| `questions.edit` | Questions | — | ✓ | ✓ | — |
+| `questions.import` | Questions | — | ✓ | ✓ | — |
+| `questions.read` | Questions | ✓ | ✓ | ✓ | ✓ |
+| `templates.create` | Templates | — | ✓ | ✓ | — |
+| `templates.edit` | Templates | — | ✓ | ✓ | — |
+| `templates.read` | Templates | ✓ | ✓ | ✓ | ✓ |
+| `global_templates.read` | Global Templates | ✓ | ✓ | ✓ | ✓ |
+| `global_templates.clone` | Global Templates | ✓ | ✓ | — | — |
+| `papers.generate` | Papers | — | ✓ | ✓ | — |
+| `papers.read` | Papers | ✓ | ✓ | ✓ | ✓ |
+| `papers.edit_draft` | Papers | — | ✓ | ✓ | — |
+| `papers.submit` | Papers | — | ✓ | ✓ | — |
+| `papers.review` | Papers | ✓ | ✓ | — | ✓ |
+| `papers.approve` | Papers | ✓ | ✓ | — | ✓ |
+| `papers.reject` | Papers | ✓ | ✓ | — | ✓ |
+| `papers.publish` | Papers | ✓ | — | — | — |
+| `exports.generate` | Exports | ✓ | ✓ | ✓ | ✓ |
+| `analytics.read` | Analytics | ✓ | ✓ | — | — |
+| `audit.read` | Audit | ✓ | — | — | — |
+| `ai.use` | AI | — | ✓ | ✓ | — |
 
-- manage platform-level settings
-- manage global template library
-- view tenant health and usage
-- provision or suspend institution tenants
-- manage subscription plan definitions
+> **Note:** `super_admin` has implicit access to all operations without requiring explicit permission assignments.
 
-### `institution_admin`
+---
 
-Primary owner of an institution workspace.
+## Workflow Authorization Rules
 
-Responsibilities:
+### Paper Lifecycle
 
-- manage institution profile and branding
-- invite and manage institution users
-- manage institution settings
-- manage academic structure
-- publish approved papers
-- view institution analytics and audit activity
+| Action | Authorized Roles |
+|---|---|
+| Generate draft paper | `academic_head`, `faculty` |
+| Edit draft paper | `academic_head`, `faculty` |
+| Submit paper for review | `academic_head`, `faculty` |
+| Review submitted paper | `institution_admin`, `academic_head`, `reviewer_approver` |
+| Approve paper | `institution_admin`, `academic_head`, `reviewer_approver` |
+| Reject paper | `institution_admin`, `academic_head`, `reviewer_approver` |
+| Publish approved paper | `institution_admin` only |
 
-### `academic_head`
+### Question Lifecycle
 
-Academic leadership role such as HOD or coordinator.
+| Action | Authorized Roles |
+|---|---|
+| Create question | `academic_head`, `faculty` |
+| Edit question | `academic_head`, `faculty` |
+| Bulk import questions | `academic_head`, `faculty` |
+| Review/approve question | `institution_admin`, `academic_head`, `reviewer_approver` |
+| Archive question | `academic_head`, `faculty` |
 
-Responsibilities:
+### Template Lifecycle
 
-- oversee question and template quality
-- review submitted papers
-- approve or reject papers
-- monitor department readiness and coverage
+| Action | Authorized Roles |
+|---|---|
+| Create template | `academic_head`, `faculty` |
+| Edit template | `academic_head`, `faculty` |
+| Clone global template | `institution_admin`, `academic_head` |
+| Review template | `institution_admin`, `academic_head`, `reviewer_approver` |
 
-### `faculty`
+---
 
-Primary content creation role.
+## Implemented Role-Aware Surfaces
 
-Responsibilities:
+The frontend implements dedicated dashboard views for each role:
 
-- create and edit questions
-- import question data
-- create institution templates
-- generate draft papers
-- edit draft papers
-- submit papers for review
+| Dashboard Route | Role | Key Features |
+|---|---|---|
+| `/dashboard/institution_admin` | Institution Admin | User management, invitation panel, institution overview |
+| `/dashboard/academic_head` | Academic Head | Academic structure management, content oversight |
+| `/dashboard/faculty` | Faculty | Question creation, template design, paper generation |
+| `/dashboard/reviewer_approver` | Reviewer Approver | Pending review queue, approval actions |
+| `/dashboard/super_admin` | Super Admin | Cross-tenant institution directory, platform metrics |
 
-### `reviewer_approver`
+---
 
-Dedicated reviewer role for review and approval workflow.
+## Deferred Items (Phase 4+)
 
-Responsibilities:
+| Item | Status | Notes |
+|---|---|---|
+| Student role | Planned | Exam schedules, paper delivery, result viewing |
+| Parent role | Future | View student progress |
+| Custom roles in tenant UI | Future | Admin-configurable role definitions |
+| Branch-level delegated admin | Future | Sub-institutional admin scope |
+| SSO (SAML/OIDC) | Future | Enterprise authentication |
+| Billing self-service | Planned | Stripe/Razorpay integration |
 
-- review submitted papers
-- add review notes
-- approve or reject papers
+---
 
-## MVP Permission Groups
+## Design Principles
 
-The following permission groups should exist in the first authorization model:
-
-- `institution.manage`
-- `users.invite`
-- `users.manage`
-- `academic_structure.manage`
-- `questions.create`
-- `questions.edit`
-- `questions.import`
-- `templates.create`
-- `templates.edit`
-- `global_templates.read`
-- `papers.generate`
-- `papers.edit_draft`
-- `papers.submit`
-- `papers.review`
-- `papers.approve`
-- `papers.reject`
-- `papers.publish`
-- `exports.generate`
-- `analytics.read`
-- `audit.read`
-
-## Recommended MVP Role-Permission Matrix
-
-### `super_admin`
-
-- full platform authority
-- global template management
-- subscription and tenant operations
-
-### `institution_admin`
-
-- `institution.manage`
-- `users.invite`
-- `users.manage`
-- `academic_structure.manage`
-- `global_templates.read`
-- `papers.review`
-- `papers.approve`
-- `papers.reject`
-- `papers.publish`
-- `exports.generate`
-- `analytics.read`
-- `audit.read`
-
-### `academic_head`
-
-- `academic_structure.manage`
-- `questions.create`
-- `questions.edit`
-- `templates.create`
-- `templates.edit`
-- `global_templates.read`
-- `papers.generate`
-- `papers.edit_draft`
-- `papers.submit`
-- `papers.review`
-- `papers.approve`
-- `papers.reject`
-- `exports.generate`
-- `analytics.read`
-
-### `faculty`
-
-- `questions.create`
-- `questions.edit`
-- `questions.import`
-- `templates.create`
-- `templates.edit`
-- `global_templates.read`
-- `papers.generate`
-- `papers.edit_draft`
-- `papers.submit`
-- `exports.generate`
-
-### `reviewer_approver`
-
-- `global_templates.read`
-- `papers.review`
-- `papers.approve`
-- `papers.reject`
-- `exports.generate`
-
-## Workflow Ownership Rules
-
-- The first user created for a new institution becomes the default `institution_admin`.
-- Only `institution_admin` can invite new users in MVP.
-- `faculty` can create draft papers and submit them for review, but cannot publish.
-- `academic_head`, `reviewer_approver`, and `institution_admin` can review and approve or reject submitted papers.
-- Only `institution_admin` publishes final papers in MVP by default.
-- Only `super_admin` creates and manages global templates.
-
-## Implemented MVP Workspaces
-
-The current implemented role-aware surfaces are:
-
-- dashboard selection based on authenticated memberships and role priority
-- `institution_admin` workspace for institution team visibility and invite creation
-- `faculty` workspace for question creation and template creation
-
-The remaining roles currently use role-aware dashboard shells with permission summaries and can be expanded incrementally.
-
-## Deferred Items
-
-These are intentionally deferred beyond MVP:
-
-- student role
-- parent role
-- configurable custom roles in tenant UI
-- branch-level delegated administration
-- SSO
-- billing self-service
-
-## Final Recommendation
-
-The MVP should ship with a fixed but extensible permission model.
-
-This gives the team:
-
-- simpler implementation
-- safer authorization behavior
-- easier testing
-- faster delivery for pilot institutions
-
-Later releases can expand this into a more configurable access-control system without changing the core tenant boundary.
+1. **Fixed but extensible** — Ship with a static permission model that can expand without changing core boundaries.
+2. **Backend is source of truth** — Authorization decisions are made server-side in NestJS guards, never solely in the UI.
+3. **Permission via mapping** — Permissions are granted through role-permission associations, not hardcoded in controllers.
+4. **Fail-closed** — Missing context (institution, user, role) always results in access denial, never permissive fallback.

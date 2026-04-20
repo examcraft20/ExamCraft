@@ -30,6 +30,44 @@ export class ApprovalsService {
     private readonly templatesService: TemplatesService,
   ) {}
 
+  async getPendingApprovals(
+    context: InstitutionContext,
+    limit: number = 50,
+    offset: number = 0,
+  ) {
+    const institutionId = context.institutionId;
+
+    const [questions, templates, papers] = await Promise.all([
+      this.supabaseAdminClient
+        .from("institution_questions")
+        .select("id, title, created_at, status")
+        .eq("institution_id", institutionId)
+        .in("status", ["submitted", "in_review"])
+        .order("created_at", { ascending: false })
+        .range(offset, offset + (limit / 3) - 1),
+      this.supabaseAdminClient
+        .from("institution_templates")
+        .select("id, name, created_at, status")
+        .eq("institution_id", institutionId)
+        .in("status", ["submitted", "in_review"])
+        .order("created_at", { ascending: false })
+        .range(offset, offset + (limit / 3) - 1),
+      this.supabaseAdminClient
+        .from("institution_papers")
+        .select("id, title, created_at, status")
+        .eq("institution_id", institutionId)
+        .in("status", ["submitted", "in_review"])
+        .order("created_at", { ascending: false })
+        .range(offset, offset + (limit / 3) - 1)
+    ]);
+
+    return {
+      questions: questions.data || [],
+      templates: templates.data || [],
+      papers: papers.data || []
+    };
+  }
+
   async reviewQuestion(
     context: InstitutionContext,
     user: AuthenticatedUser,
@@ -127,13 +165,15 @@ export class ApprovalsService {
   }
 
   private assertReviewPermission(context: InstitutionContext, action: string, type: "question" | "template" | "paper") {
-    const permMap = {
-        question: "questions.review",
-        template: "templates.review",
-        paper: "papers.review"
-    };
-    
-    const requiredPerm = permMap[type];
+    let requiredPerm = "";
+    if (action === "approve") {
+      requiredPerm = `${type}s.approve`;
+    } else if (action === "reject") {
+      requiredPerm = `${type}s.reject`;
+    } else {
+      requiredPerm = `${type}s.review`; // for 'comment' or other non-terminal actions
+    }
+
     if (!context.permissionCodes.includes(requiredPerm)) {
         throw new BadRequestException(`Permission denied: You do not have the "${requiredPerm}" permission.`);
     }

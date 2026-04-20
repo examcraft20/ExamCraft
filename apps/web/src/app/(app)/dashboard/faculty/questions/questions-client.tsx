@@ -7,6 +7,7 @@ import { QuestionListClient } from '@/components/question-bank/question-list';
 import { apiRequest } from "@/lib/api";
 import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
 import { useInstitution } from "@/hooks/use-institution";
+import type { DepartmentRecord, SubjectRecord } from "@/lib/academic";
 
 interface Question {
   id: string;
@@ -15,13 +16,13 @@ interface Question {
   bloomLevel: string;
   difficulty: string;
   tags: string[];
+  unitNumber?: number | null;
+  departmentId?: string | null;
+  courseId?: string | null;
+  marks?: number;
+  courseOutcomes?: string[];
   status: string;
   createdAt: string;
-}
-
-interface Subject {
-  id: string;
-  name: string;
 }
 
 export function QuestionsPageClient() {
@@ -29,9 +30,11 @@ export function QuestionsPageClient() {
   const { institutionId, isLoading: isInstLoading } = useInstitution();
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjects, setSubjects] = useState<SubjectRecord[]>([]);
+  const [departments, setDepartments] = useState<DepartmentRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | undefined>();
 
   useEffect(() => {
     let isMounted = true;
@@ -40,7 +43,7 @@ export function QuestionsPageClient() {
       // Wait for institution ID to be available
       if (isInstLoading) return;
       if (!institutionId) {
-        // If still no institution ID and not loading, we might need to wait or redirect
+        if (isMounted) setIsLoading(false);
         return;
       }
 
@@ -53,24 +56,32 @@ export function QuestionsPageClient() {
           return;
         }
 
-        // Fetch questions and subjects in parallel
-        const [questionsData, subjectsData] = await Promise.all([
+        setAccessToken(session.access_token);
+
+        // Fetch questions, subjects, and departments in parallel
+        const [questionsData, subjectsData, departmentsData] = await Promise.all([
           apiRequest<Question[]>("/questions", {
             method: "GET",
             accessToken: session.access_token,
             institutionId: institutionId
           }).catch(() => []),
-          apiRequest<Subject[]>("/academic-structure/subjects", {
+          apiRequest<{ subjects: SubjectRecord[] }>("/academic/subjects", {
             method: "GET",
             accessToken: session.access_token,
             institutionId: institutionId
-          }).catch(() => [])
+          }).catch(() => ({ subjects: [] })),
+          apiRequest<{ departments: DepartmentRecord[] }>("/academic/departments", {
+            method: "GET",
+            accessToken: session.access_token,
+            institutionId: institutionId
+          }).catch(() => ({ departments: [] }))
         ]);
 
         if (!isMounted) return;
 
         setQuestions(questionsData);
-        setSubjects(subjectsData);
+        setSubjects(subjectsData?.subjects || []);
+        setDepartments(departmentsData?.departments || []);
       } catch (err) {
         if (isMounted) {
           setError(err instanceof Error ? err.message : "Failed to load questions");
@@ -112,6 +123,9 @@ export function QuestionsPageClient() {
     <QuestionListClient
       initialQuestions={questions}
       subjects={subjects}
+      departments={departments}
+      institutionId={institutionId as string}
+      accessToken={accessToken}
     />
   );
 }

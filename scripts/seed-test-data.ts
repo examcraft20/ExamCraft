@@ -205,38 +205,86 @@ async function createUsersPerInstitution(institutions: any[]) {
       if (iuError) throw iuError;
 
       // 3. Assign Role
-      const { data: roleData } = await supabase.from('roles').select('id').eq('code', config.role).single();
-      if (roleData) {
-        await supabase.from('institution_user_roles').insert({
-          institution_user_id: iuData.id,
-          role_id: roleData.id
-        });
+      const { data: roleData, error: roleSearchErr } = await supabase.from('roles').select('id').eq('code', config.role).single();
+      if (roleSearchErr || !roleData) {
+        console.warn(`⚠️  Could not find role ${config.role}: ${roleSearchErr?.message}`);
+        continue;
       }
-      console.log(`✓ Seeded user: ${config.email} as ${config.role}`);
+
+      const { error: roleAssignErr } = await supabase.from('institution_user_roles').insert({
+        institution_user_id: iuData.id,
+        role_id: roleData.id
+      });
+      
+      if (roleAssignErr) {
+        console.error(`❌ Role assignment failed for ${config.email}:`, roleAssignErr.message);
+      } else {
+        console.log(`✓ Seeded user: ${config.email} as ${config.role}`);
+      }
     }
   }
+}
+
+async function getOrCreate(table: string, match: any, data: any) {
+  const { data: existing } = await supabase.from(table).select('id').match(match).maybeSingle();
+  if (existing) {
+    console.log(`  ✓ Found existing ${table}: ${existing.id}`);
+    return existing;
+  }
+  const { data: created, error } = await supabase.from(table).insert([{ ...match, ...data }]).select().single();
+  if (error) {
+    console.error(`  ❌ Error creating ${table}:`, error.message);
+    throw error;
+  }
+  console.log(`  ✓ Created ${table}: ${created.id}`);
+  return created;
 }
 
 async function createAcademicStructure(institutions: any[]) {
   const dtc = institutions.find(i => i.slug === 'delhi-technical-college');
   if (!dtc) return;
-  console.log('\n📚 Seeding Academic Structure for DTC...');
+  console.log(`\n📚 Seeding Academic Structure for DTC (${dtc.slug})...`);
   
-  const { data: dept } = await supabase.from('institution_departments').insert({
-    institution_id: dtc.id, name: 'Computer Science', code: 'CSE'
-  }).select().single();
+  try {
+    // 1. Department
+    const dept = await getOrCreate('institution_departments', 
+      { institution_id: dtc.id, code: 'CSE' }, 
+      { name: 'Computer Science Engineering' }
+    );
 
-  const { data: course } = await supabase.from('institution_courses').insert({
-    institution_id: dtc.id, department_id: dept.id, name: 'B.Tech CS', code: 'BTECH-CS'
-  }).select().single();
+    // 2. Course
+    const course = await getOrCreate('institution_courses', 
+      { institution_id: dtc.id, code: 'BTECH-CS' }, 
+      { department_id: dept.id, name: 'Bachelor of Technology (CS)' }
+    );
 
-  const subjects = ['Data Structures', 'Algorithms', 'DBMS', 'Operating Systems', 'Networks'];
-  for (const s of subjects) {
-    await supabase.from('institution_subjects').insert({
-      institution_id: dtc.id, department_id: dept.id, course_id: course.id, name: s, code: s.toUpperCase().replace(/ /g, '_')
-    });
+    // 3. Batch
+    const batch = await getOrCreate('institution_batches', 
+      { institution_id: dtc.id, course_id: course.id, code: '2024-A' }, 
+      { name: 'Batch 2024 Section A', academic_year: '2024-2025', semester: 4 }
+    );
+
+    // 4. Subjects
+    const subConfigs = [
+      { name: 'Data Structures', code: 'DS101' },
+      { name: 'Design & Analysis of Algorithms', code: 'ALGO201' },
+      { name: 'Database Management Systems', code: 'DBMS301' },
+      { name: 'Operating Systems', code: 'OS401' },
+      { name: 'Computer Networks', code: 'NW501' }
+    ];
+
+    for (const s of subConfigs) {
+      await getOrCreate('institution_subjects', 
+        { institution_id: dtc.id, code: s.code }, 
+        { name: s.name, department_id: dept.id, course_id: course.id }
+      );
+    }
+
+    console.log('✓ Academic structure seeded successfully');
+  } catch (err: any) {
+    console.error('❌ SEED ACADEMIC ERROR:', err.message);
+    throw err;
   }
-  console.log('✓ Academic structure seeded');
 }
 
 async function main() {
@@ -247,10 +295,10 @@ async function main() {
     const institutions = await createInstitutions();
     await createUsersPerInstitution(institutions);
     await createAcademicStructure(institutions);
-    console.log('\n✅ SEED COMPLETE. All test users created with app_metadata parity.');
+    console.log('\n✅ SEED COMPLETE.');
     process.exit(0);
-  } catch (err) {
-    console.error('\n❌ SEED FAILED:', err);
+  } catch (err: any) {
+    console.error('\n❌ SEED FAILED:', err.message || err);
     process.exit(1);
   }
 }

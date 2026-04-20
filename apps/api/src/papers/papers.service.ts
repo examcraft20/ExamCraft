@@ -243,6 +243,127 @@ export class PapersService {
     );
   }
 
+  async publishPaper(
+    institutionContext: InstitutionContext,
+    currentUser: AuthenticatedUser,
+    paperId: string,
+  ) {
+    const paper = await this.getPaper(institutionContext, paperId);
+    if (paper.status !== "approved") {
+      throw new BadRequestException(
+        "Only approved papers can be published. Current status: " + paper.status,
+      );
+    }
+
+    const { data, error } = await this.supabaseAdminClient
+      .from("institution_papers")
+      .update({
+        status: "published",
+        published_at: new Date().toISOString(),
+      })
+      .eq("id", paperId)
+      .eq("institution_id", institutionContext.institutionId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      throw new InternalServerErrorException("Unable to publish paper.");
+    }
+
+    return data;
+  }
+
+  async deletePaper(institutionContext: InstitutionContext, paperId: string) {
+    const paper = await this.getPaper(institutionContext, paperId);
+    if (paper.status !== "draft") {
+      throw new BadRequestException("Only draft papers can be deleted.");
+    }
+
+    const { error } = await this.supabaseAdminClient
+      .from("institution_papers")
+      .delete()
+      .eq("id", paperId)
+      .eq("institution_id", institutionContext.institutionId);
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to delete paper.");
+    }
+  }
+
+  async swapQuestion(
+    institutionContext: InstitutionContext,
+    paperId: string,
+    sectionTitle: string,
+    oldQuestionId: string,
+    newQuestionId: string,
+  ) {
+    const paper = await this.getPaper(institutionContext, paperId);
+    if (paper.status !== "draft" && paper.status !== "rejected") {
+      throw new BadRequestException("Cannot edit non-draft papers.");
+    }
+
+    // Load new question details
+    const { data: newQuestion, error: qError } = await this.supabaseAdminClient
+      .from("institution_questions")
+      .select("id, title, difficulty, bloom_level, metadata")
+      .eq("id", newQuestionId)
+      .eq("institution_id", institutionContext.institutionId)
+      .single();
+
+    if (qError || !newQuestion) {
+      throw new NotFoundException("New question not found in institution bank.");
+    }
+
+    const sections = (paper.metadata as any)?.sections || [];
+    let found = false;
+
+    const updatedSections = sections.map((s: any) => {
+      if (s.title === sectionTitle) {
+        if (s.isOrGroup) {
+          if (s.choiceA?.questions?.some((q: any) => q.id === oldQuestionId)) {
+            s.choiceA.questions = s.choiceA.questions.map((q: any) =>
+              q.id === oldQuestionId ? { id: newQuestion.id, title: newQuestion.title, difficulty: newQuestion.difficulty, bloomLevel: newQuestion.bloom_level, metadata: newQuestion.metadata } : q
+            );
+            found = true;
+          } else if (s.choiceB?.questions?.some((q: any) => q.id === oldQuestionId)) {
+            s.choiceB.questions = s.choiceB.questions.map((q: any) =>
+              q.id === oldQuestionId ? { id: newQuestion.id, title: newQuestion.title, difficulty: newQuestion.difficulty, bloomLevel: newQuestion.bloom_level, metadata: newQuestion.metadata } : q
+            );
+            found = true;
+          }
+        } else if (s.questions?.some((q: any) => q.id === oldQuestionId)) {
+          s.questions = s.questions.map((q: any) =>
+            q.id === oldQuestionId ? { id: newQuestion.id, title: newQuestion.title, difficulty: newQuestion.difficulty, bloomLevel: newQuestion.bloom_level, metadata: newQuestion.metadata } : q
+          );
+          found = true;
+        }
+      }
+      return s;
+    });
+
+    if (!found) {
+      throw new BadRequestException("Question not found in the specified section.");
+    }
+
+    const { data, error } = await this.supabaseAdminClient
+      .from("institution_papers")
+      .update({
+        metadata: {
+          ...((paper.metadata as any) || {}),
+          sections: updatedSections,
+        },
+      })
+      .eq("id", paperId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to swap question.");
+    }
+
+    return data;
+  }
+
   private async notifyReviewers(
     context: InstitutionContext,
     title: string,

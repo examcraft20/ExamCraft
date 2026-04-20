@@ -46,13 +46,47 @@ export class QuestionsService {
     institutionContext: InstitutionContext,
     limit: number = 50,
     offset: number = 0,
+    filters?: {
+      subjectId?: string;
+      subject?: string;
+      difficulty?: string;
+      bloomLevel?: string;
+      tags?: string[];
+      assignedSubjectIds?: string[];
+    },
   ) {
-    const { data, error } = await this.supabaseAdminClient
+    let query = this.supabaseAdminClient
       .from("institution_questions")
       .select(
         QuestionsService.QUESTION_SELECT_COLUMNS,
       )
-      .eq("institution_id", institutionContext.institutionId)
+      .eq("institution_id", institutionContext.institutionId);
+
+    if (filters?.subjectId) {
+      query = query.eq("course_id", filters.subjectId);
+    }
+    if (filters?.subject) {
+      query = query.ilike("subject", `%${filters.subject}%`);
+    }
+    if (filters?.difficulty) {
+      query = query.eq("difficulty", filters.difficulty);
+    }
+    if (filters?.bloomLevel) {
+      query = query.eq("bloom_level", filters.bloomLevel);
+    }
+    if (filters?.tags && filters.tags.length > 0) {
+      query = query.contains("tags", filters.tags);
+    }
+
+    // Subject-level access control for faculty
+    if (filters?.assignedSubjectIds && filters.assignedSubjectIds.length > 0) {
+      query = query.in("course_id", filters.assignedSubjectIds);
+    } else if (filters?.assignedSubjectIds && filters.assignedSubjectIds.length === 0) {
+      // Faculty with no assigned subjects sees nothing
+      return [];
+    }
+
+    const { data, error } = await query
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1)
       .returns<QuestionRow[]>();
@@ -88,6 +122,10 @@ export class QuestionsService {
         department_id: payload.departmentId ?? null,
         course_id: payload.courseId ?? null,
         status: "draft",
+        metadata: {
+          question_type: payload.questionType,
+          question_body: payload.questionBody,
+        },
       })
       .select(
         QuestionsService.QUESTION_SELECT_COLUMNS,
@@ -109,6 +147,65 @@ export class QuestionsService {
       institutionContext.institutionId,
     );
     return this.mapRowToDto(existing);
+  }
+
+  async getQuestionHistory(institutionContext: InstitutionContext, questionId: string) {
+    const { data, error } = await this.supabaseAdminClient
+      .from("institution_question_versions")
+      .select("*")
+      .eq("question_id", questionId)
+      .eq("institution_id", institutionContext.institutionId)
+      .order("version_number", { ascending: false });
+
+    if (error) {
+      throw new InternalServerErrorException("Unable to load question history.");
+    }
+
+    return data || [];
+  }
+
+  async listDuplicates(institutionContext: InstitutionContext) {
+    const { data, error } = await this.supabaseAdminClient
+      .from("institution_question_duplicates")
+      .select(`
+        *,
+        primary_question:institution_questions!primary_question_id(id, title),
+        similar_question:institution_questions!similar_question_id(id, title)
+      `)
+      .eq("institution_id", institutionContext.institutionId)
+      .eq("status", "pending")
+      .order("similarity_score", { ascending: false });
+
+    if (error) {
+      throw new InternalServerErrorException("Unable to load flagged duplicates.");
+    }
+
+    return data || [];
+  }
+
+  async resolveDuplicate(
+    institutionContext: InstitutionContext,
+    currentUser: AuthenticatedUser,
+    duplicateId: string,
+    action: "ignore" | "merge",
+  ) {
+    const { data, error } = await this.supabaseAdminClient
+      .from("institution_question_duplicates")
+      .update({
+        status: action === "ignore" ? "ignored" : "merged",
+        resolved_by_user_id: currentUser.id,
+        resolved_at: new Date().toISOString(),
+      })
+      .eq("id", duplicateId)
+      .eq("institution_id", institutionContext.institutionId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      throw new InternalServerErrorException("Unable to resolve duplicate.");
+    }
+
+    return data;
   }
 
   async editQuestion(
@@ -264,6 +361,35 @@ export class QuestionsService {
       reviewComment: readReviewComment(question.metadata),
       reviewHistory: readReviewHistory(question.metadata),
       createdAt: question.created_at,
+      questionType: question.metadata?.question_type as string | undefined,
+      questionBody: question.metadata?.question_body as string | undefined,
     };
+  }
+
+  /**
+   * Returns subject IDs assigned to a faculty user.
+   * Returns `undefined` for non-faculty roles (meaning "full access").
+   * Returns `string[]` (possibly empty) for faculty.
+   */
+  async getAssignedSubjectIds(
+    institutionContext: InstitutionContext,
+  ): Promise<string[] | undefined> {
+    // Admins, academic heads, and reviewers get full access
+    const privilegedRoles = ["institution_admin", "academic_head", "reviewer_approver", "super_admin"];
+    if (institutionContext.roleCodes.some(rc => privilegedRoles.includes(rc))) {
+      return undefined; // no restriction
+    }
+
+    const { data, error } = await this.supabaseAdminClient
+      .from("faculty_subject_assignments")
+      .select("subject_id")
+      .eq("institution_user_id", institutionContext.institutionUserId)
+      .eq("institution_id", institutionContext.institutionId);
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to load subject assignments.");
+    }
+
+    return (data || []).map((row: any) => row.subject_id);
   }
 }

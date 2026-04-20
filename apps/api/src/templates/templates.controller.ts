@@ -2,6 +2,9 @@ import {
   Controller,
   Get,
   Post,
+  Put,
+  Delete,
+  Param,
   Body,
   Req,
   UseGuards,
@@ -36,5 +39,26 @@ export class TemplatesController {
       req.currentUser,
       payload,
     );
+  }
+
+  @Put(":id")
+  async update(
+    @Req() req: AuthenticatedRequest,
+    @Param("id") id: string,
+    @Body() payload: CreateTemplateDto,
+  ) {
+    if (!req.institutionContext || !req.currentUser)
+      throw new BadRequestException("Auth context required");
+    return this.templatesService.updateTemplate(
+      req.institutionContext,
+      id,
+      payload,
+    );
+  }
+
+  @Delete(":id")
+  async delete(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    if (!req.institutionContext) throw new BadRequestException("Institution context required");
+    return this.templatesService.deleteTemplate(req.institutionContext, id);
   }
 }

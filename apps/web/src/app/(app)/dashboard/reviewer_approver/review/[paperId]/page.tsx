@@ -40,7 +40,7 @@ export default async function ReviewPage({ params, searchParams }: PageProps) {
   const { paperId } = await params;
   const { institutionId } = await searchParams;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   const accessToken = session?.access_token;
 

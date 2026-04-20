@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_ADMIN_CLIENT } from '../supabase/supabase.constants';
+import { InstitutionContext } from '../common/types/authenticated-request';
 import { CreateDepartmentDto, UpdateDepartmentDto, CreateCourseDto, UpdateCourseDto, CreateBatchDto, UpdateBatchDto, CreateSubjectDto, UpdateSubjectDto } from './dto/academic.dto';
 
 @Injectable()
@@ -260,11 +261,28 @@ export class AcademicService {
   // SUBJECTS
   // ============================================================================
 
-  async findAllSubjects(institutionId: string, departmentId?: string, courseId?: string) {
+  async findAllSubjects(context: InstitutionContext, departmentId?: string, courseId?: string) {
     let query = this.supabase
       .from('institution_subjects')
       .select('*, department:institution_departments(name, code), course:institution_courses(name, code)')
-      .eq('institution_id', institutionId);
+      .eq('institution_id', context.institutionId);
+
+    // Subject-level Access Control for Faculty
+    const privilegedRoles = ["institution_admin", "academic_head", "reviewer_approver", "super_admin"];
+    if (!context.roleCodes.some(rc => privilegedRoles.includes(rc))) {
+      const { data: assignments } = await this.supabase
+        .from('faculty_subject_assignments')
+        .select('subject_id')
+        .eq('institution_user_id', context.institutionUserId)
+        .eq('institution_id', context.institutionId);
+        
+      const assignedIds = (assignments || []).map(a => a.subject_id);
+      
+      if (assignedIds.length === 0) {
+        return [];
+      }
+      query = query.in('id', assignedIds);
+    }
 
     if (departmentId) {
       query = query.eq('department_id', departmentId);

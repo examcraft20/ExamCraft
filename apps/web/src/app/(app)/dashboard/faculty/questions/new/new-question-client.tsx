@@ -7,18 +7,20 @@ import { apiRequest } from "@/lib/api";
 import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
 import { Spinner, Card } from "@examcraft/ui";
 import { useInstitution } from "@/hooks/use-institution";
+import { toast } from "sonner";
 
 export function NewQuestionPageClient() {
   const router = useRouter();
   const { institutionId, isLoading: isInstLoading } = useInstitution();
 
+  const [subjects, setSubjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    async function validateAccess() {
+    async function fetchData() {
       if (isInstLoading) return;
       
       try {
@@ -30,15 +32,25 @@ export function NewQuestionPageClient() {
           return;
         }
 
-        setIsLoading(false);
+        // Fetch subjects
+        const subjectsData = await apiRequest<any[]>("/academic/subjects", {
+          method: "GET",
+          accessToken: session.access_token,
+          institutionId: institutionId,
+        }).catch(() => []);
+
+        if (isMounted) {
+          setSubjects(subjectsData);
+          setIsLoading(false);
+        }
       } catch (err) {
         if (isMounted) {
-          setError("Access denied");
+          setError("Access denied or data load failure");
         }
       }
     }
 
-    void validateAccess();
+    void fetchData();
     return () => {
       isMounted = false;
     };
@@ -59,7 +71,8 @@ export function NewQuestionPageClient() {
         body: JSON.stringify(formData)
       });
 
-      router.push(`/questions?success=created`);
+      toast.success("Question created successfully!");
+      router.push(`/dashboard/faculty/questions?success=created`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create question");
       throw err;
@@ -83,7 +96,16 @@ export function NewQuestionPageClient() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto w-full pb-20 mt-4">
+      {/* Breadcrumbs */}
+      <nav className="flex items-center gap-2 text-sm text-slate-500 font-medium">
+        <button onClick={() => router.push(`/dashboard/faculty?institutionId=${institutionId}`)} className="hover:text-white transition-colors">Dashboard</button>
+        <span>/</span>
+        <button onClick={() => router.push(`/dashboard/faculty/questions?institutionId=${institutionId}`)} className="hover:text-white transition-colors">Question Bank</button>
+        <span>/</span>
+        <span className="text-white">Create Question</span>
+      </nav>
+
       <div>
         <h1 className="text-3xl font-black text-white tracking-tight">
           Create Question
@@ -95,6 +117,7 @@ export function NewQuestionPageClient() {
 
       <QuestionForm
         onSubmit={handleSubmit}
+        subjects={subjects}
       />
     </div>
   );

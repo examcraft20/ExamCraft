@@ -23,11 +23,13 @@ export class InstitutionBrandingService {
 
     const currentBranding = institution.branding ?? {};
     
-    // Create new branding object, preserving status_history
+    // Create new branding object, preserving existing values
     const newBranding = {
       ...currentBranding,
-      colors: brandingDto.colors ?? currentBranding.colors,
-      logoUrl: brandingDto.logoUrl !== undefined ? brandingDto.logoUrl : currentBranding.logoUrl
+      ...(brandingDto.primaryColor !== undefined && { primaryColor: brandingDto.primaryColor }),
+      ...(brandingDto.secondaryColor !== undefined && { secondaryColor: brandingDto.secondaryColor }),
+      ...(brandingDto.logoUrl !== undefined && { logoUrl: brandingDto.logoUrl }),
+      ...(brandingDto.customSettings !== undefined && { customSettings: brandingDto.customSettings }),
     };
 
     const { error: updateError } = await this.supabaseAdminClient

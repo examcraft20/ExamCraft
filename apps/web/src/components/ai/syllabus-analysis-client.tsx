@@ -14,24 +14,50 @@ export function SyllabusAiClient({ institutionId }: { institutionId: string }) {
   const [searchQuery, setSearchQuery] = useState("");
   
   const [textInput, setTextInput] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
   const [metadata, setMetadata] = useState<any>(null);
 
   const handleAnalyze = async () => {
-    if (!textInput.trim() && activeTab === "paste") return;
+    if (activeTab === "paste" && !textInput.trim()) return;
+    if (activeTab === "upload" && !file) return;
     
     setIsAnalyzing(true);
     try {
       const session = await getSupabaseBrowserSession();
       if (!session) return;
 
+      let payloadText = textInput;
+
+      if (activeTab === "upload" && file) {
+         const formData = new FormData();
+         formData.append("file", file);
+
+         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+         const uploadRes = await fetch(`${apiUrl}/v1/ai/extract-syllabus`, {
+             method: "POST",
+             headers: {
+                 "Authorization": `Bearer ${session.access_token}`,
+                 "x-institution-id": institutionId
+             },
+             body: formData
+         });
+         
+         if (!uploadRes.ok) {
+             throw new Error("Failed to extract syllabus from file");
+         }
+         
+         const extracted = await uploadRes.json();
+         payloadText = extracted.topics ? extracted.topics.join(", ") : "Unknown syllabus content";
+      }
+
       const response = await apiRequest<{ generatedQuestions: any[], metadata: any }>("/ai/generate-questions", {
          method: "POST",
          accessToken: session.access_token,
          institutionId,
-         body: JSON.stringify({
-            text: textInput || "Dummy syllabus content from file upload mock",
+          body: JSON.stringify({
+            text: payloadText,
             count: 5
          })
       });
@@ -183,24 +209,42 @@ export function SyllabusAiClient({ institutionId }: { institutionId: string }) {
                </div>
 
                {activeTab === "upload" ? (
-                 <div 
+                 <label 
                     className="w-full h-80 rounded-2xl border-2 border-dashed border-slate-600/50 hover:border-indigo-500/50 transition-colors bg-[#0b1221]/50 flex flex-col items-center justify-center gap-4 cursor-pointer group"
-                    onClick={handleAnalyze}
                  >
+                    <input 
+                       type="file" 
+                       className="hidden" 
+                       accept=".pdf,.txt,application/pdf,text/plain"
+                       onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                             setFile(e.target.files[0]);
+                          }
+                       }}
+                    />
                     <div className="w-16 h-16 rounded-full bg-[#1e293b] flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                        <Cloud size={32} className="text-indigo-400" />
                     </div>
                     <div className="flex flex-col items-center gap-2 text-center">
-                       <span className="text-xl font-bold text-white tracking-tight">Drag & drop your syllabus here</span>
-                       <span className="text-sm font-medium text-slate-500">Supports PDF, DOCX, TXT - Max 5 MB</span>
+                       <span className="text-xl font-bold text-white tracking-tight">
+                         {file ? file.name : "Drag & drop your syllabus here"}
+                       </span>
+                       <span className="text-sm font-medium text-slate-500">Supports PDF, TXT - Max 5 MB</span>
                     </div>
                     <Button 
+                      type="button"
                       className="mt-4 bg-[#1e293b] hover:bg-[#2b3952] border border-[#2b3952] hover:border-indigo-500/30 text-indigo-300 transition-all text-sm font-bold shadow-none group-hover:shadow-[0_0_20px_rgba(79,70,229,0.2)]"
+                      onClick={(e) => {
+                         if (file) {
+                             e.preventDefault();
+                             handleAnalyze();
+                         }
+                      }}
                       disabled={isAnalyzing}
                     >
-                      {isAnalyzing ? <Loader2 className="animate-spin" size={16} /> : "Browse File"}
+                      {isAnalyzing ? <Loader2 className="animate-spin" size={16} /> : (file ? "Analyze File" : "Select File")}
                     </Button>
-                 </div>
+                 </label>
                ) : (
                  <div className="w-full rounded-2xl border border-slate-700/50 bg-[#0b1221]/50 p-1 flex flex-col h-80">
                     <textarea 

@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import { createClient } from "./supabase-server";
 
 /**
  * Server-side role guard for Next.js 14 layouts and pages.
  * Ensures the user is authenticated and has the required role.
  */
 export async function withRoleGuard(allowedRoles: string | string[]): Promise<void> {
-  const supabase = createClient();
+  const { createClient } = await import("./supabase-server");
+  const supabase = await createClient();
   
   const {
     data: { user },

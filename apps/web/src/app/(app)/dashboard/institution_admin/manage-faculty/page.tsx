@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useAdminContext } from "@/hooks/use-admin-context";
 import { apiRequest } from "#api";
-import { Button, Card, Spinner, StatusMessage, RoleBadge, StatusBadge } from "@examcraft/ui";
+import { Button, Card, Spinner, StatusMessage, RoleBadge, StatusBadge, Modal } from "@examcraft/ui";
 
 type UsersResponse = {
   users: Array<{
@@ -42,6 +42,12 @@ const roleOptions = [
   { label: "Institution Admin", value: "institution_admin" }
 ];
 
+type Subject = {
+  id: string;
+  name: string;
+  code: string;
+};
+
 export default function ManageFacultyPage() {
   const { accessToken, institutionId, isReady } = useAdminContext();
   const [people, setPeople] = useState<UsersResponse | null>(null);
@@ -51,6 +57,15 @@ export default function ManageFacultyPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userSearch, setUserSearch] = useState("");
+  const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
+  const [subjectSearch, setSubjectSearch] = useState("");
+  
+  // Manage Modal State
+  const [managingUser, setManagingUser] = useState<UsersResponse['users'][0] | null>(null);
+  const [editRoleCode, setEditRoleCode] = useState<string>("");
+  const [editStatus, setEditStatus] = useState<string>("");
+  const [editSubjectIds, setEditSubjectIds] = useState<string[]>([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const load = async (token: string, instId: string) => {
     setIsLoading(true);
@@ -61,6 +76,13 @@ export default function ManageFacultyPage() {
         institutionId: instId 
       });
       setPeople(response);
+
+      const subjects = await apiRequest<Subject[]>("/academic/subjects", {
+        method: "GET",
+        accessToken: token,
+        institutionId: instId
+      });
+      setAllSubjects(subjects);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Unable to load staff members.");
     } finally {
@@ -117,6 +139,71 @@ export default function ManageFacultyPage() {
         .includes(needle)
     );
   }, [people?.users, userSearch]);
+
+  const openManageModal = async (user: UsersResponse['users'][0]) => {
+    setManagingUser(user);
+    setEditRoleCode(user.roleCodes[0] || "faculty");
+    setEditStatus(user.status);
+    setSubjectSearch("");
+    
+    // Fetch user-specific subjects
+    if (accessToken && institutionId) {
+      try {
+        const assignedIds = await apiRequest<string[]>(`/users/users/${user.institutionUserId}/subjects`, {
+          method: "GET",
+          accessToken,
+          institutionId
+        });
+        setEditSubjectIds(assignedIds);
+      } catch (e) {
+        console.error("Failed to load user subjects", e);
+        setEditSubjectIds([]);
+      }
+    }
+  };
+
+  const handleUpdateUser = async () => {
+    if (!accessToken || !institutionId || !managingUser) return;
+    setIsUpdating(true);
+    setStatus(null);
+    try {
+      // If role changed
+      if (editRoleCode !== managingUser.roleCodes[0]) {
+        await apiRequest(`/users/users/${managingUser.institutionUserId}/role`, {
+          method: "PATCH",
+          accessToken,
+          institutionId,
+          body: JSON.stringify({ roleCode: editRoleCode })
+        });
+      }
+      
+      // If status changed
+      if (editStatus !== managingUser.status) {
+        await apiRequest(`/users/users/${managingUser.institutionUserId}`, {
+          method: "PATCH",
+          accessToken,
+          institutionId,
+          body: JSON.stringify({ status: editStatus })
+        });
+      }
+
+      // Sync subjects
+      await apiRequest(`/users/users/${managingUser.institutionUserId}/subjects`, {
+        method: "PATCH",
+        accessToken,
+        institutionId,
+        body: JSON.stringify({ subjectIds: editSubjectIds })
+      });
+
+      await load(accessToken, institutionId);
+      setManagingUser(null);
+      setStatus(`Successfully updated access for ${managingUser.displayName || 'user'}.`);
+    } catch (e) {
+      setStatus(e instanceof Error ? e.message : "Failed to update user.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   if (!accessToken || isLoading) {
     return (
@@ -258,7 +345,9 @@ export default function ManageFacultyPage() {
                     {user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : 'Pending'}
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <button className="p-2 rounded-lg bg-white/5 text-zinc-500 hover:text-white transition-colors">
+                    <button 
+                      onClick={() => openManageModal(user)}
+                      className="p-2 rounded-lg bg-white/5 text-zinc-500 hover:text-white transition-colors">
                       <UserCog size={16} />
                     </button>
                   </td>
@@ -273,6 +362,136 @@ export default function ManageFacultyPage() {
           </table>
         </div>
       </div>
+
+      {/* Manage User Modal */}
+      {managingUser && (
+        <Modal 
+          isOpen={!!managingUser} 
+          onClose={() => !isUpdating && setManagingUser(null)}
+          title={`Manage: ${managingUser.displayName || "User"}`}
+        >
+          <div className="flex flex-col gap-6 w-full max-w-md">
+            <p className="text-sm text-zinc-400 mt-1">
+              Update roles and access permissions for this faculty member.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Authority Role</label>
+              <div className="grid grid-cols-2 gap-2">
+                {roleOptions.map((role) => (
+                  <button
+                    key={role.value}
+                    onClick={() => setEditRoleCode(role.value)}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                      editRoleCode === role.value 
+                        ? "bg-indigo-600 border-indigo-500 text-white shadow-lg" 
+                        : "bg-white/5 border-white/10 text-zinc-400 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    {role.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
+              ✓ Institution Admin and Academic Head get full access. All users have access to all institution subjects by default.
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-white">Account Active</span>
+                <span className="text-xs text-zinc-500">Disabled users cannot log in.</span>
+              </div>
+              <button
+                onClick={() => setEditStatus(editStatus === "active" ? "disabled" : "active")}
+                className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${
+                  editStatus === "active" ? "bg-indigo-600" : "bg-[#2D3748]"
+                }`}
+              >
+                <div
+                  className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
+                    editStatus === "active" ? "translate-x-7" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Authorized Subjects</label>
+                <span className="text-[10px] font-bold text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded-full">
+                  {editSubjectIds.length} Assigned
+                </span>
+              </div>
+              
+              <div className="relative">
+                <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input 
+                  type="text"
+                  placeholder="Filter subjects..."
+                  value={subjectSearch}
+                  onChange={(e) => setSubjectSearch(e.target.value)}
+                  className="w-full bg-black/20 border border-white/5 rounded-xl py-2 pl-9 pr-4 text-[11px] font-bold text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="max-h-40 overflow-y-auto pr-2 flex flex-col gap-1 custom-scrollbar">
+                {allSubjects
+                  .filter(s => s.name.toLowerCase().includes(subjectSearch.toLowerCase()) || s.code.toLowerCase().includes(subjectSearch.toLowerCase()))
+                  .map((sub) => {
+                    const isSelected = editSubjectIds.includes(sub.id);
+                    return (
+                      <button
+                        key={sub.id}
+                        onClick={() => {
+                          setEditSubjectIds(prev => 
+                            isSelected ? prev.filter(id => id !== sub.id) : [...prev, sub.id]
+                          );
+                        }}
+                        className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${
+                          isSelected 
+                            ? "bg-indigo-500/10 border-indigo-500/30 text-white" 
+                            : "bg-white/5 border-transparent text-zinc-500 hover:bg-white/10"
+                        }`}
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-bold leading-none">{sub.name}</span>
+                          <span className="text-[9px] font-medium opacity-50 uppercase tracking-tighter mt-1">{sub.code}</span>
+                        </div>
+                        <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors ${
+                          isSelected ? "bg-indigo-500 border-indigo-400" : "border-white/10"
+                        }`}>
+                          {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-sm" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                {allSubjects.length === 0 && (
+                  <p className="text-[10px] text-zinc-600 italic py-4 text-center">No subjects created yet.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <Button 
+                variant="secondary" 
+                onClick={() => setManagingUser(null)}
+                disabled={isUpdating}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-indigo-600 hover:bg-indigo-500 text-white"
+                onClick={handleUpdateUser}
+                loading={isUpdating}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

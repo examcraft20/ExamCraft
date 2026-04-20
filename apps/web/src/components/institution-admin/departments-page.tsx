@@ -30,7 +30,7 @@ export default function DepartmentsPage() {
 
   // Fetch departments
   const { data: departments, error: fetchError, isLoading } = useSWR<Department[]>(
-    '/academic-structure/departments',
+    '/academic/departments',
     async (url: string) => {
       const response = await apiRequest<{ departments: Department[] }>(url, { method: "GET" });
       return response.departments || response;
@@ -43,8 +43,8 @@ export default function DepartmentsPage() {
     setLoading(true);
 
     try {
-      await apiRequest('/academic-structure/departments', { method: "POST", body: JSON.stringify(formData) });
-      mutate('/academic-structure/departments');
+      await apiRequest('/academic/departments', { method: "POST", body: JSON.stringify(formData) });
+      mutate('/academic/departments');
       setFormData({ name: '', code: '', description: '' });
       setShowCreateForm(false);
     } catch (err) {
@@ -59,8 +59,8 @@ export default function DepartmentsPage() {
     setLoading(true);
 
     try {
-      await apiRequest(`/academic-structure/departments/${id}`, { method: "PUT", body: JSON.stringify(formData) });
-      mutate('/academic-structure/departments');
+      await apiRequest(`/academic/departments/${id}`, { method: "PUT", body: JSON.stringify(formData) });
+      mutate('/academic/departments');
       setEditingId(null);
       setFormData({ name: '', code: '', description: '' });
     } catch (err) {
@@ -74,8 +74,8 @@ export default function DepartmentsPage() {
     if (!confirm('Are you sure you want to delete this department?')) return;
 
     try {
-      await apiRequest(`/academic-structure/departments/${id}`, { method: "DELETE" });
-      mutate('/academic-structure/departments');
+      await apiRequest(`/academic/departments/${id}`, { method: "DELETE" });
+      mutate('/academic/departments');
     } catch (err) {
       setError(extractErrorMessage(err));
     }

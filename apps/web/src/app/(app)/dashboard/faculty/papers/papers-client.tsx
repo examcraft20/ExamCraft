@@ -28,7 +28,10 @@ export function PapersPageClient() {
 
     async function loadData() {
       if (isInstLoading) return;
-      if (!institutionId) return;
+      if (!institutionId) {
+        if (isMounted) setIsLoading(false);
+        return;
+      }
 
       try {
         const session = await getSupabaseBrowserSession();

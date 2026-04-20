@@ -31,13 +31,13 @@ export default function SubjectsPage() {
   const [courseForm, setCourseForm] = useState({
     name: "",
     code: "",
-    departmentId: "",
+    department_id: "",
   });
   const [subjectForm, setSubjectForm] = useState({
     name: "",
     code: "",
-    departmentId: "",
-    courseId: "",
+    department_id: "",
+    course_id: "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
@@ -108,7 +108,7 @@ export default function SubjectsPage() {
       !accessToken ||
       !institutionId ||
       !courseForm.name ||
-      !courseForm.departmentId
+      !courseForm.department_id
     )
       return;
     setIsSaving(true);
@@ -120,11 +120,11 @@ export default function SubjectsPage() {
         body: JSON.stringify({
           name: courseForm.name,
           code: courseForm.code || null,
-          departmentId: courseForm.departmentId,
+          department_id: courseForm.department_id,
         }),
       });
       setCourses((prev) => [...prev, res]);
-      setCourseForm({ name: "", code: "", departmentId: "" });
+      setCourseForm({ name: "", code: "", department_id: "" });
       setCreating(null);
       setStatusMsg("Course created.");
     } catch (e) {
@@ -139,7 +139,7 @@ export default function SubjectsPage() {
       !accessToken ||
       !institutionId ||
       !subjectForm.name ||
-      !subjectForm.courseId
+      !subjectForm.course_id
     )
       return;
     setIsSaving(true);
@@ -151,12 +151,12 @@ export default function SubjectsPage() {
         body: JSON.stringify({
           name: subjectForm.name,
           code: subjectForm.code || null,
-          departmentId: subjectForm.departmentId || null,
-          courseId: subjectForm.courseId,
+          department_id: subjectForm.department_id || null,
+          course_id: subjectForm.course_id,
         }),
       });
       setSubjects((prev) => [...prev, res]);
-      setSubjectForm({ name: "", code: "", departmentId: "", courseId: "" });
+      setSubjectForm({ name: "", code: "", department_id: "", course_id: "" });
       setCreating(null);
       setStatusMsg("Subject created.");
     } catch (e) {
@@ -324,9 +324,9 @@ export default function SubjectsPage() {
           </h3>
           <div className="grid md:grid-cols-3 gap-4">
             <select
-              value={courseForm.departmentId}
+              value={courseForm.department_id}
               onChange={(e) =>
-                setCourseForm({ ...courseForm, departmentId: e.target.value })
+                setCourseForm({ ...courseForm, department_id: e.target.value })
               }
               className="bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
@@ -364,7 +364,7 @@ export default function SubjectsPage() {
             <button
               onClick={createCourse}
               disabled={
-                isSaving || !courseForm.name || !courseForm.departmentId
+                isSaving || !courseForm.name || !courseForm.department_id
               }
               className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-all disabled:opacity-50"
             >
@@ -381,13 +381,13 @@ export default function SubjectsPage() {
           </h3>
           <div className="grid md:grid-cols-2 gap-4">
             <select
-              value={subjectForm.departmentId}
+              value={subjectForm.department_id}
               onChange={(e) => {
-                setCourseForm({ ...courseForm, departmentId: e.target.value });
+                setCourseForm({ ...courseForm, department_id: e.target.value });
                 setSubjectForm({
                   ...subjectForm,
-                  departmentId: e.target.value,
-                  courseId: "",
+                  department_id: e.target.value,
+                  course_id: "",
                 });
               }}
               className="bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -400,9 +400,9 @@ export default function SubjectsPage() {
               ))}
             </select>
             <select
-              value={subjectForm.courseId}
+              value={subjectForm.course_id}
               onChange={(e) =>
-                setSubjectForm({ ...subjectForm, courseId: e.target.value })
+                setSubjectForm({ ...subjectForm, course_id: e.target.value })
               }
               className="bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
@@ -410,8 +410,8 @@ export default function SubjectsPage() {
               {courses
                 .filter(
                   (c) =>
-                    !subjectForm.departmentId ||
-                    c.department_id === subjectForm.departmentId,
+                    !subjectForm.department_id ||
+                    c.department_id === subjectForm.department_id,
                 )
                 .map((c) => (
                   <option key={c.id} value={c.id}>
@@ -445,7 +445,7 @@ export default function SubjectsPage() {
             </button>
             <button
               onClick={createSubject}
-              disabled={isSaving || !subjectForm.name || !subjectForm.courseId}
+              disabled={isSaving || !subjectForm.name || !subjectForm.course_id}
               className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-all disabled:opacity-50"
             >
               {isSaving ? <Spinner size="sm" /> : null} Create

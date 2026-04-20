@@ -6,6 +6,7 @@ import {
   UseGuards,
   applyDecorators
 } from "@nestjs/common";
+import { ApiHeader } from "@nestjs/swagger";
 import { SupabaseAuthGuard } from "../../auth/guards/supabase-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
 import { PermissionsGuard } from "../../auth/guards/permissions.guard";
@@ -43,6 +44,20 @@ export class InstitutionContextGuard implements CanActivate {
   }
 }
 
-export const UseInstitutionAccess = () => UseGuards(SupabaseAuthGuard, InstitutionContextGuard);
-export const UseInstitutionAuthorization = () =>
-  applyDecorators(UseGuards(SupabaseAuthGuard, InstitutionContextGuard, RolesGuard, PermissionsGuard));
+export const UseInstitutionAccess = () => applyDecorators(
+  UseGuards(SupabaseAuthGuard, InstitutionContextGuard),
+  ApiHeader({
+    name: 'x-institution-id',
+    description: 'The UUID of the tenant/institution for this request context. Strictly required to resolve role and subject-level access rules.',
+    required: true,
+  })
+);
+
+export const UseInstitutionAuthorization = () => applyDecorators(
+  UseGuards(SupabaseAuthGuard, InstitutionContextGuard, RolesGuard, PermissionsGuard),
+  ApiHeader({
+    name: 'x-institution-id',
+    description: 'The UUID of the tenant/institution for this request context. Strictly required to resolve role and subject-level access rules.',
+    required: true,
+  })
+);

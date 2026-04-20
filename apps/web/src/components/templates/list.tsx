@@ -87,8 +87,7 @@ export function TemplateListClient({
           </div>
         ) : (
           filtered.map((template) => {
-             const fallbackSubjectTags = [template.examType, "Information", "Semester 8"];
-             const tags = fallbackSubjectTags.filter(Boolean); // fallback mock for visuals since full metadata isn't expanded right now
+             const tags = [template.examType].filter(Boolean);
 
              return (
               <div

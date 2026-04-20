@@ -44,7 +44,11 @@ export default function FacultyDashboard() {
   useEffect(() => {
     let isMounted = true;
     async function loadDashboardData() {
-      if (isInstLoading || !institutionId) return;
+      if (isInstLoading) return;
+      if (!institutionId) {
+        if (isMounted) setIsLoading(false);
+        return;
+      }
 
       try {
         const session = await getSupabaseBrowserSession();
@@ -93,6 +97,15 @@ export default function FacultyDashboard() {
     return <DashboardSkeleton />;
   }
 
+  if (!institutionId) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 gap-4">
+        <h2 className="text-xl text-white font-bold">No Institution Found</h2>
+        <p className="text-slate-400">Please make sure you are assigned to an institution or try logging out and logging back in.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-10 max-w-[1400px] mx-auto pb-20 mt-[-10px]">
       
@@ -100,8 +113,8 @@ export default function FacultyDashboard() {
       <header className="flex flex-col gap-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-black text-white tracking-tight">Faculty Nexus</h1>
-            <p className="text-slate-400 font-medium">Orchestrate assessments with multi-tenant precision.</p>
+            <h1 className="text-4xl font-black text-white tracking-tight">Faculty Dashboard</h1>
+            <p className="text-slate-400 font-medium">Create questions, build templates, and generate exam papers.</p>
           </div>
           <div className="flex items-center gap-3">
              <Link href={`/dashboard/faculty/papers/new?institutionId=${institutionId}`}>
@@ -114,7 +127,7 @@ export default function FacultyDashboard() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard icon={<Database size={20} className="text-indigo-400" />} label="Question Bank" value={stats?.totalQuestions || 0} />
-          <StatCard icon={<LayoutTemplate size={20} className="text-violet-400" />} label="Blueprints" value={stats?.totalTemplates || 0} />
+          <StatCard icon={<LayoutTemplate size={20} className="text-violet-400" />} label="Templates" value={stats?.totalTemplates || 0} />
           <StatCard icon={<Clock size={20} className="text-amber-400" />} label="In Review" value={stats?.pendingPapers || 0} />
           <StatCard icon={<CheckCircle size={20} className="text-emerald-400" />} label="Approved" value={stats?.approvedPapers || 0} />
         </div>
@@ -142,9 +155,9 @@ export default function FacultyDashboard() {
             ) : (
               <div className="col-span-full p-12 rounded-[2rem] bg-white/5 border border-white/5 flex flex-col items-center justify-center text-center gap-4 border-dashed">
                  <LayoutTemplate size={40} className="text-slate-700" />
-                 <p className="text-slate-500 font-bold">No blueprints found.</p>
+                 <p className="text-slate-500 font-bold">No templates found.</p>
                  <Link href={`/dashboard/faculty/templates/new?institutionId=${institutionId}`}>
-                   <Button variant="secondary" size="sm">Create First Blueprint</Button>
+                   <Button variant="secondary" size="sm">Create First Template</Button>
                  </Link>
               </div>
             )}
@@ -178,14 +191,6 @@ export default function FacultyDashboard() {
                 />
             </div>
           </div>
-          
-          <Card className="!bg-indigo-600/10 border-indigo-500/20 p-8 rounded-[2rem] relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 blur-[60px] -z-10 group-hover:scale-110 transition-transform" />
-            <Sparkles size={24} className="text-indigo-400 mb-4" />
-            <h3 className="text-lg font-black text-white mb-2">Upgrade to Pro</h3>
-            <p className="text-slate-400 text-sm font-medium mb-6">Unlock AI difficulty balancing and one-click SPPU compliance mapping.</p>
-            <Button className="w-full bg-white text-black font-black text-xs uppercase tracking-widest rounded-xl hover:bg-white/90">Learn More</Button>
-          </Card>
         </div>
 
       </div>

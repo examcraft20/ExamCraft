@@ -54,6 +54,12 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  // IMPORTANT: JWT Refresh Strategy
+  // `@supabase/ssr` automatically handles token rotation. When `getUser()` is called,
+  // it checks the token's expiry. If it's expired or close to expiring, Supabase automatically
+  // issues a new Access Token using the HttpOnly Refresh Token cookie. Our `set` and `remove` 
+  // handlers above immediately persist these rotated tokens back to the user's browser, 
+  // keeping SSR auth seamless mid-session.
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -92,4 +98,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     */
     "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.png$|.*\\.jpg$|.*\\.svg$).*)",
+  ],
+};

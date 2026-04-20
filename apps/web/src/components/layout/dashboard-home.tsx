@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { apiRequest } from "#api";
+import { apiRequest } from "#api/client";
 import {
   AuthMeResponse,
   MembershipSummary,

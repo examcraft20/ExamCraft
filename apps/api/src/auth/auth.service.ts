@@ -4,7 +4,7 @@ import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
 
 export interface SignUpPayload {
   email: string;
-  password?: string;
+  password: string;
   options?: any;
 }
 

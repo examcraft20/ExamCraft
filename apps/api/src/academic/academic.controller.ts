@@ -261,7 +261,7 @@ export class AcademicController {
     @Query('course_id') courseId?: string
   ) {
     if (!institutionContext) throw new InternalServerErrorException('Missing institution context');
-    return this.service.findAllSubjects(institutionContext.institutionId, departmentId, courseId);
+    return this.service.findAllSubjects(institutionContext, departmentId, courseId);
   }
 
   @Get('subjects/:id')

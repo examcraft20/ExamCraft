@@ -5,11 +5,14 @@ import { Button } from "@examcraft/ui";
 interface MetadataPanelProps {
   difficulty: string;
   bloomLevel: string;
+  subject: string;
+  subjects: Array<{ id: string; name: string }>;
   unitNumber: number | null;
   courseOutcomes: string[];
   tags: string[];
   onDifficultyChange: (value: string) => void;
   onBloomLevelChange: (value: string) => void;
+  onSubjectChange: (value: string) => void;
   onUnitNumberChange: (value: number | null) => void;
   onCourseOutcomesChange: (value: string[]) => void;
   onTagsChange: (value: string[]) => void;
@@ -31,11 +34,14 @@ const bloomLevels = [
 export function MetadataPanel({
   difficulty,
   bloomLevel,
+  subject,
+  subjects,
   unitNumber,
   courseOutcomes,
   tags,
   onDifficultyChange,
   onBloomLevelChange,
+  onSubjectChange,
   onUnitNumberChange,
   onCourseOutcomesChange,
   onTagsChange,
@@ -63,6 +69,28 @@ export function MetadataPanel({
 
   return (
     <div className="h-fit sticky top-6 rounded-[2rem] bg-zinc-900/50 border border-white/5 backdrop-blur-xl p-6 shadow-lg space-y-6">
+      {/* Subject Selector */}
+      <div>
+        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600 mb-3 ml-1">
+          Catalog Assignment
+        </label>
+        <select
+          value={subject}
+          onChange={(e) => onSubjectChange(e.target.value)}
+          className="w-full h-12 px-4 rounded-xl bg-zinc-950 border border-white/5 text-white focus:border-indigo-500/50 focus:outline-none transition-all text-sm font-bold appearance-none cursor-pointer"
+        >
+          <option value="">Select subject...</option>
+          {subjects.map((sub) => (
+            <option key={sub.id} value={sub.name}>
+              {sub.name}
+            </option>
+          ))}
+        </select>
+        {!subject && (
+           <p className="text-[10px] text-zinc-600 mt-2 ml-1 italic">Assign item to an academic subject</p>
+        )}
+      </div>
+
       {/* Difficulty Selector */}
       <div>
         <label className="block text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
@@ -159,7 +187,7 @@ export function MetadataPanel({
         <Button
           variant="ghost"
           onClick={() => {
-            // TODO: Save draft
+            onSubmit();
           }}
           fullWidth
           disabled={isSubmitting}

@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  BadRequestException,
 } from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
@@ -99,6 +100,59 @@ export class TemplatesService {
     }
 
     return data;
+  }
+
+  async updateTemplate(
+    institutionContext: InstitutionContext,
+    templateId: string,
+    payload: CreateTemplateDto,
+  ) {
+    const existing = await this.loadTemplateForInstitution(templateId, institutionContext.institutionId);
+    if (existing.status !== "draft" && existing.status !== "rejected") {
+      throw new BadRequestException("Template cannot be updated in its current status.");
+    }
+
+    const { data, error } = await this.supabaseAdminClient
+      .from("institution_templates")
+      .update({
+        name: payload.name,
+        exam_type: payload.examType,
+        duration_minutes: payload.durationMinutes,
+        total_marks: payload.totalMarks,
+        sections: payload.sections ?? [],
+        department_id: payload.departmentId ?? null,
+        course_id: payload.courseId ?? null,
+        subject_id: payload.subjectId ?? null,
+      })
+      .eq("id", templateId)
+      .eq("institution_id", institutionContext.institutionId)
+      .select(
+        "id, name, exam_type, duration_minutes, total_marks, sections, department_id, course_id, subject_id, status, metadata, created_at",
+      )
+      .single<TemplateRow>();
+
+    if (error || !data) {
+      throw new InternalServerErrorException("Unable to update template.");
+    }
+
+    return this.mapRowToDto(data);
+  }
+
+  async deleteTemplate(institutionContext: InstitutionContext, templateId: string) {
+    const existing = await this.loadTemplateForInstitution(templateId, institutionContext.institutionId);
+    if (existing.status !== "draft" && existing.status !== "rejected") {
+      throw new BadRequestException("Only draft or rejected templates can be deleted.");
+    }
+
+    const { error } = await this.supabaseAdminClient
+      .from("institution_templates")
+      .delete()
+      .eq("id", templateId)
+      .eq("institution_id", institutionContext.institutionId);
+
+    if (error) {
+      throw new InternalServerErrorException("Failed to delete template.");
+    }
   }
 
   private mapRowToDto(template: TemplateRow) {

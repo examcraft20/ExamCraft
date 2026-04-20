@@ -19,7 +19,7 @@ export async function serverApiRequest<TResponse>(
   if (!token) {
     try {
       const { createClient } = await import("../supabase-server");
-      const supabase = createClient();
+      const supabase = await createClient();
       const { data: { session } } = await supabase.auth.getSession();
       token = session?.access_token;
     } catch {

@@ -25,6 +25,11 @@ interface Question {
   bloomLevel: string;
   difficulty: string;
   tags: string[];
+  unitNumber?: number | null;
+  departmentId?: string | null;
+  courseId?: string | null;
+  marks?: number;
+  courseOutcomes?: string[];
   status: string;
   createdAt: string;
 }
@@ -32,6 +37,7 @@ interface Question {
 interface QuestionListClientProps {
   initialQuestions: Question[];
   subjects: Array<{ id: string; name: string }>;
+  departments?: Array<{ id: string; name: string }>;
   accessToken?: string;
   institutionId?: string;
 }
@@ -39,6 +45,7 @@ interface QuestionListClientProps {
 export function QuestionListClient({
   initialQuestions,
   subjects,
+  departments = [],
   accessToken,
   institutionId,
 }: QuestionListClientProps) {
@@ -82,14 +89,18 @@ export function QuestionListClient({
 
       const subjectMatch =
         filters.subject === "All Subjects" || q.subject === filters.subject;
+        
+      const deptMatch =
+        filters.department === "All Departments" || q.departmentId === filters.department;
 
-      return searchMatch && subjectMatch;
+      return searchMatch && subjectMatch && deptMatch;
     });
   }, [questions, filters]);
 
   const handleEdit = useCallback((id: string) => {
-    window.location.href = `/questions/${id}/edit`;
-  }, []);
+    const url = `/dashboard/faculty/questions/${id}/edit${institutionId ? `?institutionId=${institutionId}` : ""}`;
+    router.push(url);
+  }, [router, institutionId]);
 
   const handleArchive = async (id: string) => {
     if (!confirm("Are you sure you want to archive this question?")) return;
@@ -184,7 +195,8 @@ export function QuestionListClient({
           <Button
             className="flex-1 md:flex-none bg-[#7c3aed] hover:bg-[#6d28d9] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 text-white border-0 shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)] transition-all"
             onClick={() => {
-              window.location.href = `/questions/new`;
+              const url = `/dashboard/faculty/questions/new${institutionId ? `?institutionId=${institutionId}` : ""}`;
+              router.push(url);
             }}
           >
             <UploadCloud size={16} /> New Question
@@ -269,23 +281,13 @@ export function QuestionListClient({
               }
               className="h-10 px-3 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 text-sm font-medium focus:outline-none focus:border-indigo-500/50 hover:bg-slate-800 transition-colors cursor-pointer"
             >
-              <option>All Departments</option>
-              <option>Computer Science Engineering</option>
-              <option>Computer Science</option>
+              <option value="All Departments">All Departments</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
             </select>
 
-            <select
-              value={filters.semester}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, semester: e.target.value }))
-              }
-              className="h-10 px-3 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 text-sm font-medium focus:outline-none focus:border-indigo-500/50 hover:bg-slate-800 transition-colors cursor-pointer"
-            >
-              <option>All Semesters</option>
-              <option>Semester 1</option>
-              <option>Semester 2</option>
-              <option>Semester 4</option>
-            </select>
+
 
             <select
               value={filters.subject}
@@ -370,13 +372,15 @@ export function QuestionListClient({
                         </span>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="text-slate-400 text-xs">CSE</span>
+                        <span className="text-slate-400 text-xs">
+                          {departments.find((d) => d.id === q.departmentId)?.name || "—"}
+                        </span>
                       </td>
                       <td className="px-6 py-5 text-center">
-                        <span className="text-slate-400 text-xs">4</span>
+                        <span className="text-slate-400 text-xs">{q.unitNumber ? `Unit ${q.unitNumber}` : "—"}</span>
                       </td>
                       <td className="px-6 py-5 text-center">
-                        <span className="font-bold text-white">8</span>
+                        <span className="font-bold text-white">{q.marks ?? "—"}</span>
                       </td>
                       <td className="px-6 py-5 text-center">
                         <div
@@ -386,7 +390,7 @@ export function QuestionListClient({
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
-                        <span className="text-slate-600 font-black">—</span>
+                        <span className="text-slate-600 font-bold text-xs">{q.courseOutcomes?.join(", ") || "—"}</span>
                       </td>
                       <td className="px-6 py-5 text-right w-[150px]">
                         <div className="flex items-center justify-end gap-2">

@@ -26,11 +26,11 @@ BEGIN
     JOIN public.institution_users iu ON iu.id = iur.institution_user_id
     WHERE iu.user_id = v_user_id AND iu.status = 'active';
 
-    -- Update auth.users app_metadata
+    -- Update auth.users raw_app_meta_data
     -- We preserve existing metadata but update the 'roles' key
     UPDATE auth.users
-    SET app_metadata = 
-      COALESCE(app_metadata, '{}'::jsonb) || 
+    SET raw_app_meta_data = 
+      COALESCE(raw_app_meta_data, '{}'::jsonb) || 
       jsonb_build_object('roles', COALESCE(v_role_codes, ARRAY[]::text[]))
     WHERE id = v_user_id;
   END IF;

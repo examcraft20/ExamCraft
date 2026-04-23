@@ -1,12 +1,12 @@
 import { InternalServerErrorException } from "@nestjs/common";
-import { describe, expect, it, vi } from "vitest";
+
 import { AuditLogsService } from "./audit-logs.service";
 import { AuditAction } from "./audit-action.enum";
 
 describe("AuditLogsService", () => {
   it("6B.1 — createAuditLog resolves without error on success", async () => {
-    const insertFn = vi.fn().mockResolvedValue({ error: null });
-    const mockFrom = vi.fn(() => ({ insert: insertFn }));
+    const insertFn = jest.fn().mockResolvedValue({ error: null });
+    const mockFrom = jest.fn(() => ({ insert: insertFn }));
     const client = { from: mockFrom };
 
     const service = new AuditLogsService(client as never);
@@ -26,8 +26,8 @@ describe("AuditLogsService", () => {
   });
 
   it("6B.2 — createAuditLog swallows Supabase error without throwing", async () => {
-    const mockFrom = vi.fn(() => ({
-      insert: vi.fn().mockResolvedValue({ error: { message: "DB down" } }),
+    const mockFrom = jest.fn(() => ({
+      insert: jest.fn().mockResolvedValue({ error: { message: "DB down" } }),
     }));
     const client = { from: mockFrom };
 
@@ -45,11 +45,11 @@ describe("AuditLogsService", () => {
 
   it("6B.3 — listAuditLogs returns data on success", async () => {
     const mockData = [{ id: "log-1", action: "QUESTION_CREATED" }];
-    const mockFrom = vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn(() => ({
-            limit: vi.fn(() =>
+    const mockFrom = jest.fn(() => ({
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          order: jest.fn(() => ({
+            limit: jest.fn(() =>
               Promise.resolve({ data: mockData, error: null }),
             ),
           })),
@@ -67,11 +67,11 @@ describe("AuditLogsService", () => {
   });
 
   it("6B.4 — listAuditLogs throws InternalServerErrorException on DB error", async () => {
-    const mockFrom = vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn(() => ({
-            limit: vi.fn(() =>
+    const mockFrom = jest.fn(() => ({
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          order: jest.fn(() => ({
+            limit: jest.fn(() =>
               Promise.resolve({ data: null, error: { message: "fail" } }),
             ),
           })),

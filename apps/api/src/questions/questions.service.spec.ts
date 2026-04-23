@@ -3,7 +3,7 @@ import { QuestionsService } from './questions.service';
 import { SUPABASE_ADMIN_CLIENT } from '../supabase/supabase.constants';
 import { InternalServerErrorException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InstitutionContext, AuthenticatedUser } from '../common/types/authenticated-request';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 
 describe('QuestionsService', () => {
   let service: QuestionsService;
@@ -25,19 +25,19 @@ describe('QuestionsService', () => {
 
   beforeEach(async () => {
     const mockQueryBuilder = {
-      select: vi.fn().mockReturnThis(),
-      insert: vi.fn().mockReturnThis(),
-      update: vi.fn().mockReturnThis(),
-      delete: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      order: vi.fn().mockReturnThis(),
-      range: vi.fn().mockReturnThis(),
-      single: vi.fn(),
-      returns: vi.fn(),
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      delete: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockReturnThis(),
+      range: jest.fn().mockReturnThis(),
+      single: jest.fn(),
+      returns: jest.fn(),
     };
 
     mockSupabaseClient = {
-      from: vi.fn().mockReturnValue(mockQueryBuilder),
+      from: jest.fn().mockReturnValue(mockQueryBuilder),
     };
 
     const module: TestingModule = await Test.createTestingModule({

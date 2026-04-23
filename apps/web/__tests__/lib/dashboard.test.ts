@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolvePrimaryRole, formatRoleName, getRoleSummary } from "../../lib/dashboard";
+import { resolvePrimaryRole, formatRoleName, getRoleSummary } from "@/lib/dashboard";
 
 describe("Dashboard Library Utilities", () => {
   it("resolves the primary role correctly according to priority", () => {

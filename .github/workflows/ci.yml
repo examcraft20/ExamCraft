@@ -10,7 +10,7 @@ jobs:
     name: Build and Test
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 9
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -33,9 +33,26 @@ jobs:
 
       - name: Code Verification
         run: pnpm turbo run lint typecheck
-        
+
       - name: Build
         run: pnpm turbo run build
 
+      - name: Verify build artifacts
+        run: |
+          test -d apps/api/dist || (echo "::error::API build output missing (apps/api/dist)" && exit 1)
+          test -d apps/web/.next || (echo "::error::Web build output missing (apps/web/.next)" && exit 1)
+          echo "✅ Build artifacts verified successfully"
+
       - name: Test
         run: pnpm turbo run test
+
+      - name: Collect test coverage
+        run: pnpm --filter @examcraft/api test:cov
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: apps/api/coverage/
+          retention-days: 14

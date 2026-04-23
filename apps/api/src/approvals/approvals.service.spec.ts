@@ -6,7 +6,7 @@ import { QuestionsService } from '../questions/questions.service';
 import { TemplatesService } from '../templates/templates.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { InstitutionContext, AuthenticatedUser } from '../common/types/authenticated-request';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 
 describe('ApprovalsService', () => {
   let service: ApprovalsService;
@@ -31,26 +31,26 @@ describe('ApprovalsService', () => {
 
   beforeEach(async () => {
     const mockQueryBuilder = {
-      select: vi.fn().mockReturnThis(),
-      update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn(),
+      select: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
     };
 
     mockSupabaseClient = {
-      from: vi.fn().mockReturnValue(mockQueryBuilder),
+      from: jest.fn().mockReturnValue(mockQueryBuilder),
     };
 
     mockMailerService = {
-      sendPaperReviewed: vi.fn().mockResolvedValue(true),
+      sendPaperReviewed: jest.fn().mockResolvedValue(true),
     };
 
     mockQuestionsService = {
-      loadQuestionForInstitution: vi.fn(),
+      loadQuestionForInstitution: jest.fn(),
     };
 
     mockTemplatesService = {
-      loadTemplateForInstitution: vi.fn(),
+      loadTemplateForInstitution: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

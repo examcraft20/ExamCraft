@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+
 import { InstitutionContextService } from "./institution-context.service";
 
 describe("InstitutionContextService", () => {
   it("deduplicates permission codes when resolving institution context", async () => {
-    const from = vi
+    const from = jest
       .fn()
       .mockImplementationOnce(() => ({
         select: () => ({

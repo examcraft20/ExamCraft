@@ -37,6 +37,7 @@
     "class-validator": "^0.14.4",
     "docx": "^9.6.1",
     "dompurify": "^3.3.3",
+    "helmet": "^8.0.0",
     "jsdom": "^29.0.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -48,6 +49,7 @@
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.2.3",
+    "@nestjs/testing": "^11.1.19",
     "@types/dompurify": "^3.2.0",
     "@types/express": "^5.0.1",
     "@types/jest": "^30.0.0",

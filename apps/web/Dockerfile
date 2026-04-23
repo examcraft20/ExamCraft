@@ -65,5 +65,8 @@ COPY --from=installer --chown=nextjs:nodejs /app/apps/web/public ./apps/web/publ
 ENV PORT=3000
 EXPOSE 3000
 
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+  CMD wget -qO- http://localhost:3000/ || exit 1
+
 # server.js is created by next build from the standalone output
 CMD ["node", "apps/web/server.js"]

@@ -5,7 +5,7 @@ import { TemplatesService } from '../templates/templates.service';
 import { MailerService } from '../mailer/mailer.service';
 import { InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InstitutionContext, AuthenticatedUser } from '../common/types/authenticated-request';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 
 describe('PapersService', () => {
   let service: PapersService;
@@ -29,24 +29,24 @@ describe('PapersService', () => {
 
   beforeEach(async () => {
     const mockQueryBuilder = {
-      select: vi.fn().mockReturnThis(),
-      insert: vi.fn().mockReturnThis(),
-      update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn(),
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
     };
 
     mockSupabaseClient = {
-      from: vi.fn().mockReturnValue(mockQueryBuilder),
-      rpc: vi.fn(),
+      from: jest.fn().mockReturnValue(mockQueryBuilder),
+      rpc: jest.fn(),
     };
 
     mockTemplatesService = {
-      loadTemplateForInstitution: vi.fn(),
+      loadTemplateForInstitution: jest.fn(),
     };
 
     mockMailerService = {
-      sendPaperSubmittedForReview: vi.fn().mockResolvedValue(true),
+      sendPaperSubmittedForReview: jest.fn().mockResolvedValue(true),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -87,7 +87,7 @@ describe('PapersService', () => {
         error: null,
       });
 
-      const qbRoles = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), single: vi.fn().mockResolvedValue({ data: null }) };
+      const qbRoles = { select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: null }) };
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'roles' || table === 'institution_user_roles') return qbRoles;
         return qb;

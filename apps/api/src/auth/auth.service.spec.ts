@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_ADMIN_CLIENT } from '../supabase/supabase.constants';
 import { UnauthorizedException } from '@nestjs/common';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 
 // Assuming AuthService is implemented to handle these methods
 // If it has been refactored elsewhere, adjust imports accordingly.

@@ -2,7 +2,7 @@ import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SupabaseAuthGuard } from './guards/supabase-auth.guard';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';
-import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
+
 
 describe('SupabaseAuthGuard (jwt.guard)', () => {
   let guard: SupabaseAuthGuard;
@@ -11,12 +11,12 @@ describe('SupabaseAuthGuard (jwt.guard)', () => {
 
   beforeEach(() => {
     reflector = {
-      getAllAndOverride: vi.fn(),
+      getAllAndOverride: jest.fn(),
     } as any;
 
     mockSupabaseAdmin = {
       auth: {
-        getUser: vi.fn(),
+        getUser: jest.fn(),
       },
     };
 
@@ -25,8 +25,8 @@ describe('SupabaseAuthGuard (jwt.guard)', () => {
 
   function createMockContext(authHeader?: string): ExecutionContext {
     return {
-      getHandler: vi.fn(),
-      getClass: vi.fn(),
+      getHandler: jest.fn(),
+      getClass: jest.fn(),
       switchToHttp: () => ({
         getRequest: () => ({
           headers: {

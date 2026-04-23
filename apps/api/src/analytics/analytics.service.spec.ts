@@ -1,5 +1,5 @@
 import { InternalServerErrorException } from "@nestjs/common";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+
 import { AnalyticsService } from "./analytics.service";
 
 describe("AnalyticsService", () => {
@@ -14,7 +14,7 @@ describe("AnalyticsService", () => {
       activeFacultyCount: 3
     };
 
-    const rpcFn = vi.fn().mockResolvedValue({ data: mockData, error: null });
+    const rpcFn = jest.fn().mockResolvedValue({ data: mockData, error: null });
     const client = { rpc: rpcFn };
 
     const service = new AnalyticsService(client as never);
@@ -26,7 +26,7 @@ describe("AnalyticsService", () => {
 
   // 6C.2 — getSummaryStats failure path
   it("throws InternalServerErrorException when RPC fails", async () => {
-    const rpcFn = vi.fn().mockResolvedValue({ data: null, error: { message: "RPC failed" } });
+    const rpcFn = jest.fn().mockResolvedValue({ data: null, error: { message: "RPC failed" } });
     const client = { rpc: rpcFn };
 
     const service = new AnalyticsService(client as never);

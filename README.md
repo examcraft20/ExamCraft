@@ -104,6 +104,22 @@ supabase/
 | [TEST_CREDENTIALS.md](./TEST_CREDENTIALS.md) | All test accounts and passwords |
 | [AI_CODEBASE_MAP.md](./AI_CODEBASE_MAP.md) | Architecture index for AI assistants |
 
+## Production Deployment
+
+For production deployment instructions, see:
+
+- **[Deployment Guide](docs/DEPLOYMENT.md)** — Step-by-step setup for Vercel, Supabase Cloud, and API hosting
+- **[Operations Runbook](docs/OPERATIONS.md)** — Monitoring, scaling, backups, and incident response
+
+### Quick Production Checklist
+
+1. Create a [Supabase Cloud](https://supabase.com) project and apply migrations
+2. Deploy frontend to [Vercel](https://vercel.com) with environment variables
+3. Build and deploy API Docker image to your preferred host
+4. Configure custom domains and DNS
+5. Set up Sentry error tracking
+6. Configure GitHub Actions secrets for CI/CD
+
 ## Status
 
 **Phase 1–3: Complete** — Foundation, Assessment Engine, Governance & Intelligence  

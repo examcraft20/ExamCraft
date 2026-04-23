@@ -1,10 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+
 import { OnboardingController } from "./onboarding.controller";
 
 describe("OnboardingController", () => {
   it("passes the authenticated user id to the onboarding service", () => {
     const onboardingService = {
-      createInstitutionWorkspace: vi.fn()
+      createInstitutionWorkspace: jest.fn()
     };
     const controller = new OnboardingController(onboardingService as never);
     const body = {

@@ -1,28 +1,28 @@
 import { BadRequestException, InternalServerErrorException } from "@nestjs/common";
-import { describe, expect, it, vi } from "vitest";
+
 import { InvitationService } from "./invitation.service";
 
 /** Helper that creates a minimal Supabase `from()` returning a chain ending in `.single()` */
 function singleReturning(data: any, error: any = null) {
-  return vi.fn().mockReturnValue({
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data, error }),
+  return jest.fn().mockReturnValue({
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: jest.fn().mockResolvedValue({ data, error }),
   });
 }
 
 const mockMailer = () => ({
-  sendFacultyInvite: vi.fn().mockResolvedValue(undefined),
-  sendPaperSubmittedForReview: vi.fn(),
-  sendPaperReviewed: vi.fn(),
+  sendFacultyInvite: jest.fn().mockResolvedValue(undefined),
+  sendPaperSubmittedForReview: jest.fn(),
+  sendPaperReviewed: jest.fn(),
 });
 
 // ── Original test ───────────────────────────────────────────────────────────
 
 describe("InvitationService — acceptInvitation", () => {
   it("cleans up created auth user when acceptance fails after account creation", async () => {
-    const deleteUser = vi.fn().mockResolvedValue({});
-    const createUser = vi.fn().mockResolvedValue({
+    const deleteUser = jest.fn().mockResolvedValue({});
+    const createUser = jest.fn().mockResolvedValue({
       data: { user: { id: "new-user-id" } },
       error: null,
     });
@@ -68,11 +68,11 @@ describe("InvitationService — acceptInvitation", () => {
 
   // 6C.1 — Expired invite is rejected before creating a user
   it("6C.1 — rejects an expired invitation before calling createUser", async () => {
-    const createUser = vi.fn();
-    const from = vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
+    const createUser = jest.fn();
+    const from = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
         data: {
           id: "invite-id",
           institution_id: "inst-1",
@@ -86,7 +86,7 @@ describe("InvitationService — acceptInvitation", () => {
     });
 
     const service = new InvitationService(
-      { from, auth: { admin: { createUser, deleteUser: vi.fn() } } } as never,
+      { from, auth: { admin: { createUser, deleteUser: jest.fn() } } } as never,
       mockMailer() as never
     );
 
@@ -99,10 +99,10 @@ describe("InvitationService — acceptInvitation", () => {
 
   // 6C.2 — Non-pending invitation is rejected
   it("6C.2 — rejects an already-accepted invitation with BadRequestException", async () => {
-    const from = vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
+    const from = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
         data: {
           id: "invite-id",
           institution_id: "inst-1",
@@ -116,7 +116,7 @@ describe("InvitationService — acceptInvitation", () => {
     });
 
     const service = new InvitationService(
-      { from, auth: { admin: { createUser: vi.fn(), deleteUser: vi.fn() } } } as never,
+      { from, auth: { admin: { createUser: jest.fn(), deleteUser: jest.fn() } } } as never,
       mockMailer() as never
     );
 
@@ -131,10 +131,10 @@ describe("InvitationService — acceptInvitation", () => {
 describe("InvitationService — createInvitation", () => {
   // 6C.3 — Supabase unique constraint error maps to InternalServerErrorException
   it("6C.3 — throws when DB reports a conflict (duplicate invite)", async () => {
-    const from = vi.fn().mockReturnValue({
-      insert: vi.fn().mockReturnThis(),
-      select: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
+    const from = jest.fn().mockReturnValue({
+      insert: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
         data: null,
         error: { message: "duplicate key value violates unique constraint" },
       }),

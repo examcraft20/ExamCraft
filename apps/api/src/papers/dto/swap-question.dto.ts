@@ -3,13 +3,13 @@ import { IsString, IsNotEmpty, IsUUID } from "class-validator";
 export class SwapQuestionDto {
   @IsString()
   @IsNotEmpty()
-  sectionTitle: string;
+  sectionTitle!: string;
 
   @IsUUID()
   @IsNotEmpty()
-  oldQuestionId: string;
+  oldQuestionId!: string;
 
   @IsUUID()
   @IsNotEmpty()
-  newQuestionId: string;
+  newQuestionId!: string;
 }

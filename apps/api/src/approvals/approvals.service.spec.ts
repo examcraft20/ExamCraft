@@ -19,7 +19,11 @@ describe('ApprovalsService', () => {
     institutionId: 'tenant-A',
     institutionUserId: 'inst-user-1',
     roleCodes: ['academic_head'],
-    permissionCodes: ['papers.review', 'questions.review', 'templates.review'],
+    permissionCodes: [
+      'papers.review', 'papers.approve', 'papers.reject',
+      'questions.review', 'questions.approve', 'questions.reject',
+      'templates.review', 'templates.approve', 'templates.reject'
+    ],
   };
 
   const mockUser: AuthenticatedUser = {
@@ -34,7 +38,7 @@ describe('ApprovalsService', () => {
       select: jest.fn().mockReturnThis(),
       update: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
+      single: jest.fn().mockResolvedValue({ data: null, error: null }),
     };
 
     mockSupabaseClient = {

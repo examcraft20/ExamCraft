@@ -143,22 +143,18 @@ describe('AcademicService', () => {
         const findQB = createQueryBuilder({
           single: jest.fn().mockResolvedValue({ data: { id: 'd1' }, error: null }),
         });
-        // delete call
+        
+        // delete call chain
         const deleteQB = createQueryBuilder({
+          delete: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
         });
-        // Need to handle the chained .eq() calls properly
-        const deleteChain = {
-          eq: jest.fn().mockReturnThis(),
-        };
-        const deleteResult = {
-          eq: jest.fn().mockResolvedValue({ error: null }),
-        };
-        deleteChain.eq = jest.fn().mockReturnValue(deleteResult);
+        // Mock the final resolution of the chain (the second .eq() call)
+        deleteQB.eq.mockReturnValueOnce(deleteQB).mockResolvedValueOnce({ error: null });
 
         mockSupabaseClient.from
           .mockReturnValueOnce(findQB)
-          .mockReturnValueOnce(deleteChain);
+          .mockReturnValueOnce(deleteQB);
 
         const result = await service.deleteDepartment('d1', 'inst-1');
         expect(result).toEqual({ success: true });

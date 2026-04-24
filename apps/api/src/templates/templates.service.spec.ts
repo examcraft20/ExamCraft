@@ -35,7 +35,7 @@ describe('TemplatesService', () => {
       eq: jest.fn().mockReturnThis(),
       single: jest.fn(),
       order: jest.fn().mockReturnThis(),
-      returns: jest.fn(),
+      returns: jest.fn().mockReturnThis(),
     };
     Object.assign(qb, overrides);
     return qb;
@@ -75,7 +75,7 @@ describe('TemplatesService', () => {
         },
       ];
       const qb = createQueryBuilder({
-        order: jest.fn().mockResolvedValue({ data: mockTemplates, error: null }),
+        returns: jest.fn().mockResolvedValue({ data: mockTemplates, error: null }),
       });
       mockSupabaseClient.from.mockReturnValue(qb);
 
@@ -91,7 +91,7 @@ describe('TemplatesService', () => {
 
     it('should throw InternalServerErrorException when query fails', async () => {
       const qb = createQueryBuilder({
-        order: jest.fn().mockResolvedValue({ data: null, error: new Error('DB fail') }),
+        returns: jest.fn().mockResolvedValue({ data: null, error: new Error('DB fail') }),
       });
       mockSupabaseClient.from.mockReturnValue(qb);
 
@@ -116,7 +116,7 @@ describe('TemplatesService', () => {
         created_at: '2025-01-01',
       };
       const qb = createQueryBuilder({
-        order: jest.fn().mockResolvedValue({ data: [mockTemplate], error: null }),
+        returns: jest.fn().mockResolvedValue({ data: [mockTemplate], error: null }),
       });
       mockSupabaseClient.from.mockReturnValue(qb);
 

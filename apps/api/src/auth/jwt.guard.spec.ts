@@ -24,15 +24,17 @@ describe('SupabaseAuthGuard (jwt.guard)', () => {
   });
 
   function createMockContext(authHeader?: string): ExecutionContext {
+    const request = {
+      headers: {
+        authorization: authHeader,
+      },
+      currentUser: undefined,
+    };
     return {
       getHandler: jest.fn(),
       getClass: jest.fn(),
       switchToHttp: () => ({
-        getRequest: () => ({
-          headers: {
-            authorization: authHeader,
-          },
-        }),
+        getRequest: () => request,
       }),
     } as unknown as ExecutionContext;
   }

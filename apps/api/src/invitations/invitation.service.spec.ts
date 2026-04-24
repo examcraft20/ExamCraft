@@ -27,7 +27,7 @@ describe("InvitationService — acceptInvitation", () => {
       error: null,
     });
 
-    const from = vi
+    const from = jest
       .fn()
       .mockImplementationOnce(() => ({
         select: () => ({

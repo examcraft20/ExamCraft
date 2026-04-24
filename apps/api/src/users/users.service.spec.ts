@@ -28,7 +28,7 @@ describe('UsersService', () => {
       eq: jest.fn().mockReturnThis(),
       single: jest.fn(),
       order: jest.fn().mockReturnThis(),
-      returns: jest.fn(),
+      returns: jest.fn().mockReturnThis(),
     };
     Object.assign(qb, overrides);
     return qb;
@@ -78,10 +78,10 @@ describe('UsersService', () => {
       ];
 
       const usersQB = createQueryBuilder({
-        order: jest.fn().mockResolvedValue({ data: mockUsers, error: null }),
+        returns: jest.fn().mockResolvedValue({ data: mockUsers, error: null }),
       });
       const invitationsQB = createQueryBuilder({
-        order: jest.fn().mockResolvedValue({ data: mockInvitations, error: null }),
+        returns: jest.fn().mockResolvedValue({ data: mockInvitations, error: null }),
       });
 
       mockSupabaseClient.from
@@ -98,10 +98,10 @@ describe('UsersService', () => {
 
     it('should throw InternalServerErrorException when query fails', async () => {
       const errorQB = createQueryBuilder({
-        order: jest.fn().mockResolvedValue({ data: null, error: new Error('DB fail') }),
+        returns: jest.fn().mockResolvedValue({ data: null, error: new Error('DB fail') }),
       });
       const okQB = createQueryBuilder({
-        order: jest.fn().mockResolvedValue({ data: [], error: null }),
+        returns: jest.fn().mockResolvedValue({ data: [], error: null }),
       });
 
       mockSupabaseClient.from.mockReturnValueOnce(errorQB).mockReturnValueOnce(okQB);

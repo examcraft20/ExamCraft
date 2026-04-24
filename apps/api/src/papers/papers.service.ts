@@ -241,6 +241,8 @@ export class PapersService {
     this.notifyReviewers(institutionContext, data.title, currentUser.email).catch(e =>
       this.logger.warn("notifyReviewers failed silently", e)
     );
+
+    return data;
   }
 
   async publishPaper(

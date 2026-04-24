@@ -53,19 +53,16 @@ describe('InstitutionBrandingService', () => {
         }),
       });
       const updateQB = createQueryBuilder({
-        eq: jest.fn().mockReturnThis(),
-      });
-      const updateResult = {
+        update: jest.fn().mockReturnThis(),
         eq: jest.fn().mockResolvedValue({ error: null }),
-      };
-      updateQB.eq = jest.fn().mockReturnValue(updateResult);
+      });
 
       mockSupabaseClient.from.mockReturnValueOnce(fetchQB).mockReturnValueOnce(updateQB);
 
       await service.updateInstitutionBranding('inst-1', { secondaryColor: '#00ff00' });
 
       // Verify the update was called with merged branding
-      const updateCall = updateQB.eq.mock.calls[0] || updateResult.eq.mock.calls[0];
+      const updateCall = updateQB.eq.mock.calls[0];
       // The update method should have been called
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('institutions');
     });
@@ -78,12 +75,9 @@ describe('InstitutionBrandingService', () => {
         }),
       });
       const updateQB = createQueryBuilder({
-        eq: jest.fn().mockReturnThis(),
-      });
-      const updateResult = {
+        update: jest.fn().mockReturnThis(),
         eq: jest.fn().mockResolvedValue({ error: null }),
-      };
-      updateQB.eq = jest.fn().mockReturnValue(updateResult);
+      });
 
       mockSupabaseClient.from.mockReturnValueOnce(fetchQB).mockReturnValueOnce(updateQB);
 
@@ -98,12 +92,9 @@ describe('InstitutionBrandingService', () => {
         }),
       });
       const updateQB = createQueryBuilder({
-        eq: jest.fn().mockReturnThis(),
-      });
-      const updateResult = {
+        update: jest.fn().mockReturnThis(),
         eq: jest.fn().mockResolvedValue({ error: new Error('Update failed') }),
-      };
-      updateQB.eq = jest.fn().mockReturnValue(updateResult);
+      });
 
       mockSupabaseClient.from.mockReturnValueOnce(fetchQB).mockReturnValueOnce(updateQB);
 
@@ -120,12 +111,9 @@ describe('InstitutionBrandingService', () => {
         }),
       });
       const updateQB = createQueryBuilder({
-        eq: jest.fn().mockReturnThis(),
-      });
-      const updateResult = {
+        update: jest.fn().mockReturnThis(),
         eq: jest.fn().mockResolvedValue({ error: null }),
-      };
-      updateQB.eq = jest.fn().mockReturnValue(updateResult);
+      });
 
       mockSupabaseClient.from.mockReturnValueOnce(fetchQB).mockReturnValueOnce(updateQB);
 

@@ -110,7 +110,8 @@ export class InstitutionMembershipsService {
     const { data, error } = await this.supabaseAdminClient
       .from("role_permissions")
       .select("role_id, permissions(code)")
-      .in("role_id", unachedRoleIds);
+      .in("role_id", unachedRoleIds)
+      .returns<any[]>();
 
     if (error || !data) {
       return Array.from(cachedCodes);

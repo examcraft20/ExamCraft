@@ -1,9 +1,11 @@
-import { Injectable, Inject, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, Inject, InternalServerErrorException, Logger } from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
 
 @Injectable()
 export class AnalyticsService {
+  private readonly logger = new Logger(AnalyticsService.name);
+
   constructor(
     @Inject(SUPABASE_ADMIN_CLIENT)
     private readonly supabaseAdminClient: SupabaseClient
@@ -16,7 +18,7 @@ export class AnalyticsService {
     );
 
     if (error || !data) {
-      console.error("Analytics RPC Error:", error);
+      this.logger.error("Analytics RPC Error", { error, institutionId });
       throw new InternalServerErrorException("Failed to read analytics metrics");
     }
 

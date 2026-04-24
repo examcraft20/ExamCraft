@@ -5,7 +5,7 @@ import { SupabaseAuthGuard } from "../auth/guards/supabase-auth.guard";
 import { InstitutionContextGuard } from "../institution/guards/institution-context.guard";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { Body } from "@nestjs/common";
-import { CurrentInstitution } from "../common/decorators/current-institution.decorator";
+import { CurrentInstitution } from "../common/decorators/institution-context.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { InstitutionContext, AuthenticatedUser } from "../common/types/authenticated-request";
 

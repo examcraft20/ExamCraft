@@ -18,4 +18,8 @@ CREATE POLICY feature_flags_select ON feature_flags
     OR public.current_user_has_permission(institution_id, 'settings.read')
   );
 
-SELECT trigger_updated_at('feature_flags');
+drop trigger if exists trg_feature_flags_set_updated_at on feature_flags;
+create trigger trg_feature_flags_set_updated_at
+before update on feature_flags
+for each row
+execute function public.set_updated_at();

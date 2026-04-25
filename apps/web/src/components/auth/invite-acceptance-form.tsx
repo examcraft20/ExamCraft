@@ -60,7 +60,7 @@ export function InviteAcceptanceForm({
           body: JSON.stringify({ token, password, displayName })
         }
       );
-      toast.success(`Invitation accepted for ${response.email}. redirection to workspace...`);
+      toast.success(`Invitation accepted for ${response.email}. Redirecting to workspace...`);
       router.push("/dashboard");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to accept invitation";
@@ -72,8 +72,23 @@ export function InviteAcceptanceForm({
   if (initialError) {
     return (
       <AuthShell
+        eyebrow="Invitation Access"
         title="Invalid Invitation"
         subtitle="The invitation token is invalid or has expired."
+        brandTitle={
+          <>
+            Invitation token
+            <br />
+            <span>could not be verified.</span>
+          </>
+        }
+        brandSubtitle="This access link is no longer valid. Ask your institution admin to resend the invitation."
+        features={[
+          "Time-bound invitation tokens",
+          "Institution-scoped workspace access",
+          "Role-based onboarding validation",
+          "Secure identity provisioning"
+        ]}
       >
         <div className="p-8 rounded-2xl bg-red-500/10 border border-red-500/20 text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />

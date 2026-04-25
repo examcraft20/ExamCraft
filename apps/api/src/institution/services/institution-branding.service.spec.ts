@@ -62,7 +62,6 @@ describe('InstitutionBrandingService', () => {
       await service.updateInstitutionBranding('inst-1', { secondaryColor: '#00ff00' });
 
       // Verify the update was called with merged branding
-      const updateCall = updateQB.eq.mock.calls[0];
       // The update method should have been called
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('institutions');
     });

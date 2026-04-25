@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, ReactNode } from "react";
-import { useRouter, redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { getSupabaseBrowserSession } from "@/lib/supabase-browser";
 import { Spinner } from "@examcraft/ui";
 
@@ -82,12 +82,12 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
 
         // If we get here, they are not authorized
         if (isMounted) {
-          redirect("/unauthorized");
+          router.replace("/unauthorized");
         }
       } catch (error) {
         console.error("RoleGuard: Auth check failed with exception:", error);
         if (isMounted) {
-          redirect("/unauthorized");
+          router.replace("/unauthorized");
         }
       } finally {
         if (isMounted) {

@@ -39,6 +39,7 @@ export class AcademicService {
   }
 
   async createDepartment(institutionId: string, dto: CreateDepartmentDto, userId: string) {
+    void userId;
     // Check for duplicate code
     if (dto.code) {
       const { data: existing } = await this.supabase
@@ -122,6 +123,7 @@ export class AcademicService {
   }
 
   async createCourse(institutionId: string, dto: CreateCourseDto, userId: string) {
+    void userId;
     if (dto.code) {
       const { data: existing } = await this.supabase
         .from('institution_courses')
@@ -311,6 +313,7 @@ export class AcademicService {
   }
 
   async createSubject(institutionId: string, dto: CreateSubjectDto, userId: string) {
+    void userId;
     if (dto.code) {
       const { data: existing } = await this.supabase
         .from('institution_subjects')

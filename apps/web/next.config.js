@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
+const enableStandaloneOutput = process.env.NEXT_OUTPUT_STANDALONE === "true";
+
 const nextConfig = {
   reactStrictMode: true,
   distDir: ".next-build",
-  output: "standalone",
+  ...(enableStandaloneOutput ? { output: "standalone" } : {}),
   async headers() {
     return [
       {

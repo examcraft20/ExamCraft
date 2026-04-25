@@ -3,7 +3,7 @@ import { PapersService } from './papers.service';
 import { SUPABASE_ADMIN_CLIENT } from '../supabase/supabase.constants';
 import { TemplatesService } from '../templates/templates.service';
 import { MailerService } from '../mailer/mailer.service';
-import { InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { InstitutionContext, AuthenticatedUser } from '../common/types/authenticated-request';
 
 

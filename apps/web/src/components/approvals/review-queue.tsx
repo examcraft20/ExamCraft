@@ -88,7 +88,7 @@ export function ReviewQueueClient({
               <div className="z-10 w-full md:w-auto mt-2 md:mt-0">
                 <Button 
                   className="w-full md:w-auto bg-white/10 hover:bg-indigo-600 text-white shadow-none hover:shadow-[0_0_20px_rgba(79,70,229,0.3)] border-0 transition-all gap-2"
-                  onClick={() => router.push(`/dashboard/reviewer/review/${paper.id}?institutionId=${institutionId}`)}
+                  onClick={() => router.push(`/dashboard/reviewer_approver/review/${paper.id}?institutionId=${institutionId}`)}
                 >
                   Start Review <ArrowRight size={16} />
                 </Button>

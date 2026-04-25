@@ -113,7 +113,7 @@ export class SyllabusService {
 
   private parseGeminiJson(raw: string): any[] {
     try {
-      let cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+      const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
       const parsed = JSON.parse(cleaned);
       if (!Array.isArray(parsed)) {
         throw new Error("Expected an array of questions");

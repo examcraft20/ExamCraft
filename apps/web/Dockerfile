@@ -40,6 +40,7 @@ COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
 
 # Build the Next.js web application
+ENV NEXT_OUTPUT_STANDALONE=true
 RUN pnpm turbo run build --filter=web...
 
 # -------------------------

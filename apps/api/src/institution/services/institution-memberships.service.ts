@@ -2,7 +2,7 @@ import { Inject, Injectable, InternalServerErrorException, NotFoundException } f
 import { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ADMIN_CLIENT } from "../../supabase/supabase.constants";
 import { InstitutionContext } from "../../common/types/authenticated-request";
-import { TenantMembershipSummary, MembershipRow, PermissionRow } from "../institution.types";
+import { TenantMembershipSummary, MembershipRow } from "../institution.types";
 
 @Injectable()
 export class InstitutionMembershipsService {

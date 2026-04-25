@@ -4,7 +4,7 @@ import { SUPABASE_ADMIN_CLIENT } from '../supabase/supabase.constants';
 import { MailerService } from '../mailer/mailer.service';
 import { QuestionsService } from '../questions/questions.service';
 import { TemplatesService } from '../templates/templates.service';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { InstitutionContext, AuthenticatedUser } from '../common/types/authenticated-request';
 
 
@@ -100,7 +100,7 @@ describe('ApprovalsService', () => {
   describe('reject()', () => {
     it('requires a rejection reason, throws BadRequestException if empty', async () => {
       // Typically DTO validation handles empty reasons, but we can simulate defensive checks or just pass the DTO
-      qbWrapper: {
+      {
         const qb = mockSupabaseClient.from('institution_papers');
         qb.single.mockResolvedValueOnce({
           data: { id: 'paper-1', status: 'submitted', metadata: {}, created_by_user_id: 'u-1', title: 'Test Paper' },

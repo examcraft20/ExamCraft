@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_ADMIN_CLIENT } from '../supabase/supabase.constants';
 import { UnauthorizedException } from '@nestjs/common';
 
@@ -18,13 +17,13 @@ class MockAuthService {
     return { user: { id: 'user-3', app_metadata: { role: payload.role, tenant_id: payload.tenant_id } } };
   }
   async getUserRole(userId: string) {
+    void userId;
     return 'faculty';
   }
 }
 
 describe('AuthService', () => {
   let service: MockAuthService;
-  let supabaseAdmin: any;
 
   beforeEach(async () => {
     const mockSupabaseAdmin = {};
@@ -37,7 +36,6 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<MockAuthService>('AuthService');
-    supabaseAdmin = module.get(SUPABASE_ADMIN_CLIENT);
   });
 
   describe('validateUser()', () => {

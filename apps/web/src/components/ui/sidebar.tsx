@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useInstitution } from "@/hooks/use-institution";
 import {
@@ -21,9 +21,9 @@ import {
   Users,
   Palette,
   CheckSquare,
-  BookMarked,
   PieChart,
-  LineChart,
+  Flag,
+  LucideIcon,
 } from "lucide-react";
 import {
   getSupabaseBrowserClient,
@@ -33,27 +33,22 @@ import { env } from "@/lib/env";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [email, setEmail] = useState<string | null>(null);
   const { institutionId, institutionName, isLoading } = useInstitution();
-
-  // Determine role from pathname or session metadata
-  // In the new flat structure, we might need a hook, but for now we attempt to detect from path
-  // or use the session. Since layouts are role-guarded, the role is implicit.
-  // For the sidebar to be dynamic, it needs to know the context.
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+
     async function loadUser() {
       const session = await getSupabaseBrowserSession();
-      if (!isMounted) return;
-      if (session?.user?.email) {
-        setEmail(session.user.email);
-        const user = session.user;
-        setRole((user && 'user_metadata' in user ? user.user_metadata?.role : undefined) || "faculty");
-      }
+      if (!isMounted || !session?.user) return;
+
+      const userMetadata = session.user.user_metadata || {};
+      const metadataRole =
+        typeof userMetadata.role === "string" ? userMetadata.role : undefined;
+      setRole(metadataRole || "faculty");
     }
+
     void loadUser();
     return () => {
       isMounted = false;
@@ -66,6 +61,7 @@ export function DashboardSidebar() {
         const supabase = getSupabaseBrowserClient();
         await supabase.auth.signOut();
       }
+
       localStorage.removeItem("examcraft_institution");
       sessionStorage.clear();
       window.location.href = "/login";
@@ -106,11 +102,13 @@ export function DashboardSidebar() {
       <div className="mx-4 border-t border-white/5" />
 
       <nav className="flex-1 px-4 pt-4 flex flex-col gap-1 overflow-y-auto pb-12">
-        {navItems.map((item, iIdx) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+        {navItems.map((item, index) => {
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/");
+
           return (
             <SidebarLink
-              key={iIdx}
+              key={index}
               href={item.href}
               icon={item.icon}
               label={item.label}
@@ -141,7 +139,7 @@ function SidebarLink({
   isActive,
 }: {
   href: string;
-  icon: any;
+  icon: LucideIcon;
   label: string;
   isActive: boolean;
 }) {
@@ -154,7 +152,9 @@ function SidebarLink({
     >
       <div className="flex items-center gap-4 relative z-10">
         <div
-          className={`transition-all duration-300 ${isActive ? "text-white" : "text-[#8e9cba] group-hover:text-white"}`}
+          className={`transition-all duration-300 ${
+            isActive ? "text-white" : "text-[#8e9cba] group-hover:text-white"
+          }`}
         >
           <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
         </div>
@@ -191,6 +191,7 @@ function getRoleLinks(role: string, instId: string | null) {
         { label: "Settings", href: `/profile${query}`, icon: Settings },
       ];
     case "reviewer":
+    case "reviewer_approver":
       return [
         { label: "Dashboard", href: `/dashboard${query}`, icon: Gauge },
         { label: "Review Queue", href: `/review${query}`, icon: ClipboardList },
@@ -217,6 +218,3 @@ function getRoleLinks(role: string, instId: string | null) {
       return [{ label: "Dashboard", href: `/dashboard${query}`, icon: Gauge }];
   }
 }
-
-// Missing import fix for Flag
-import { Flag } from "lucide-react";

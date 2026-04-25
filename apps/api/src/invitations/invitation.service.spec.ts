@@ -2,15 +2,6 @@ import { BadRequestException, InternalServerErrorException } from "@nestjs/commo
 
 import { InvitationService } from "./invitation.service";
 
-/** Helper that creates a minimal Supabase `from()` returning a chain ending in `.single()` */
-function singleReturning(data: any, error: any = null) {
-  return jest.fn().mockReturnValue({
-    select: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockReturnThis(),
-    single: jest.fn().mockResolvedValue({ data, error }),
-  });
-}
-
 const mockMailer = () => ({
   sendFacultyInvite: jest.fn().mockResolvedValue(undefined),
   sendPaperSubmittedForReview: jest.fn(),
@@ -156,4 +147,3 @@ describe("InvitationService — createInvitation", () => {
     ).rejects.toBeInstanceOf(InternalServerErrorException);
   });
 });
-

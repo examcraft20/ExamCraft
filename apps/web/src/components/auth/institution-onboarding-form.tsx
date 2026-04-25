@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { apiRequest } from '#api';
 import { getSupabaseBrowserClient } from '../../lib/supabase-browser';
 import { AuthShell } from './auth-shell';
-import { env } from '../../lib/env';
 
 type SessionState = {
   accessToken: string;
@@ -31,7 +30,7 @@ const ROLES = [
     description: 'Create and manage exam papers'
   },
   {
-    id: 'reviewer',
+    id: 'reviewer_approver',
     name: 'Reviewer',
     description: 'Approve papers before publishing'
   }

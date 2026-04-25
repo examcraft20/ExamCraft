@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { Controller, Get, Post, Param, InternalServerErrorException } from "@nestjs/common";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
 import { CurrentInstitution } from "../common/decorators/institution-context.decorator";

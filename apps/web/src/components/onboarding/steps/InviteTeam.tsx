@@ -17,7 +17,7 @@ interface InviteTeamProps {
 const roleOptions = [
   { value: "faculty", label: "Faculty" },
   { value: "academic_head", label: "Academic Head" },
-  { value: "reviewer", label: "Reviewer" }
+  { value: "reviewer_approver", label: "Reviewer" }
 ];
 
 export function InviteTeam({ data, onChange }: InviteTeamProps) {
@@ -43,7 +43,7 @@ export function InviteTeam({ data, onChange }: InviteTeamProps) {
         return "bg-indigo-500/10 border-indigo-500/30 text-indigo-300";
       case "academic_head":
         return "bg-emerald-500/10 border-emerald-500/30 text-emerald-300";
-      case "reviewer":
+      case "reviewer_approver":
         return "bg-violet-500/10 border-violet-500/30 text-violet-300";
       default:
         return "bg-slate-500/10 border-slate-500/30 text-slate-300";

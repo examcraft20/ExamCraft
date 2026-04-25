@@ -72,7 +72,7 @@ export function QuestionForm({
       unitNumber !== (initialData?.unitNumber || null);
     
     setIsDirty(hasChanged);
-  }, [title, questionBody, questionType, difficulty, bloomLevel, unitNumber, initialData]);
+  }, [title, questionBody, questionType, difficulty, bloomLevel, subject, unitNumber, initialData]);
 
   // Handle beforeunload
   useEffect(() => {
@@ -106,7 +106,7 @@ export function QuestionForm({
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [title, questionBody, bloomLevel, questionType, mcqOptions]);
+  }, [title, questionBody, subject, bloomLevel, questionType, mcqOptions]);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();

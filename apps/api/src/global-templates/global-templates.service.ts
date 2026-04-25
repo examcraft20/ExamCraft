@@ -1,4 +1,4 @@
-import { Injectable, Inject, InternalServerErrorException, NotFoundException, BadRequestException } from "@nestjs/common";
+import { Injectable, Inject, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ADMIN_CLIENT } from "../supabase/supabase.constants";
 

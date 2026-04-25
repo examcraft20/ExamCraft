@@ -12,6 +12,8 @@ interface Question {
   id: string;
   title: string;
   subject: string;
+  questionType?: "subjective" | "mcq" | "true_false";
+  questionBody?: string;
   bloomLevel: string;
   difficulty: string;
   tags: string[];
@@ -141,10 +143,14 @@ export function EditQuestionPageClient({ id }: { id: string }) {
         initialData={{
           id: question.id,
           title: question.title,
-          questionType: "subjective",
-          questionBody: "",
+          questionType:
+            question.questionType === "mcq" || question.questionType === "true_false"
+              ? question.questionType
+              : "subjective",
+          questionBody: question.questionBody || "",
           difficulty: question.difficulty,
           bloomLevel: question.bloomLevel,
+          subject: question.subject,
           unitNumber: question.unitNumber || null,
           courseOutcomes: question.courseOutcomes || [],
           tags: question.tags || []

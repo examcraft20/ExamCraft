@@ -13,6 +13,7 @@ export class AdminAuditService {
   }
 
   async writeLog(log: Record<string, unknown>) {
+    void log;
     // Stub: audit log writes for platform-level events
     return { success: true, logId: `audit-${Date.now()}` };
   }

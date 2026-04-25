@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button, Input, StatusMessage } from "@examcraft/ui";
-import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { env } from "@/lib/env";
 import Link from "next/link";
 
@@ -25,7 +24,7 @@ export function ForgotPasswordForm() {
     const redirectUrl = `${window.location.origin}/reset-password/update`;
 
     try {
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/v1/auth/password-reset`, {
+      const response = await fetch(`${env.apiUrl}/v1/auth/password-reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, redirectTo: redirectUrl })

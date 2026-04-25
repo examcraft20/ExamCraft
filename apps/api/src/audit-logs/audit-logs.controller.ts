@@ -1,5 +1,4 @@
 import { Controller, Get, InternalServerErrorException } from "@nestjs/common";
-import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
 import { CurrentInstitution } from "../common/decorators/institution-context.decorator";
 import { InstitutionContext } from "../common/types/authenticated-request";

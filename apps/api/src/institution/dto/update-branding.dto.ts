@@ -1,6 +1,5 @@
 import {
   IsOptional,
-  IsString,
   IsObject,
   IsUrl,
   Matches,

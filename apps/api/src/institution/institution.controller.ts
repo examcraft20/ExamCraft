@@ -12,7 +12,6 @@ import {
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { CurrentInstitution } from "../common/decorators/institution-context.decorator";
 import type { AuthenticatedUser, InstitutionContext } from "../common/types/authenticated-request";
-import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
 import { SupabaseAuthGuard } from "../auth/guards/supabase-auth.guard";
 import { UseInstitutionAuthorization } from "./guards/institution-context.guard";

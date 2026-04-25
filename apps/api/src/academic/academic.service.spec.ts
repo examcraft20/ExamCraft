@@ -243,7 +243,7 @@ describe('AcademicService', () => {
           .mockReturnValueOnce(subjectQB) // initial from call for subjects
           .mockReturnValueOnce(assignmentQB); // faculty_subject_assignments
 
-        const result = await service.findAllSubjects(facultyContext);
+        await service.findAllSubjects(facultyContext);
         expect(mockSupabaseClient.from).toHaveBeenCalledWith('faculty_subject_assignments');
       });
 

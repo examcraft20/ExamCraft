@@ -8,10 +8,8 @@ import {
   Delete,
   Param,
   Query,
-  UseGuards,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
-import { SupabaseAuthGuard } from "../auth/guards/supabase-auth.guard";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { RequireRoles } from "../auth/decorators/roles.decorator";
 import { CurrentInstitution } from "../common/decorators/institution-context.decorator";
